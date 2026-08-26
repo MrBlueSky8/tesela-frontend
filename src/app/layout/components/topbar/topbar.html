@@ -1,0 +1,40 @@
+<header class="topbar">
+  <button
+    class="ib topbar__toggle"
+    type="button"
+    (click)="toggleSidebar()"
+    [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Contraer menu'"
+  >
+    <i
+      class="ti"
+      [class.ti-layout-sidebar-left-expand]="collapsed()"
+      [class.ti-layout-sidebar-left-collapse]="!collapsed()"
+      aria-hidden="true"
+    ></i>
+  </button>
+
+  <nav class="bc" aria-label="Ruta de navegacion">
+    @for (crumb of crumbs(); track crumb.label; let i = $index) {
+      @if (i > 0) {
+        <span class="bc-sep" aria-hidden="true">&rsaquo;</span>
+      }
+
+      @if (i === lastIndex()) {
+        <span class="bc-cur">{{ crumb.label }}</span>
+      } @else if (crumb.route; as route) {
+        <a [routerLink]="route">{{ crumb.label }}</a>
+      } @else {
+        <span>{{ crumb.label }}</span>
+      }
+    }
+  </nav>
+
+  <div class="tb-r">
+    <button class="ib" type="button" aria-label="Notificaciones">
+      <i class="ti ti-bell" aria-hidden="true"></i>
+    </button>
+    <button class="ib" type="button" aria-label="Ayuda">
+      <i class="ti ti-help-circle" aria-hidden="true"></i>
+    </button>
+  </div>
+</header>

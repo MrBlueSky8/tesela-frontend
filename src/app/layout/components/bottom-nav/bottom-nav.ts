@@ -149,16 +149,6 @@ export class BottomNav {
     return item.exact ? this.router.url === item.route : this.router.url.startsWith(item.route);
   }
 
-  getSvgIconSrc(item: SidebarItemModel): string | null {
-    const icon = item.icon;
-
-    if (!icon || icon.type !== 'svg') {
-      return null;
-    }
-
-    return this.isItemActive(item) && icon.activeSrc ? icon.activeSrc : icon.src;
-  }
-
   private finishSheetDrag(event: PointerEvent, cancelled = false): void {
     if (!this.isSheetDragging()) {
       return;

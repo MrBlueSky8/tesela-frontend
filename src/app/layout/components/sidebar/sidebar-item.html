@@ -1,100 +1,63 @@
-<div class="sidebar-item" [class.sidebar-item--divider]="item().dividerAfter">
-  @if (item().route; as route) {
-    <a
-      class="sidebar-item__link"
-      [routerLink]="route"
-      routerLinkActive="sidebar-item__link--active"
-      [routerLinkActiveOptions]="{ exact: item().exact ?? false }"
-      [title]="collapsed() ? item().label : ''"
-    >
-      @if (item().icon; as icon) {
-        @if (icon.type === 'material') {
-          <span
-            class="sidebar-item__icon"
-            [class.material-symbols-rounded]="!icon.filled"
-            [class.material-symbols-rounded-filled]="icon.filled"
-            aria-hidden="true"
-          >
-            {{ icon.name }}
-          </span>
-        } @else {
-          <img
-            class="sidebar-item__icon sidebar-item__icon--svg"
-            [src]="getSvgIconSrc()"
-            [alt]="icon.alt || item().label"
-          />
-        }
+@if (item().route; as route) {
+  <a
+    class="ni"
+    [routerLink]="route"
+    routerLinkActive="on"
+    [routerLinkActiveOptions]="{ exact: item().exact ?? false }"
+    [title]="collapsed() ? item().label : ''"
+  >
+    @if (item().icon; as icon) {
+      @if (icon.type === 'tabler') {
+        <i class="ti ti-{{ icon.name }}" aria-hidden="true"></i>
+      } @else {
+        <span class="ni-dot" [style.background]="icon.color" aria-hidden="true"></span>
       }
+    }
 
-      @if (!collapsed()) {
-        <span class="sidebar-item__label">{{ item().label }}</span>
+    @if (!collapsed()) {
+      <span class="ni-label">{{ item().label }}</span>
+    }
+  </a>
+} @else {
+  <button
+    class="ni"
+    type="button"
+    (click)="onClick()"
+    [title]="collapsed() ? item().label : ''"
+    [attr.aria-expanded]="item().children?.length ? expandedId() === item().id : null"
+  >
+    @if (item().icon; as icon) {
+      @if (icon.type === 'tabler') {
+        <i class="ti ti-{{ icon.name }}" aria-hidden="true"></i>
+      } @else {
+        <span class="ni-dot" [style.background]="icon.color" aria-hidden="true"></span>
       }
-    </a>
-  } @else {
-    <button
-      class="sidebar-item__link"
-      type="button"
-      (click)="onClick()"
-      [title]="collapsed() ? item().label : ''"
-      [attr.aria-expanded]="item().children?.length ? expandedId() === item().id : null"
-    >
-      @if (item().icon; as icon) {
-        @if (icon.type === 'material') {
-          <span
-            class="sidebar-item__icon"
-            [class.material-symbols-rounded]="!icon.filled"
-            [class.material-symbols-rounded-filled]="icon.filled"
-            aria-hidden="true"
-          >
-            {{ icon.name }}
-          </span>
-        } @else {
-          <img
-            class="sidebar-item__icon sidebar-item__icon--svg"
-            [src]="getSvgIconSrc()"
-            [alt]="icon.alt || item().label"
-          />
-        }
-      }
+    }
 
-      @if (!collapsed()) {
-        <span class="sidebar-item__label">{{ item().label }}</span>
-      }
+    @if (!collapsed()) {
+      <span class="ni-label">{{ item().label }}</span>
+    }
 
-      @if (item().children?.length && !collapsed()) {
-        <span
-          class="sidebar-item__chevron"
-          [class.sidebar-item__chevron--expanded]="expandedId() === item().id"
-          aria-hidden="true"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </span>
-      }
-    </button>
-  }
+    @if (item().children?.length && !collapsed()) {
+      <i
+        class="ti ti-chevron-down ni-chev"
+        [class.ni-chev--open]="expandedId() === item().id"
+        aria-hidden="true"
+      ></i>
+    }
+  </button>
+}
 
-  @if (item().children?.length && expandedId() === item().id && !collapsed()) {
-    <div class="sidebar-item__children">
-      @for (child of item().children; track child.id) {
-        <app-sidebar-item
-          [item]="child"
-          [collapsed]="collapsed()"
-          [expandedId]="expandedId()"
-          (toggleExpand)="toggleExpand.emit($event)"
-          (actionTriggered)="actionTriggered.emit($event)"
-        />
-      }
-    </div>
-  }
-</div>
+@if (item().children?.length && expandedId() === item().id && !collapsed()) {
+  <div class="ni-children">
+    @for (child of item().children; track child.id) {
+      <app-sidebar-item
+        [item]="child"
+        [collapsed]="collapsed()"
+        [expandedId]="expandedId()"
+        (toggleExpand)="toggleExpand.emit($event)"
+        (actionTriggered)="actionTriggered.emit($event)"
+      />
+    }
+  </div>
+}

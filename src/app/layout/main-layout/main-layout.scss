@@ -1,34 +1,49 @@
-.main-layout {
+.shell {
   display: flex;
   min-height: 100vh;
-  background: var(--ts-bg-app);
+  background: var(--ts-bg);
 }
 
-.main-layout__content {
+.main {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
 }
 
-.main-layout__page {
+.content {
   flex: 1;
-  padding: 1.5rem;
+  padding: 22px 28px;
 }
 
-@media (max-width: 1023.98px) {
-  .main-layout__page {
-    padding: 1rem;
-    padding-bottom: calc(1rem + var(--ts-bottom-nav-height) + 0.5rem);
+/* Escritorio: alto fijo, el scroll vive dentro de `.content` como en las maquetas */
+@media (min-width: 1024px) {
+  .shell {
+    height: 100vh;
+    overflow: hidden;
   }
 
-  app-sidebar {
+  .main {
+    height: 100vh;
+  }
+
+  .content {
+    overflow-y: auto;
+  }
+
+  app-bottom-nav {
     display: none;
   }
 }
 
-@media (min-width: 1024px) {
-  app-bottom-nav {
+/* Movil: sin sidebar, la pagina scrollea y el bottom nav ocupa el pie */
+@media (max-width: 1023.98px) {
+  .content {
+    padding: 16px;
+    padding-bottom: calc(16px + var(--ts-bottom-nav-height));
+  }
+
+  app-sidebar {
     display: none;
   }
 }

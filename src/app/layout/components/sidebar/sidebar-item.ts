@@ -41,14 +41,4 @@ export class SidebarItem {
 
     return item.exact ? this.router.url === item.route : this.router.url.startsWith(item.route);
   }
-
-  getSvgIconSrc(): string | null {
-    const icon = this.item().icon;
-
-    if (!icon || icon.type !== 'svg') {
-      return null;
-    }
-
-    return this.isRouteActive() && icon.activeSrc ? icon.activeSrc : icon.src;
-  }
 }

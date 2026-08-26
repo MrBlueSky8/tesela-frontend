@@ -1,10 +1,10 @@
 import { Injectable, computed, inject } from '@angular/core';
 
 import {
-  ADMIN_PLATAFORMA_SIDEBAR_ITEMS,
-  USUARIO_SIDEBAR_ITEMS,
+  ADMIN_PLATAFORMA_SIDEBAR_SECTIONS,
+  USUARIO_SIDEBAR_SECTIONS,
 } from '../../layout/components/sidebar/sidebar.config';
-import { GlobalRole, SidebarItem } from '../models/sidebar-item';
+import { GlobalRole, SidebarItem, SidebarSection } from '../models/sidebar-item';
 import { TokenService } from './token-service';
 
 /** Cantidad maxima de tabs fijos del bottom nav antes del boton "Mas". */
@@ -18,19 +18,24 @@ export class SidebarAccessService {
 
   readonly globalRole = this.tokenService.role;
 
-  readonly sidebarItems = computed<SidebarItem[]>(() => {
+  readonly sidebarSections = computed<SidebarSection[]>(() => {
     const globalRole = this.globalRole();
 
     if (globalRole === 'ADMIN_PLATAFORMA') {
-      return this.filterItemsByAccess(ADMIN_PLATAFORMA_SIDEBAR_ITEMS, globalRole);
+      return this.filterSectionsByAccess(ADMIN_PLATAFORMA_SIDEBAR_SECTIONS, globalRole);
     }
 
     if (globalRole === 'USUARIO') {
-      return this.filterItemsByAccess(USUARIO_SIDEBAR_ITEMS, globalRole);
+      return this.filterSectionsByAccess(USUARIO_SIDEBAR_SECTIONS, globalRole);
     }
 
     return [];
   });
+
+  /** Todos los items visibles, sin agrupar. Lo consume el bottom nav movil. */
+  readonly sidebarItems = computed<SidebarItem[]>(() =>
+    this.sidebarSections().flatMap((section) => section.items),
+  );
 
   readonly bottomNavItems = computed(() =>
     [...this.sidebarItems()]
@@ -47,6 +52,18 @@ export class SidebarAccessService {
 
     return this.sidebarItems().filter((item) => !primaryIds.has(item.id));
   });
+
+  private filterSectionsByAccess(
+    sections: SidebarSection[],
+    globalRole: GlobalRole | null,
+  ): SidebarSection[] {
+    return sections
+      .map((section) => ({
+        ...section,
+        items: this.filterItemsByAccess(section.items, globalRole),
+      }))
+      .filter((section) => section.items.length > 0);
+  }
 
   private filterItemsByAccess(items: SidebarItem[], globalRole: GlobalRole | null): SidebarItem[] {
     return items

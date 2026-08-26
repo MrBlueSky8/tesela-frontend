@@ -26,12 +26,14 @@ export const routes: Routes = [
       {
         path: 'home',
         component: Home,
+        data: { breadcrumb: 'Inicio' },
       },
       {
         path: 'companies',
         component: PlaceholderPage,
         canActivate: [authGuard],
         data: {
+          breadcrumb: 'Empresas',
           title: 'Empresas',
           description: 'Listado y administracion de empresas.',
         },
@@ -41,9 +43,46 @@ export const routes: Routes = [
         component: PlaceholderPage,
         canActivate: [authGuard],
         data: {
+          breadcrumb: 'Mi perfil',
           title: 'Mi perfil',
           description: 'Datos de la cuenta y preferencias.',
         },
+      },
+      {
+        path: 'modulos',
+        data: { breadcrumb: 'Modulos' },
+        children: [
+          {
+            path: 'compatibilidad',
+            component: PlaceholderPage,
+            canActivate: [authGuard],
+            data: {
+              breadcrumb: 'Compatibilidad laboral',
+              title: 'Compatibilidad laboral',
+              description: 'Modulo 1: evaluacion de compatibilidad entre puesto y persona.',
+            },
+          },
+          {
+            path: 'accesibilidad',
+            component: PlaceholderPage,
+            canActivate: [authGuard],
+            data: {
+              breadcrumb: 'Accesibilidad',
+              title: 'Accesibilidad',
+              description: 'Modulo 2: diagnostico de accesibilidad de las instalaciones.',
+            },
+          },
+          {
+            path: 'inclusion',
+            component: PlaceholderPage,
+            canActivate: [authGuard],
+            data: {
+              breadcrumb: 'Inclusion',
+              title: 'Inclusion',
+              description: 'Modulo 3: cultura inclusiva de la organizacion.',
+            },
+          },
+        ],
       },
     ],
   },

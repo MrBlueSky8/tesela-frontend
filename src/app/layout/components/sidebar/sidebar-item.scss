@@ -1,57 +1,57 @@
-.sidebar-item {
-  display: flex;
-  flex-direction: column;
+:host {
+  display: block;
 }
 
-.sidebar-item--divider {
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid var(--ts-border-soft);
-}
-
-.sidebar-item__link {
+.ni {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 8px;
   width: 100%;
-  padding: 0.6rem 0.7rem;
-  background: none;
+  margin-bottom: 1px;
+  padding: 7px;
   border: 0;
-  border-radius: var(--ts-radius-sm);
-  color: var(--ts-text-secondary);
-  font-size: 0.9rem;
-  font-weight: 500;
+  border-radius: 6px;
+  background: none;
+  color: rgba(255, 255, 255, 0.48);
+  font-family: inherit;
+  font-size: 12.5px;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  transition: all 0.12s;
 }
 
-.sidebar-item__link:hover {
-  background: var(--ts-bg-muted);
-  color: var(--ts-text-primary);
+.ni:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
 }
 
-.sidebar-item__link--active {
-  background: rgba(31, 43, 91, 0.09);
-  color: var(--ts-brand-primary);
-  font-weight: 600;
+.ni.on {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-weight: 500;
 }
 
-.sidebar-item__icon {
-  flex: 0 0 auto;
-  font-size: 22px;
+.ni i {
+  flex-shrink: 0;
+  font-size: 16px;
+  opacity: 0.7;
 }
 
-.sidebar-item__icon--svg {
-  width: 22px;
-  height: 22px;
+.ni.on i {
+  opacity: 1;
 }
 
-.sidebar-item__label {
+.ni-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  margin: 0 4px;
+  border-radius: 50%;
+}
+
+.ni-label {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -59,19 +59,23 @@
   white-space: nowrap;
 }
 
-.sidebar-item__chevron {
-  display: inline-flex;
-  transition: transform 0.15s ease;
+.ni-chev {
+  font-size: 14px;
+  transition: transform 0.15s;
 }
 
-.sidebar-item__chevron--expanded {
+.ni-chev--open {
   transform: rotate(180deg);
 }
 
-.sidebar-item__children {
+.ni-children {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding-left: 1.6rem;
-  margin-top: 0.15rem;
+  padding-left: 22px;
+}
+
+/* Sidebar compactado: solo iconos, centrados */
+:host-context(.sb--collapsed) .ni {
+  justify-content: center;
+  padding: 8px 0;
 }

@@ -1,18 +1,7 @@
 .placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  max-width: 34rem;
-  padding: 3rem 1.5rem;
-  text-align: center;
+  max-width: 640px;
 }
 
-.placeholder__icon {
-  font-size: 40px;
-  color: var(--ts-text-secondary);
-}
-
-.placeholder__text {
-  color: var(--ts-text-secondary);
+.placeholder p {
+  margin-bottom: 0;
 }

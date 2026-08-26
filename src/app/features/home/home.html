@@ -1,29 +1,45 @@
-<section class="ts-page">
-  <header>
-    <h1 class="ts-page-title">Inicio</h1>
-    <p class="ts-page-subtitle">Sesion iniciada correctamente.</p>
-  </header>
+<div class="ph">
+  <div class="ph-t">Inicio</div>
+  <div class="ph-s">Sesion iniciada correctamente.</div>
+</div>
 
-  <div class="ts-card home__summary">
-    <dl class="home__list">
-      <div class="home__row">
-        <dt>Usuario</dt>
-        <dd>{{ username() }}</dd>
+<div class="det-card home__card">
+  <div class="det-grid">
+    <div>
+      <div class="det-lbl">Usuario</div>
+      <div class="det-val">{{ username() }}</div>
+    </div>
+
+    <div>
+      <div class="det-lbl">Rol global</div>
+      <div>
+        <span class="bdg bdg-green">
+          <i class="ti ti-shield-check" aria-hidden="true"></i>
+          {{ roleLabel() }}
+        </span>
       </div>
+    </div>
 
-      <div class="home__row">
-        <dt>Rol global</dt>
-        <dd>{{ roleLabel() }}</dd>
-      </div>
-
-      @if (userPublicId(); as publicId) {
-        <div class="home__row">
-          <dt>Public ID</dt>
-          <dd>
-            <code>{{ publicId }}</code>
-          </dd>
+    @if (userPublicId(); as publicId) {
+      <div>
+        <div class="det-lbl">Public ID</div>
+        <div class="det-val">
+          <code>{{ publicId }}</code>
         </div>
-      }
-    </dl>
+      </div>
+    }
+
+    <div>
+      <div class="det-lbl">Estado</div>
+      <div class="det-val">Sesion activa</div>
+    </div>
   </div>
-</section>
+</div>
+
+<div class="ia-hint home__hint">
+  <i class="ti ti-sparkles" aria-hidden="true"></i>
+  <span>
+    Esta pantalla es provisional: muestra los datos que viajan dentro del token de acceso. El
+    dashboard real se construira sobre los modulos de evaluacion.
+  </span>
+</div>

@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { SidebarItem as SidebarItemModel } from '../../../core/models/sidebar-item';
+import { LayoutStateService } from '../../../core/services/layout-state-service';
 import { SidebarAccessService } from '../../../core/services/sidebar-access-service';
 import { TokenService } from '../../../core/services/token-service';
 import { AuthService } from '../../../features/auth/auth-service';
@@ -20,46 +21,30 @@ const ROLE_LABELS: Record<string, string> = {
 })
 export class Sidebar {
   private readonly sidebarAccessService = inject(SidebarAccessService);
+  private readonly layoutState = inject(LayoutStateService);
   private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
 
-  readonly collapsed = signal(false);
+  readonly collapsed = this.layoutState.sidebarCollapsed;
 
-  /** Acordeon controlado: solo un item con submenus abierto a la vez. */
-  readonly openItemId = signal<string | null>(null);
-
-  readonly items = this.sidebarAccessService.sidebarItems;
+  readonly sections = this.sidebarAccessService.sidebarSections;
   readonly globalRole = this.sidebarAccessService.globalRole;
 
   readonly username = computed(() => this.tokenService.username() ?? 'Usuario');
 
-  readonly initial = computed(() => this.username().charAt(0).toUpperCase());
+  /** Iniciales para el avatar del pie: dos letras del correo. */
+  readonly initials = computed(() =>
+    this.username()
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .slice(0, 2)
+      .toUpperCase(),
+  );
 
-  readonly contextLabel = computed(() => {
+  readonly roleLabel = computed(() => {
     const role = this.globalRole();
     return role ? (ROLE_LABELS[role] ?? role) : 'Sin rol global';
   });
-
-  toggleCollapse(): void {
-    this.collapsed.update((value) => !value);
-
-    if (this.collapsed()) {
-      this.openItemId.set(null);
-    }
-  }
-
-  handleToggle(id: string): void {
-    // Si el sidebar esta compactado, primero lo expandimos y abrimos el acordeon.
-    if (this.collapsed()) {
-      this.collapsed.set(false);
-      this.openItemId.set(id);
-      return;
-    }
-
-    // Single-open: abre este y cierra los demas; si ya estaba abierto, lo cierra.
-    this.openItemId.update((current) => (current === id ? null : id));
-  }
 
   handleAction(item: SidebarItemModel): void {
     if (item.action === 'logout') {

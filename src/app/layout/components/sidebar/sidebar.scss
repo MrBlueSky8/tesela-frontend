@@ -1,81 +1,130 @@
-.sidebar {
+.sb {
   display: flex;
   flex-direction: column;
-  flex: 0 0 var(--ts-sidebar-width);
+  flex-shrink: 0;
   width: var(--ts-sidebar-width);
   height: 100vh;
-  position: sticky;
-  top: 0;
-  padding: 1rem 0.75rem;
-  background: var(--ts-bg-surface);
-  border-right: 1px solid var(--ts-border-soft);
-  transition:
-    width 0.18s ease,
-    flex-basis 0.18s ease;
+  background: var(--ts-sidebar);
+  overflow-y: auto;
+  transition: width 0.18s ease;
 }
 
-.sidebar--collapsed {
-  flex-basis: var(--ts-sidebar-width-collapsed);
+.sb--collapsed {
   width: var(--ts-sidebar-width-collapsed);
 }
 
-.sidebar__header {
-  margin-bottom: 1rem;
+/* ---- Logo ---- */
+.sb-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.sidebar__brand {
+.sb--collapsed .sb-logo {
+  padding: 16px 0;
+  text-align: center;
+}
+
+.sb-logo-t {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+
+.sb-logo-s {
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.sb-logo-mark {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+
+/* ---- Navegacion ---- */
+.sb-nav {
+  flex: 1;
+}
+
+.sb-sec {
+  padding: 13px 11px 2px;
+}
+
+.sb--collapsed .sb-sec {
+  padding: 10px 8px 2px;
+}
+
+.sb-lbl {
+  margin-bottom: 2px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Separador sutil entre secciones cuando el sidebar esta compactado */
+.sb--collapsed .sb-sec + .sb-sec {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ---- Pie: usuario ---- */
+.sb-foot {
+  margin-top: auto;
+  padding: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sb-user {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  width: 100%;
-  padding: 0.5rem;
-  background: none;
-  border: 0;
-  border-radius: var(--ts-radius-base);
-  text-align: left;
-  cursor: pointer;
+  gap: 9px;
+  padding: 7px;
+  border-radius: 6px;
 }
 
-.sidebar__brand:hover {
-  background: var(--ts-bg-muted);
+.sb--collapsed .sb-user {
+  justify-content: center;
+  padding: 4px 0;
 }
 
-.sidebar__brand-mark {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--ts-radius-sm);
-  background: var(--ts-brand-primary);
-  color: var(--ts-text-inverse);
+.sb-ava {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ts-purple-light);
+  color: var(--ts-purple-dark);
+  font-size: 11px;
   font-weight: 700;
 }
 
-.sidebar__brand-copy {
-  display: flex;
-  flex-direction: column;
+.sb-user-copy {
   min-width: 0;
 }
 
-.sidebar__brand-name {
-  font-size: 0.875rem;
+.sb-uname {
   overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sidebar__brand-role {
-  color: var(--ts-text-secondary);
-  font-size: 0.72rem;
+.sb-urole {
   overflow: hidden;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.3);
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.sidebar__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  overflow-y: auto;
 }

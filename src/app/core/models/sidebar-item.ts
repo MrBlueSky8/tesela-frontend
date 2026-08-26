@@ -4,17 +4,19 @@
  */
 export type GlobalRole = 'ADMIN_PLATAFORMA' | 'USUARIO';
 
+/**
+ * Iconografia del sidebar. Los mockups de referencia usan dos formas:
+ * el webfont de Tabler para acciones y un punto de color para los modulos.
+ */
 export type SidebarIcon =
   | {
-      type: 'material';
+      type: 'tabler';
+      /** Nombre sin el prefijo `ti-`, p. ej. `briefcase`. */
       name: string;
-      filled?: boolean;
     }
   | {
-      type: 'svg';
-      src: string;
-      activeSrc?: string;
-      alt?: string;
+      type: 'dot';
+      color: string;
     };
 
 export interface SidebarItem {
@@ -23,7 +25,6 @@ export interface SidebarItem {
   icon?: SidebarIcon;
   route?: string;
   exact?: boolean;
-  dividerAfter?: boolean;
   children?: SidebarItem[];
 
   allowedGlobalRoles?: GlobalRole[];
@@ -35,4 +36,15 @@ export interface SidebarItem {
 
   /** Orden dentro del bottom nav movil: menor numero, mayor prioridad. */
   mobileOrder?: number;
+}
+
+/**
+ * Grupo de items bajo un rotulo en mayusculas ("General", "Modulos"...),
+ * tal como aparece en las maquetas.
+ */
+export interface SidebarSection {
+  id: string;
+  /** Rotulo del grupo. Si se omite, el grupo se pinta sin encabezado. */
+  label?: string;
+  items: SidebarItem[];
 }

@@ -1,133 +1,93 @@
-<nav class="bottom-nav" aria-label="Navegacion movil principal">
+<nav class="bn" aria-label="Navegacion movil principal">
   @for (item of primaryItems(); track item.id) {
     <button
-      class="bottom-nav__item"
+      class="bn-item"
       type="button"
-      [class.bottom-nav__item--active]="isItemActive(item)"
+      [class.bn-item--active]="isItemActive(item)"
       (click)="onPrimaryItemClick(item)"
     >
       @if (item.icon; as icon) {
-        @if (icon.type === 'material') {
-          <span
-            class="bottom-nav__icon"
-            [class.material-symbols-rounded]="!icon.filled"
-            [class.material-symbols-rounded-filled]="icon.filled"
-            aria-hidden="true"
-          >
-            {{ icon.name }}
-          </span>
+        @if (icon.type === 'tabler') {
+          <i class="ti ti-{{ icon.name }} bn-ico" aria-hidden="true"></i>
         } @else {
-          <img
-            class="bottom-nav__icon bottom-nav__icon--svg"
-            [src]="getSvgIconSrc(item)"
-            [alt]="icon.alt || item.label"
-          />
+          <span class="bn-dot" [style.background]="icon.color" aria-hidden="true"></span>
         }
       }
 
-      <span class="bottom-nav__label">{{ item.label }}</span>
+      <span class="bn-label">{{ item.label }}</span>
     </button>
   }
 
   @if (overflowItems().length) {
     <button
-      class="bottom-nav__item"
+      class="bn-item"
       type="button"
-      [class.bottom-nav__item--active]="isOverflowMenuOpen()"
+      [class.bn-item--active]="isOverflowMenuOpen()"
       (click)="onOverflowClick()"
     >
-      <span class="bottom-nav__icon material-symbols-rounded" aria-hidden="true"> more_horiz </span>
-
-      <span class="bottom-nav__label">Mas</span>
+      <i class="ti ti-dots bn-ico" aria-hidden="true"></i>
+      <span class="bn-label">Mas</span>
     </button>
   }
 </nav>
 
 @if (isMenuOpen()) {
-  <button
-    class="bottom-nav__backdrop"
-    type="button"
-    aria-label="Cerrar menu"
-    (click)="closeMenu()"
-  ></button>
+  <button class="bn-backdrop" type="button" aria-label="Cerrar menu" (click)="closeMenu()"></button>
 
   <section
-    class="bottom-nav__sheet"
-    [class.bottom-nav__sheet--dragging]="isSheetDragging()"
+    class="bn-sheet"
+    [class.bn-sheet--dragging]="isSheetDragging()"
     [style.transform]="sheetTransform()"
     aria-label="Menu movil secundario"
   >
     <div
-      class="bottom-nav__sheet-grip"
+      class="bn-sheet-grip"
       (pointerdown)="onSheetPointerDown($event)"
       (pointermove)="onSheetPointerMove($event)"
       (pointerup)="onSheetPointerUp($event)"
       (pointercancel)="onSheetPointerCancel($event)"
     >
-      <div class="bottom-nav__sheet-handle"></div>
+      <div class="bn-sheet-handle"></div>
 
-      <div class="bottom-nav__sheet-header">
+      <div class="bn-sheet-hdr">
         @if (canGoBack()) {
-          <button
-            class="bottom-nav__sheet-action"
-            type="button"
-            aria-label="Volver"
-            (click)="goBack()"
-          >
-            <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+          <button class="ib" type="button" aria-label="Volver" (click)="goBack()">
+            <i class="ti ti-arrow-left" aria-hidden="true"></i>
           </button>
         } @else {
-          <span class="bottom-nav__sheet-spacer"></span>
+          <span class="bn-sheet-spacer"></span>
         }
 
-        <strong class="bottom-nav__sheet-title">{{ currentMenu()?.title }}</strong>
+        <strong class="bn-sheet-title">{{ currentMenu()?.title }}</strong>
 
-        <button
-          class="bottom-nav__sheet-action"
-          type="button"
-          aria-label="Cerrar"
-          (click)="closeMenu()"
-        >
-          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        <button class="ib" type="button" aria-label="Cerrar" (click)="closeMenu()">
+          <i class="ti ti-x" aria-hidden="true"></i>
         </button>
       </div>
     </div>
 
-    <div class="bottom-nav__sheet-body">
+    <div class="bn-sheet-body ts-scroll">
       @for (item of currentMenu()?.items ?? []; track item.id) {
         <button
-          class="bottom-nav__sheet-item"
+          class="bn-sheet-item"
           type="button"
-          [class.bottom-nav__sheet-item--active]="isItemActive(item)"
+          [class.bn-sheet-item--active]="isItemActive(item)"
           (click)="onMenuItemClick(item)"
         >
-          <span class="bottom-nav__sheet-item-main">
+          <span class="bn-sheet-main">
             @if (item.icon; as icon) {
-              @if (icon.type === 'material') {
-                <span
-                  class="bottom-nav__sheet-icon"
-                  [class.material-symbols-rounded]="!icon.filled"
-                  [class.material-symbols-rounded-filled]="icon.filled"
-                  aria-hidden="true"
-                >
-                  {{ icon.name }}
-                </span>
+              @if (icon.type === 'tabler') {
+                <i class="ti ti-{{ icon.name }} bn-sheet-ico" aria-hidden="true"></i>
               } @else {
-                <img
-                  class="bottom-nav__sheet-icon bottom-nav__sheet-icon--svg"
-                  [src]="getSvgIconSrc(item)"
-                  [alt]="icon.alt || item.label"
-                />
+                <span class="bn-dot" [style.background]="icon.color" aria-hidden="true"></span>
               }
             }
 
-            <span class="bottom-nav__sheet-label">{{ item.label }}</span>
+            <span class="bn-sheet-label">{{ item.label }}</span>
           </span>
 
           @if (item.children?.length) {
-            <span class="bottom-nav__sheet-chevron material-symbols-rounded" aria-hidden="true">
-              chevron_right
-            </span>
+            <i class="ti ti-chevron-right bn-sheet-chev" aria-hidden="true"></i>
           }
         </button>
       }
