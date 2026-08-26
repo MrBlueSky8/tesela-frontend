@@ -1,0 +1,31 @@
+<aside class="sidebar" [class.sidebar--collapsed]="collapsed()">
+  <div class="sidebar__header">
+    <button
+      class="sidebar__brand"
+      type="button"
+      (click)="toggleCollapse()"
+      [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Contraer menu'"
+    >
+      <span class="sidebar__brand-mark">{{ initial() }}</span>
+
+      @if (!collapsed()) {
+        <span class="sidebar__brand-copy">
+          <strong class="sidebar__brand-name">{{ username() }}</strong>
+          <small class="sidebar__brand-role">{{ contextLabel() }}</small>
+        </span>
+      }
+    </button>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Navegacion principal">
+    @for (item of items(); track item.id) {
+      <app-sidebar-item
+        [item]="item"
+        [collapsed]="collapsed()"
+        [expandedId]="openItemId()"
+        (toggleExpand)="handleToggle($event)"
+        (actionTriggered)="handleAction($event)"
+      />
+    }
+  </nav>
+</aside>

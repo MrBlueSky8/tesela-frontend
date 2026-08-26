@@ -1,1 +1,175 @@
-/* You can add global styles to this file, and also import other style files */
+/* =========================================
+   Tesela - Estilos globales
+   Base neutra: tokens provisionales hasta que
+   exista manual de marca.
+   ========================================= */
+
+:root {
+  /* Marca (provisional) */
+  --ts-brand-primary: #1f2b5b;
+  --ts-brand-primary-strong: #16214a;
+  --ts-brand-accent: #2563eb;
+
+  /* Neutros */
+  --ts-bg-app: #f6f8fb;
+  --ts-bg-surface: #ffffff;
+  --ts-bg-muted: #eef2f7;
+  --ts-border-soft: #dbe2ec;
+  --ts-text-primary: #0f172a;
+  --ts-text-secondary: #667085;
+  --ts-text-inverse: #ffffff;
+
+  /* Funcionales */
+  --ts-success: #16a34a;
+  --ts-warning: #d97706;
+  --ts-error: #dc2626;
+  --ts-info: #2563eb;
+
+  /* Radios y sombras */
+  --ts-radius-sm: 8px;
+  --ts-radius-base: 12px;
+  --ts-radius-card: 16px;
+
+  --ts-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+  --ts-shadow-md: 0 6px 20px rgba(15, 23, 42, 0.07);
+  --ts-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
+
+  /* Layout */
+  --ts-sidebar-width: 16rem;
+  --ts-sidebar-width-collapsed: 4.5rem;
+  --ts-bottom-nav-height: 4.25rem;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ts-bg-app);
+  color: var(--ts-text-primary);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--ts-brand-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   Iconos - Material Symbols Rounded
+   ========================================= */
+.material-symbols-rounded,
+.material-symbols-rounded-filled {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    'opsz' 24,
+    'wght' 500,
+    'GRAD' 0,
+    'FILL' 0;
+}
+
+.material-symbols-rounded-filled {
+  font-variation-settings:
+    'opsz' 24,
+    'wght' 500,
+    'GRAD' 0,
+    'FILL' 1;
+}
+
+/* =========================================
+   Utilidades de pagina
+   ========================================= */
+.ts-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ts-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ts-page-subtitle {
+  color: var(--ts-text-secondary);
+}
+
+.ts-card {
+  background: var(--ts-bg-surface);
+  border: 1px solid var(--ts-border-soft);
+  border-radius: var(--ts-radius-card);
+  box-shadow: var(--ts-shadow-sm);
+  padding: 1.5rem;
+}
+
+/* Accesibilidad: foco visible consistente */
+:focus-visible {
+  outline: 2px solid var(--ts-brand-accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar discreta */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--ts-border-soft);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

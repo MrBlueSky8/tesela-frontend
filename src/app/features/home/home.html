@@ -1,0 +1,29 @@
+<section class="ts-page">
+  <header>
+    <h1 class="ts-page-title">Inicio</h1>
+    <p class="ts-page-subtitle">Sesion iniciada correctamente.</p>
+  </header>
+
+  <div class="ts-card home__summary">
+    <dl class="home__list">
+      <div class="home__row">
+        <dt>Usuario</dt>
+        <dd>{{ username() }}</dd>
+      </div>
+
+      <div class="home__row">
+        <dt>Rol global</dt>
+        <dd>{{ roleLabel() }}</dd>
+      </div>
+
+      @if (userPublicId(); as publicId) {
+        <div class="home__row">
+          <dt>Public ID</dt>
+          <dd>
+            <code>{{ publicId }}</code>
+          </dd>
+        </div>
+      }
+    </dl>
+  </div>
+</section>
