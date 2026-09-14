@@ -1,0 +1,26 @@
+<div class="modal-bg" (click)="onBackdropClick($event)" (keydown)="onKeydown($event)">
+  <div
+    #card
+    class="modal {{ sizeClass() }}"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    [attr.aria-labelledby]="labelId()"
+  >
+    @if (title(); as modalTitle) {
+      <div class="modal-hdr">
+        @if (icon(); as iconName) {
+          <i class="ti ti-{{ iconName }}" aria-hidden="true"></i>
+        }
+
+        <div class="modal-title" [id]="titleId()">{{ modalTitle }}</div>
+
+        <button class="modal-close" type="button" aria-label="Cerrar" (click)="closed.emit()">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </div>
+    }
+
+    <ng-content />
+  </div>
+</div>

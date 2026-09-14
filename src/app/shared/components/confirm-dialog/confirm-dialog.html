@@ -1,0 +1,36 @@
+<app-modal-shell size="narrow" [labelledBy]="titleId()" (closed)="cancelled.emit()">
+  <div class="confirm-body">
+    <div class="confirm-ico confirm-ico--{{ tone() }}">
+      <i class="ti ti-{{ iconName() }}" aria-hidden="true"></i>
+    </div>
+
+    <div class="confirm-t" [id]="titleId()">{{ title() }}</div>
+
+    @if (message(); as text) {
+      <div class="confirm-s">{{ text }}</div>
+    }
+  </div>
+
+  <div class="modal-foot confirm-foot">
+    <button
+      class="btn btn-outline btn-sm"
+      type="button"
+      [disabled]="busy()"
+      (click)="cancelled.emit()"
+    >
+      {{ cancelLabel() }}
+    </button>
+
+    <button
+      [class]="confirmButtonClass()"
+      type="button"
+      [disabled]="busy()"
+      (click)="confirmed.emit()"
+    >
+      @if (busy()) {
+        <span class="ts-spinner" aria-hidden="true"></span>
+      }
+      {{ confirmLabel() }}
+    </button>
+  </div>
+</app-modal-shell>

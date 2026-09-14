@@ -1,0 +1,5 @@
+/* Las clases del modal son globales (styles.scss) para que cualquier pantalla
+   pueda pegar markup del mockup sin envolverlo en este componente. */
+:host {
+  display: contents;
+}

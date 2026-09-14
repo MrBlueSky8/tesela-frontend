@@ -5,5 +5,5 @@ export const environment = {
    * o se reemplaza este valor por la URL publica del backend.
    */
   base: '',
-  platform: 'TESELA' as const,
+  platform: 'ADAPTIA' as const,
 };

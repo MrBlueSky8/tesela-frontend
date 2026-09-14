@@ -5,5 +5,5 @@ export const environment = {
    * rutas relativas (/api/...) y las resuelva el proxy de `ng serve`.
    */
   base: '',
-  platform: 'TESELA' as const,
+  platform: 'ADAPTIA' as const,
 };

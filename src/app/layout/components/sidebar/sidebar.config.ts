@@ -2,8 +2,9 @@ import { SidebarSection } from '../../../core/models/sidebar-item';
 
 /**
  * Navegacion por rol global, agrupada en secciones como en las maquetas.
- * El filtrado por rol de empresa (ADMIN_EMPRESA / EVALUADOR) sigue pendiente:
- * TeselaBackend aun no expone el rol de empresa del usuario autenticado.
+ * El filtrado por privilegios de empresa (ADMIN_GENERAL, CRUCE_PERFILES...)
+ * sigue pendiente: TeselaBackend aun no expone los privilegios del usuario
+ * autenticado en la empresa seleccionada.
  */
 export const ADMIN_PLATAFORMA_SIDEBAR_SECTIONS: SidebarSection[] = [
   {
