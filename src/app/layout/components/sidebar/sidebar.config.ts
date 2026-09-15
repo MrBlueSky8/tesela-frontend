@@ -1,12 +1,12 @@
 import { SidebarSection } from '../../../core/models/sidebar-item';
 
 /**
- * Navegacion por rol global, agrupada en secciones como en las maquetas.
- * El filtrado por privilegios de empresa (ADMIN_GENERAL, CRUCE_PERFILES...)
- * sigue pendiente: TeselaBackend aun no expone los privilegios del usuario
- * autenticado en la empresa seleccionada.
+ * Navegacion unica, agrupada en secciones como en las maquetas.
+ * Cada item se filtra por rol global (`allowedGlobalRoles`) y, si depende de
+ * la empresa seleccionada, por privilegios efectivos (`allowedPrivileges`).
+ * Un administrador de plataforma recibe todos los privilegios desde /my-access.
  */
-export const ADMIN_PLATAFORMA_SIDEBAR_SECTIONS: SidebarSection[] = [
+export const SIDEBAR_SECTIONS: SidebarSection[] = [
   {
     id: 'general',
     label: 'General',
@@ -16,10 +16,24 @@ export const ADMIN_PLATAFORMA_SIDEBAR_SECTIONS: SidebarSection[] = [
         label: 'Inicio',
         icon: { type: 'tabler', name: 'layout-dashboard' },
         route: '/home',
-        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
         mobileTab: true,
         mobileOrder: 1,
       },
+      {
+        id: 'my-companies',
+        label: 'Mis empresas',
+        icon: { type: 'tabler', name: 'building-community' },
+        route: '/companies',
+        allowedGlobalRoles: ['USUARIO'],
+        mobileTab: true,
+        mobileOrder: 2,
+      },
+    ],
+  },
+  {
+    id: 'plataforma',
+    label: 'Plataforma',
+    items: [
       {
         id: 'companies',
         label: 'Empresas',
@@ -32,78 +46,37 @@ export const ADMIN_PLATAFORMA_SIDEBAR_SECTIONS: SidebarSection[] = [
     ],
   },
   {
-    id: 'modulos',
-    label: 'Modulos',
+    id: 'gestion',
+    label: 'Gestion',
     items: [
       {
-        id: 'modulo-compatibilidad',
-        label: 'Compatibilidad laboral',
-        icon: { type: 'dot', color: 'var(--ts-green)' },
-        route: '/modulos/compatibilidad',
-        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
+        id: 'company-profile',
+        label: 'Mi empresa',
+        icon: { type: 'tabler', name: 'building' },
+        route: '/empresa',
+        exact: true,
+        allowedPrivileges: ['ADMIN_GENERAL'],
       },
       {
-        id: 'modulo-accesibilidad',
-        label: 'Accesibilidad',
-        icon: { type: 'dot', color: 'var(--ts-amber)' },
-        route: '/modulos/accesibilidad',
-        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
+        id: 'company-users',
+        label: 'Usuarios',
+        icon: { type: 'tabler', name: 'users' },
+        route: '/empresa/usuarios',
+        allowedPrivileges: ['ADMIN_GENERAL'],
       },
       {
-        id: 'modulo-inclusion',
-        label: 'Inclusion',
-        icon: { type: 'dot', color: 'var(--ts-purple)' },
-        route: '/modulos/inclusion',
-        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
-      },
-    ],
-  },
-  {
-    id: 'cuenta',
-    label: 'Cuenta',
-    items: [
-      {
-        id: 'profile',
-        label: 'Mi perfil',
-        icon: { type: 'tabler', name: 'user' },
-        route: '/profile',
-        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
-        mobileTab: true,
-        mobileOrder: 3,
+        id: 'company-positions',
+        label: 'Puestos',
+        icon: { type: 'tabler', name: 'briefcase' },
+        route: '/empresa/puestos',
+        allowedPrivileges: ['ADMIN_GENERAL'],
       },
       {
-        id: 'logout',
-        label: 'Cerrar sesion',
-        icon: { type: 'tabler', name: 'logout' },
-        action: 'logout',
-        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
-      },
-    ],
-  },
-];
-
-export const USUARIO_SIDEBAR_SECTIONS: SidebarSection[] = [
-  {
-    id: 'general',
-    label: 'General',
-    items: [
-      {
-        id: 'home',
-        label: 'Inicio',
-        icon: { type: 'tabler', name: 'layout-dashboard' },
-        route: '/home',
-        allowedGlobalRoles: ['USUARIO'],
-        mobileTab: true,
-        mobileOrder: 1,
-      },
-      {
-        id: 'companies',
-        label: 'Mis empresas',
-        icon: { type: 'tabler', name: 'building-community' },
-        route: '/companies',
-        allowedGlobalRoles: ['USUARIO'],
-        mobileTab: true,
-        mobileOrder: 2,
+        id: 'company-sites',
+        label: 'Sedes',
+        icon: { type: 'tabler', name: 'map-pin' },
+        route: '/empresa/sedes',
+        allowedPrivileges: ['ADMIN_GENERAL'],
       },
     ],
   },
@@ -116,21 +89,21 @@ export const USUARIO_SIDEBAR_SECTIONS: SidebarSection[] = [
         label: 'Compatibilidad laboral',
         icon: { type: 'dot', color: 'var(--ts-green)' },
         route: '/modulos/compatibilidad',
-        allowedGlobalRoles: ['USUARIO'],
+        allowedPrivileges: ['CRUCE_PERFILES'],
       },
       {
         id: 'modulo-accesibilidad',
         label: 'Accesibilidad',
         icon: { type: 'dot', color: 'var(--ts-amber)' },
         route: '/modulos/accesibilidad',
-        allowedGlobalRoles: ['USUARIO'],
+        allowedPrivileges: ['PLANES_ACCESIBILIDAD'],
       },
       {
         id: 'modulo-inclusion',
         label: 'Inclusion',
         icon: { type: 'dot', color: 'var(--ts-purple)' },
         route: '/modulos/inclusion',
-        allowedGlobalRoles: ['USUARIO'],
+        allowedPrivileges: ['AJUSTES_RAZONABLES'],
       },
     ],
   },
@@ -143,7 +116,6 @@ export const USUARIO_SIDEBAR_SECTIONS: SidebarSection[] = [
         label: 'Mi perfil',
         icon: { type: 'tabler', name: 'user' },
         route: '/profile',
-        allowedGlobalRoles: ['USUARIO'],
         mobileTab: true,
         mobileOrder: 3,
       },
@@ -152,7 +124,6 @@ export const USUARIO_SIDEBAR_SECTIONS: SidebarSection[] = [
         label: 'Cerrar sesion',
         icon: { type: 'tabler', name: 'logout' },
         action: 'logout',
-        allowedGlobalRoles: ['USUARIO'],
       },
     ],
   },

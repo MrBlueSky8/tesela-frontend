@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { CompanyContextService } from '../../core/services/company-context-service';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { Sidebar } from '../components/sidebar/sidebar';
 import { Topbar } from '../components/topbar/topbar';
@@ -16,4 +17,10 @@ import { Topbar } from '../components/topbar/topbar';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
-export class MainLayout {}
+export class MainLayout {
+  constructor() {
+    // Carga la empresa guardada (o la unica del usuario) para que el sidebar
+    // muestre la gestion y los modulos sin esperar a una ruta protegida.
+    inject(CompanyContextService).restore().subscribe();
+  }
+}

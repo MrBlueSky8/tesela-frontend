@@ -1,3 +1,5 @@
+import { CompanyPrivilege } from './company';
+
 /**
  * Roles globales emitidos por TeselaBackend en el claim `authorities`
  * (role/init/GlobalRoleInitializer).
@@ -28,6 +30,12 @@ export interface SidebarItem {
   children?: SidebarItem[];
 
   allowedGlobalRoles?: GlobalRole[];
+
+  /**
+   * Si se define, el item exige una empresa seleccionada y al menos uno de
+   * estos privilegios efectivos en ella.
+   */
+  allowedPrivileges?: CompanyPrivilege[];
 
   action?: 'logout';
 

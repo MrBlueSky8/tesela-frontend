@@ -41,6 +41,14 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
       );
 
       return refreshRequest$.pipe(
+        // Solo un refresh fallido cierra la sesion. Si la peticion reintentada
+        // vuelve a fallar (p. ej. 403 por falta de privilegio en la empresa),
+        // ese error llega tal cual al llamador sin desloguear.
+        catchError((refreshError) => {
+          authService.logout();
+          void router.navigate(['/login']);
+          return throwError(() => refreshError);
+        }),
         switchMap((tokens) =>
           next(
             req.clone({
@@ -50,11 +58,6 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
             }),
           ),
         ),
-        catchError((refreshError) => {
-          authService.logout();
-          void router.navigate(['/login']);
-          return throwError(() => refreshError);
-        }),
       );
     }),
   );

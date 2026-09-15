@@ -1,7 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { SidebarItem as SidebarItemModel } from '../../../core/models/sidebar-item';
+import { CompanyContextService } from '../../../core/services/company-context-service';
 import { LayoutStateService } from '../../../core/services/layout-state-service';
 import { SidebarAccessService } from '../../../core/services/sidebar-access-service';
 import { TokenService } from '../../../core/services/token-service';
@@ -15,7 +16,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [SidebarItem],
+  imports: [SidebarItem, RouterLink],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
@@ -25,11 +26,19 @@ export class Sidebar {
   private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
+  private readonly companyContext = inject(CompanyContextService);
 
   readonly collapsed = this.layoutState.sidebarCollapsed;
 
   readonly sections = this.sidebarAccessService.sidebarSections;
   readonly globalRole = this.sidebarAccessService.globalRole;
+
+  readonly company = this.companyContext.company;
+
+  /** Inicial de la empresa para cuando no hay logo o el sidebar esta compactado. */
+  readonly companyInitial = computed(
+    () => this.company()?.nombre.trim().charAt(0).toUpperCase() ?? '',
+  );
 
   readonly username = computed(() => this.tokenService.username() ?? 'Usuario');
 

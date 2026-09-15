@@ -1,0 +1,28 @@
+.company-create {
+  max-width: 760px;
+}
+
+.company-create__alert {
+  margin-bottom: 14px;
+}
+
+.company-create .frow {
+  margin-bottom: 0;
+}
+
+.company-create__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .company-create .frow {
+    grid-template-columns: 1fr;
+  }
+
+  .company-create__actions {
+    flex-direction: column-reverse;
+  }
+}

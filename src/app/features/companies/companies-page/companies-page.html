@@ -1,0 +1,140 @@
+<div class="ph-row">
+  <div>
+    <div class="ph-t">{{ isPlatformAdmin() ? 'Empresas' : 'Mis empresas' }}</div>
+    <div class="ph-s">
+      {{
+        isPlatformAdmin()
+          ? 'Empresas registradas en la plataforma. Selecciona una para gestionarla.'
+          : 'Selecciona la empresa con la que quieres trabajar.'
+      }}
+    </div>
+  </div>
+
+  @if (isPlatformAdmin()) {
+    <a class="btn btn-primary btn-sm" routerLink="/companies/new">
+      <i class="ti ti-plus" aria-hidden="true"></i>
+      Nueva empresa
+    </a>
+  }
+</div>
+
+@if (createdName(); as name) {
+  <p class="alert alert-success companies__alert" role="status">
+    <i class="ti ti-circle-check" aria-hidden="true"></i>
+    <span>La empresa {{ name }} se creo correctamente.</span>
+  </p>
+}
+
+@if (selectError(); as error) {
+  <p class="alert alert-error companies__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+  </p>
+}
+
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando empresas...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error companies__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm companies__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else if (companies().length === 0) {
+  <div class="empty-state">
+    <i class="ti ti-building" aria-hidden="true"></i>
+    @if (isPlatformAdmin()) {
+      <p>Todavia no hay empresas registradas.</p>
+      <a class="btn btn-primary btn-sm" routerLink="/companies/new">Registrar la primera</a>
+    } @else {
+      <p>Aun no perteneces a ninguna empresa. Pide a su administrador que te agregue.</p>
+    }
+  </div>
+} @else {
+  <div class="search-row">
+    <div class="search-wrap">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input
+        class="search-inp"
+        type="search"
+        placeholder="Buscar por nombre, razon social o RUC"
+        aria-label="Buscar empresas"
+        [value]="search()"
+        (input)="onSearch($event)"
+      />
+    </div>
+  </div>
+
+  @if (filteredCompanies().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <p>Ninguna empresa coincide con la busqueda.</p>
+    </div>
+  } @else {
+    <div class="list-tbl">
+      <div class="list-hdr companies__grid" aria-hidden="true">
+        <span>Empresa</span>
+        <span>RUC</span>
+        <span>Estado</span>
+        <span></span>
+      </div>
+
+      <ul class="companies__list">
+        @for (company of filteredCompanies(); track company.publicId) {
+          <li>
+            <button
+              class="list-row list-row--clickable companies__grid companies__row"
+              type="button"
+              [disabled]="!!selectingId()"
+              [attr.aria-current]="company.publicId === currentCompanyId() ? 'true' : null"
+              (click)="selectCompany(company)"
+            >
+              <span class="companies__identity">
+                @if (company.urlLogo) {
+                  <img class="companies__logo" [src]="company.urlLogo" alt="" />
+                } @else {
+                  <span class="companies__logo companies__logo--initial" aria-hidden="true">
+                    {{ initial(company) }}
+                  </span>
+                }
+
+                <span class="companies__copy">
+                  <span class="cell-name">{{ company.nombre }}</span>
+                  <span class="cell-sub">{{ company.razonSocial }}</span>
+                </span>
+              </span>
+
+              <span class="cell-meta">{{ company.ruc }}</span>
+
+              <span>
+                @if (company.status === 'ACTIVE') {
+                  <span class="bdg bdg-green">Activa</span>
+                } @else {
+                  <span class="bdg bdg-gray">Inactiva</span>
+                }
+              </span>
+
+              <span class="companies__action">
+                @if (selectingId() === company.publicId) {
+                  <span class="ts-spinner" aria-hidden="true"></span>
+                } @else if (company.publicId === currentCompanyId()) {
+                  <span class="bdg bdg-purple">
+                    <i class="ti ti-check" aria-hidden="true"></i>
+                    Actual
+                  </span>
+                } @else {
+                  <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+}

@@ -1,0 +1,99 @@
+.companies__alert {
+  margin-bottom: 14px;
+}
+
+.companies__retry {
+  margin-left: auto;
+}
+
+.companies__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.companies__list li:last-child .companies__row {
+  border-bottom: none;
+}
+
+.companies__grid {
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) 90px 70px;
+}
+
+/* La fila es un boton: se resetea para que se vea como .list-row. */
+.companies__row {
+  width: 100%;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.companies__row:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: -2px;
+}
+
+.companies__row:disabled {
+  cursor: progress;
+}
+
+.companies__identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.companies__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.companies__copy .cell-name,
+.companies__copy .cell-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.companies__logo {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.companies__logo--initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-green-light);
+  color: var(--ts-green-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.companies__action {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--ts-text-3);
+}
+
+@media (max-width: 640px) {
+  .companies__grid {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* En movil se quedan la identidad y la accion; RUC y estado sobran. */
+  .companies__grid > :nth-child(2),
+  .companies__grid > :nth-child(3) {
+    display: none;
+  }
+}

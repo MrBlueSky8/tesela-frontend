@@ -8,6 +8,36 @@
     }
   </div>
 
+  @if (company(); as current) {
+    <a
+      class="sb-emp"
+      routerLink="/companies"
+      [title]="collapsed() ? current.nombre : 'Cambiar de empresa'"
+      [attr.aria-label]="'Empresa actual: ' + current.nombre + '. Cambiar de empresa'"
+    >
+      @if (current.urlLogo) {
+        <img class="sb-emp-logo" [src]="current.urlLogo" alt="" />
+      } @else {
+        <span class="sb-emp-logo sb-emp-logo--initial" aria-hidden="true">{{
+          companyInitial()
+        }}</span>
+      }
+
+      @if (!collapsed()) {
+        <span class="sb-emp-copy">
+          <span class="sb-emp-lbl">Empresa</span>
+          <span class="sb-emp-name">{{ current.nombre }}</span>
+        </span>
+        <i class="ti ti-selector sb-emp-chev" aria-hidden="true"></i>
+      }
+    </a>
+  } @else if (!collapsed()) {
+    <a class="sb-emp sb-emp--empty" routerLink="/companies">
+      <i class="ti ti-building" aria-hidden="true"></i>
+      <span class="sb-emp-name">Seleccionar empresa</span>
+    </a>
+  }
+
   <nav class="sb-nav" aria-label="Navegacion principal">
     @for (section of sections(); track section.id) {
       <div class="sb-sec">
