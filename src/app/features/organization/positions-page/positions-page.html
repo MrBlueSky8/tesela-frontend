@@ -1,0 +1,224 @@
+<div class="ph-row">
+  <div>
+    <div class="ph-t">Catalogo de puestos</div>
+    <div class="ph-s">
+      Define los puestos de tu empresa. Solo los puestos registrados aqui podran evaluarse en el
+      Modulo 1.
+    </div>
+  </div>
+
+  <div class="pp__head-actions">
+    <button
+      class="btn btn-outline btn-sm"
+      type="button"
+      [disabled]="isLoading() || !!loadError()"
+      (click)="openDepartments()"
+    >
+      <i class="ti ti-sitemap" aria-hidden="true"></i>
+      Departamentos
+    </button>
+    @if (canCreatePositions()) {
+      <button
+        class="btn btn-teal btn-sm"
+        type="button"
+        [disabled]="isLoading() || !!loadError()"
+        (click)="openNewPosition()"
+      >
+        <i class="ti ti-plus" aria-hidden="true"></i>
+        Nuevo puesto
+      </button>
+    }
+  </div>
+</div>
+
+@if (!canCreatePositions()) {
+  <p class="alert alert-amber pp__alert">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    <span>
+      Los puestos los registra un administrador general de la empresa. Como administrador de
+      plataforma puedes consultarlos, editarlos y gestionar departamentos.
+    </span>
+  </p>
+}
+
+@if (notice(); as message) {
+  <p class="alert alert-success pp__alert" role="status">
+    <i class="ti ti-circle-check" aria-hidden="true"></i>
+    <span>{{ message }}</span>
+  </p>
+}
+
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando catalogo...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error pp__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm pp__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else {
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().total }}</div>
+      <div class="stat-lbl">Puestos activos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().complete }}</div>
+      <div class="stat-lbl">Con descripcion y tareas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().evaluated }}</div>
+      <div class="stat-lbl">Ya evaluados en M1</div>
+    </div>
+  </div>
+
+  @if (departments().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-sitemap" aria-hidden="true"></i>
+      <p>Antes de registrar puestos, crea los departamentos de tu empresa para organizarlos.</p>
+      <button class="btn btn-teal" type="button" (click)="openDepartments()">
+        <i class="ti ti-plus" aria-hidden="true"></i>
+        Crear departamentos
+      </button>
+    </div>
+  } @else if (positions().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-briefcase" aria-hidden="true"></i>
+      <p>
+        Aun no hay puestos registrados.<br />
+        Agrega el primero para que los evaluadores puedan comenzar en el Modulo 1.
+      </p>
+      @if (canCreatePositions()) {
+        <button class="btn btn-teal" type="button" (click)="openNewPosition()">
+          <i class="ti ti-plus" aria-hidden="true"></i>
+          Nuevo puesto
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="search-row pp__toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input
+          class="search-inp"
+          type="search"
+          placeholder="Buscar puesto..."
+          aria-label="Buscar puesto por nombre"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <select
+        class="fsel pp__filter"
+        aria-label="Filtrar por departamento"
+        [value]="departmentFilter()"
+        (change)="onDepartmentFilter($event)"
+      >
+        <option value="">Todos los departamentos</option>
+        @for (department of departments(); track department.publicId) {
+          <option [value]="department.publicId">
+            {{ department.nombre }}{{ department.status === 'INACTIVE' ? ' (inactivo)' : '' }}
+          </option>
+        }
+      </select>
+
+      <select
+        class="fsel pp__filter"
+        aria-label="Filtrar por estado"
+        [value]="statusFilter()"
+        (change)="onStatusFilter($event)"
+      >
+        <option value="ACTIVE">Activos</option>
+        <option value="INACTIVE">Inactivos</option>
+        <option value="ALL">Todos</option>
+      </select>
+    </div>
+
+    <p class="pp__count" role="status">
+      {{ filtered().length }} {{ filtered().length === 1 ? 'puesto' : 'puestos' }}
+    </p>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <p>Ningun puesto coincide con los filtros.</p>
+        <button class="btn btn-outline btn-sm" type="button" (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </div>
+    } @else {
+      <div class="list-tbl">
+        <div class="list-hdr pp__grid" aria-hidden="true">
+          <span>Nombre del puesto</span>
+          <span>Descripcion</span>
+          <span>Estado en M1</span>
+          <span></span>
+        </div>
+
+        <ul class="pp__list">
+          @for (position of filtered(); track position.publicId) {
+            <li>
+              <a class="list-row pp__grid pp__row" [routerLink]="[position.publicId]">
+                <span class="pp__identity">
+                  <span class="cell-name">
+                    {{ position.nombre }}
+                    @if (position.status === 'INACTIVE') {
+                      <span class="bdg bdg-gray">Inactivo</span>
+                    }
+                  </span>
+                  <span class="cell-sub">{{ position.departmentName }}</span>
+                </span>
+
+                <span class="cell-meta pp__summary" [class.empty]="!position.descripcion">
+                  {{ position.descripcion || 'Sin descripcion' }}
+                </span>
+
+                <span>
+                  @if (position.evaluado) {
+                    <span class="bdg bdg-green">
+                      <i class="ti ti-circle-check" aria-hidden="true"></i>
+                      Evaluado
+                    </span>
+                  } @else {
+                    <span class="bdg bdg-gray">Sin evaluar</span>
+                  }
+                </span>
+
+                <span class="pp__chevron" aria-hidden="true">
+                  <i class="ti ti-chevron-right"></i>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+}
+
+@if (formOpen() && company(); as current) {
+  <app-position-form-dialog
+    [companyPublicId]="current.publicId"
+    [departments]="departments()"
+    [conditions]="conditions()"
+    (saved)="onPositionSaved($event)"
+    (departmentCreated)="onDepartmentChanged($event)"
+    (closed)="formOpen.set(false)"
+  />
+}
+
+@if (departmentsOpen() && company(); as current) {
+  <app-departments-dialog
+    [companyPublicId]="current.publicId"
+    [departments]="departments()"
+    [positions]="positions()"
+    (changed)="onDepartmentChanged($event)"
+    (closed)="departmentsOpen.set(false)"
+  />
+}

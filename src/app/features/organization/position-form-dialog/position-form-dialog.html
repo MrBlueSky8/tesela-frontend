@@ -1,0 +1,218 @@
+<app-modal-shell
+  [title]="isEdit() ? 'Editar puesto' : 'Nuevo puesto'"
+  icon="briefcase"
+  size="wide"
+  (closed)="closed.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="modal-body">
+      @if (error(); as message) {
+        <p class="alert alert-error pfd__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      @if (position()?.evaluado) {
+        <p class="alert alert-amber pfd__alert">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          <span>
+            Este puesto ya tiene una evaluacion vigente en el Modulo 1. Editarlo no cambia esa
+            evaluacion: para actualizarla hay que crear una nueva version.
+          </span>
+        </p>
+      }
+
+      <div class="fg">
+        <label class="fl" for="pfd-nombre">Nombre del puesto</label>
+        <input
+          class="fi"
+          id="pfd-nombre"
+          type="text"
+          autocomplete="off"
+          placeholder="Ej.: Cajero, Operario de linea, Supervisor de despacho"
+          formControlName="nombre"
+          [attr.maxlength]="nameMax"
+          [class.invalid]="fieldError('nombre')"
+          [attr.aria-invalid]="!!fieldError('nombre')"
+          [attr.aria-describedby]="fieldError('nombre') ? 'pfd-nombre-error' : 'pfd-nombre-hint'"
+        />
+        @if (fieldError('nombre'); as message) {
+          <span class="fi-err" id="pfd-nombre-error">{{ message }}</span>
+        } @else {
+          <span class="fi-hint" id="pfd-nombre-hint">
+            Usa un nombre descriptivo del rol. No incluyas la sede.
+          </span>
+        }
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="pfd-department">Departamento</label>
+
+        @if (creatingDepartment()) {
+          <div class="pfd__inline">
+            <input
+              #newDepartmentInput
+              class="fi"
+              id="pfd-new-department"
+              type="text"
+              autocomplete="off"
+              aria-label="Nombre del nuevo departamento"
+              placeholder="Nombre del nuevo departamento"
+              maxlength="150"
+              [formControl]="newDepartmentName"
+              (keydown.enter)="$event.preventDefault(); createDepartment()"
+            />
+            <button
+              class="btn btn-primary btn-sm"
+              type="button"
+              [disabled]="departmentBusy()"
+              (click)="createDepartment()"
+            >
+              @if (departmentBusy()) {
+                <span class="ts-spinner" aria-hidden="true"></span>
+              }
+              Crear
+            </button>
+            <button class="btn btn-outline btn-sm" type="button" (click)="cancelNewDepartment()">
+              Cancelar
+            </button>
+          </div>
+          @if (departmentError(); as message) {
+            <span class="fi-err" role="alert">{{ message }}</span>
+          }
+        } @else {
+          <select
+            #departmentSelect
+            class="fsel"
+            id="pfd-department"
+            formControlName="departmentPublicId"
+            [class.invalid]="fieldError('departmentPublicId')"
+            [attr.aria-invalid]="!!fieldError('departmentPublicId')"
+            [attr.aria-describedby]="
+              fieldError('departmentPublicId') ? 'pfd-department-error' : null
+            "
+          >
+            <option value="" disabled>Selecciona un departamento</option>
+            @for (department of departmentOptions(); track department.publicId) {
+              <option [value]="department.publicId">
+                {{ department.nombre }}{{ department.status === 'INACTIVE' ? ' (inactivo)' : '' }}
+              </option>
+            }
+          </select>
+          @if (fieldError('departmentPublicId'); as message) {
+            <span class="fi-err" id="pfd-department-error">{{ message }}</span>
+          } @else if (selectedDepartmentInactive()) {
+            <span class="fi-hint pfd__warn">
+              Este departamento esta inactivo. Puedes conservarlo, pero no mover aqui otros puestos.
+            </span>
+          }
+          <button class="pfd__link" type="button" (click)="startNewDepartment()">
+            <i class="ti ti-plus" aria-hidden="true"></i>
+            Nuevo departamento
+          </button>
+        }
+      </div>
+
+      <div class="pfd__section">
+        <span>Informacion opcional</span>
+      </div>
+
+      <p class="ia-hint pfd__hint">
+        <i class="ti ti-sparkles" aria-hidden="true"></i>
+        <span>
+          Si completas estos campos, la IA los usara como punto de partida al evaluar el puesto en
+          el Modulo 1.
+        </span>
+      </p>
+
+      <div class="fg">
+        <label class="fl" for="pfd-descripcion"
+          >Descripcion <span class="opt">opcional</span></label
+        >
+        <textarea
+          class="fta"
+          id="pfd-descripcion"
+          rows="3"
+          placeholder="Funciones y responsabilidades del puesto"
+          formControlName="descripcion"
+          [class.invalid]="fieldError('descripcion')"
+          [attr.aria-invalid]="!!fieldError('descripcion')"
+          aria-describedby="pfd-descripcion-count"
+        ></textarea>
+        <span class="fi-hint pfd__count" id="pfd-descripcion-count">
+          @if (fieldError('descripcion'); as message) {
+            <span class="fi-err">{{ message }}</span>
+          }
+          {{ length('descripcion') }} / {{ textMax }}
+        </span>
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="pfd-tareas">
+          Tareas principales <span class="opt">opcional</span>
+        </label>
+        <textarea
+          class="fta"
+          id="pfd-tareas"
+          rows="4"
+          placeholder="Una tarea por linea"
+          formControlName="tareasPrincipales"
+          [class.invalid]="fieldError('tareasPrincipales')"
+          [attr.aria-invalid]="!!fieldError('tareasPrincipales')"
+          aria-describedby="pfd-tareas-count"
+        ></textarea>
+        <span class="fi-hint pfd__count" id="pfd-tareas-count">
+          @if (fieldError('tareasPrincipales'); as message) {
+            <span class="fi-err">{{ message }}</span>
+          }
+          {{ length('tareasPrincipales') }} / {{ textMax }}
+        </span>
+      </div>
+
+      <div class="pfd__conditions">
+        <fieldset class="pfd__group">
+          <legend class="pfd__legend">Modalidad</legend>
+          @for (condition of modalidad(); track condition.name) {
+            <label class="chk-lbl">
+              <input
+                class="chk-inp"
+                type="checkbox"
+                [checked]="isConditionSelected(condition.name)"
+                (change)="toggleCondition(condition.name, $event)"
+              />
+              <span>{{ condition.label }}</span>
+            </label>
+          }
+        </fieldset>
+
+        <fieldset class="pfd__group">
+          <legend class="pfd__legend">Entorno</legend>
+          @for (condition of entorno(); track condition.name) {
+            <label class="chk-lbl">
+              <input
+                class="chk-inp"
+                type="checkbox"
+                [checked]="isConditionSelected(condition.name)"
+                (change)="toggleCondition(condition.name, $event)"
+              />
+              <span>{{ condition.label }}</span>
+            </label>
+          }
+        </fieldset>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
+      <button class="btn btn-teal btn-sm" type="submit" [disabled]="isSaving() || !canSave()">
+        @if (isSaving()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+        } @else {
+          <i class="ti ti-check" aria-hidden="true"></i>
+        }
+        {{ isEdit() ? 'Guardar cambios' : 'Registrar puesto' }}
+      </button>
+    </div>
+  </form>
+</app-modal-shell>

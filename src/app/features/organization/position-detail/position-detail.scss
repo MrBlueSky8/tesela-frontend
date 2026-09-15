@@ -1,0 +1,58 @@
+.pd__alert {
+  margin-bottom: 14px;
+}
+
+.pd__back-error {
+  margin-left: auto;
+}
+
+.pd__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pd__title-badge {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.pd__section-lbl {
+  margin-bottom: 10px;
+}
+
+/* Las tareas suelen venir una por linea: se respetan los saltos. */
+.pd__text {
+  white-space: pre-line;
+}
+
+.pd__conditions {
+  display: grid;
+  gap: 12px;
+}
+
+.pd__group-lbl {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ts-text-2);
+}
+
+.pd__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 640px) {
+  .det-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pd__actions {
+    width: 100%;
+  }
+}

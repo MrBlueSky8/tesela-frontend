@@ -1,0 +1,201 @@
+<app-modal-shell title="Departamentos" icon="sitemap" size="wide" (closed)="closed.emit()">
+  <div class="modal-body">
+    <form class="dd__create" [formGroup]="createForm" (ngSubmit)="onCreate()" novalidate>
+      <div class="fc-hdr">Nuevo departamento</div>
+      <div class="dd__create-row">
+        <div class="fg">
+          <label class="fl" for="dd-new-name">Nombre</label>
+          <input
+            class="fi"
+            id="dd-new-name"
+            type="text"
+            autocomplete="off"
+            maxlength="150"
+            formControlName="nombre"
+          />
+        </div>
+        <div class="fg">
+          <label class="fl" for="dd-new-description">
+            Descripcion <span class="opt">opcional</span>
+          </label>
+          <input
+            class="fi"
+            id="dd-new-description"
+            type="text"
+            autocomplete="off"
+            maxlength="500"
+            formControlName="descripcion"
+          />
+        </div>
+        <button
+          class="btn btn-primary btn-sm dd__create-btn"
+          type="submit"
+          [disabled]="createBusy()"
+        >
+          @if (createBusy()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+          } @else {
+            <i class="ti ti-plus" aria-hidden="true"></i>
+          }
+          Crear
+        </button>
+      </div>
+      @if (createError(); as message) {
+        <p class="fi-err" role="alert">{{ message }}</p>
+      }
+    </form>
+
+    @if (notice(); as message) {
+      <p class="alert alert-success dd__notice" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    @if (sorted().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-sitemap" aria-hidden="true"></i>
+        <p>Aun no hay departamentos. Crea el primero para registrar puestos.</p>
+      </div>
+    } @else {
+      <ul class="dd__list">
+        @for (department of sorted(); track department.publicId) {
+          <li class="dd__row" [class.dd__row--inactive]="department.status === 'INACTIVE'">
+            @if (editingId() === department.publicId) {
+              <form
+                class="dd__edit"
+                [formGroup]="editForm"
+                (ngSubmit)="saveEdit(department)"
+                novalidate
+              >
+                <input
+                  #editNameInput
+                  class="fi"
+                  type="text"
+                  maxlength="150"
+                  formControlName="nombre"
+                  [attr.aria-label]="'Nombre de ' + department.nombre"
+                />
+                <input
+                  class="fi"
+                  type="text"
+                  maxlength="500"
+                  placeholder="Descripcion (opcional)"
+                  formControlName="descripcion"
+                  [attr.aria-label]="'Descripcion de ' + department.nombre"
+                />
+                <div class="dd__actions">
+                  <button
+                    class="btn btn-outline btn-sm"
+                    type="button"
+                    (click)="cancelEdit(department)"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    type="submit"
+                    [disabled]="rowBusyId() === department.publicId"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              </form>
+            } @else if (confirmingId() === department.publicId) {
+              <div class="dd__confirm">
+                <p class="dd__confirm-text">
+                  <strong>¿Desactivar {{ department.nombre }}?</strong>
+                  @if (countFor(department) > 0) {
+                    Tiene {{ countFor(department) }}
+                    {{ countFor(department) === 1 ? 'puesto activo' : 'puestos activos' }}: se
+                    conservan, pero no se le podran asignar puestos nuevos.
+                  } @else {
+                    No se le podran asignar puestos nuevos hasta reactivarlo.
+                  }
+                </p>
+                <div class="dd__actions">
+                  <button
+                    class="btn btn-outline btn-sm"
+                    type="button"
+                    [attr.data-dept]="department.publicId"
+                    data-action="confirm"
+                    (click)="cancelDeactivate(department)"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    class="btn btn-ghost-red btn-sm"
+                    type="button"
+                    [disabled]="rowBusyId() === department.publicId"
+                    (click)="setStatus(department, 'INACTIVE')"
+                  >
+                    Desactivar
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="dd__info">
+                <div class="cell-name">
+                  {{ department.nombre }}
+                  @if (department.status === 'INACTIVE') {
+                    <span class="bdg bdg-gray">Inactivo</span>
+                  }
+                </div>
+                <div class="cell-sub">
+                  {{ department.descripcion || 'Sin descripcion' }} ·
+                  {{ countFor(department) }}
+                  {{ countFor(department) === 1 ? 'puesto activo' : 'puestos activos' }}
+                </div>
+              </div>
+              <div class="dd__actions">
+                <button
+                  class="btn btn-outline btn-sm"
+                  type="button"
+                  [attr.data-dept]="department.publicId"
+                  data-action="edit"
+                  [attr.aria-label]="'Editar ' + department.nombre"
+                  (click)="startEdit(department)"
+                >
+                  <i class="ti ti-pencil" aria-hidden="true"></i>
+                  Editar
+                </button>
+                @if (department.status === 'ACTIVE') {
+                  <button
+                    class="btn btn-ghost-red btn-sm"
+                    type="button"
+                    [attr.data-dept]="department.publicId"
+                    data-action="status"
+                    [attr.aria-label]="'Desactivar ' + department.nombre"
+                    (click)="askDeactivate(department)"
+                  >
+                    Desactivar
+                  </button>
+                } @else {
+                  <button
+                    class="btn btn-outline btn-sm"
+                    type="button"
+                    [attr.data-dept]="department.publicId"
+                    data-action="status"
+                    [attr.aria-label]="'Reactivar ' + department.nombre"
+                    [disabled]="rowBusyId() === department.publicId"
+                    (click)="setStatus(department, 'ACTIVE')"
+                  >
+                    Reactivar
+                  </button>
+                }
+              </div>
+            }
+
+            @if (rowErrorFor(department); as message) {
+              <p class="fi-err dd__row-error" role="alert">{{ message }}</p>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div class="modal-foot">
+    <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cerrar</button>
+  </div>
+</app-modal-shell>

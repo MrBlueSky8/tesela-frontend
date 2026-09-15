@@ -13,6 +13,8 @@ import { CompaniesPage } from './features/companies/companies-page/companies-pag
 import { CompanyCreate } from './features/companies/company-create/company-create';
 import { CompanyProfile } from './features/companies/company-profile/company-profile';
 import { CompanyUsersPage } from './features/companies/company-users/company-users-page';
+import { PositionDetail } from './features/organization/position-detail/position-detail';
+import { PositionsPage } from './features/organization/positions-page/positions-page';
 import { Home } from './features/home/home';
 import { PlaceholderPage } from './features/placeholder/placeholder-page';
 import { MainLayout } from './layout/main-layout/main-layout';
@@ -71,7 +73,7 @@ export const routes: Routes = [
         },
       },
       {
-        // Gestion de la empresa seleccionada. Puestos y sedes llegan en las fases 4 y 5.
+        // Gestion de la empresa seleccionada. Sedes llega en la fase 5.
         path: 'empresa',
         data: { breadcrumb: 'Gestion' },
         canActivateChild: [companyContextGuard],
@@ -93,14 +95,25 @@ export const routes: Routes = [
             },
           },
           {
+            // Sin componente: los hijos heredan breadcrumb y privilegios.
             path: 'puestos',
-            component: PlaceholderPage,
             data: {
-              breadcrumb: 'Puestos',
-              title: 'Puestos',
-              description: 'Catalogo de puestos y departamentos.',
+              breadcrumb: 'Catalogo de puestos',
               privileges: ['ADMIN_GENERAL'],
             },
+            children: [
+              {
+                path: '',
+                component: PositionsPage,
+                // Vacio para no repetir la miga heredada del padre.
+                data: { breadcrumb: '' },
+              },
+              {
+                path: ':positionPublicId',
+                component: PositionDetail,
+                data: { breadcrumb: 'Detalle del puesto' },
+              },
+            ],
           },
           {
             path: 'sedes',

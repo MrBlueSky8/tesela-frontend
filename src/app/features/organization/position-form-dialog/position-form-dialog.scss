@@ -1,0 +1,98 @@
+.pfd__alert {
+  margin-bottom: 14px;
+}
+
+.pfd__inline {
+  display: flex;
+  gap: 8px;
+}
+
+.pfd__inline .fi {
+  flex: 1;
+}
+
+.pfd__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ts-green-dark);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pfd__link:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 2px;
+}
+
+.pfd__warn {
+  color: var(--ts-amber-dark);
+}
+
+/* Separador "Informacion opcional", como en la maqueta. */
+.pfd__section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ts-text-3);
+}
+
+.pfd__section::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ts-border);
+}
+
+.pfd__hint {
+  margin-bottom: 14px;
+}
+
+.pfd__count {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pfd__conditions {
+  display: grid;
+  gap: 14px;
+}
+
+.pfd__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.pfd__legend {
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ts-text-3);
+}
+
+.pfd__group .chk-lbl:focus-within {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}

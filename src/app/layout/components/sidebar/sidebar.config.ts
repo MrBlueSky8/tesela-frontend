@@ -66,7 +66,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
       },
       {
         id: 'company-positions',
-        label: 'Puestos',
+        label: 'Catalogo de puestos',
         icon: { type: 'tabler', name: 'briefcase' },
         route: '/empresa/puestos',
         allowedPrivileges: ['ADMIN_GENERAL'],

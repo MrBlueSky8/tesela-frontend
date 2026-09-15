@@ -1,0 +1,174 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando puesto...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error pd__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <a class="btn btn-outline btn-sm pd__back-error" routerLink="..">Volver al catalogo</a>
+  </div>
+} @else if (position(); as current) {
+  <div class="ph-row">
+    <div>
+      <div class="ph-t">
+        {{ current.nombre }}
+        @if (current.status === 'INACTIVE') {
+          <span class="bdg bdg-gray pd__title-badge">Inactivo</span>
+        }
+      </div>
+      <div class="ph-s">{{ current.departmentName }}</div>
+    </div>
+
+    <div class="pd__actions">
+      <a class="btn btn-outline btn-sm" routerLink="..">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        Volver
+      </a>
+      <button class="btn btn-outline btn-sm" type="button" (click)="openEdit()">
+        <i class="ti ti-pencil" aria-hidden="true"></i>
+        Editar
+      </button>
+      <button
+        class="btn btn-sm"
+        type="button"
+        [class.btn-ghost-red]="current.status === 'ACTIVE'"
+        [class.btn-outline]="current.status !== 'ACTIVE'"
+        [disabled]="statusBusy()"
+        (click)="askStatusChange()"
+      >
+        @if (statusBusy()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+        }
+        {{ current.status === 'ACTIVE' ? 'Desactivar' : 'Reactivar' }}
+      </button>
+    </div>
+  </div>
+
+  @if (notice(); as message) {
+    <p class="alert alert-success pd__alert" role="status">
+      <i class="ti ti-circle-check" aria-hidden="true"></i>
+      <span>{{ message }}</span>
+    </p>
+  }
+
+  @if (actionError(); as message) {
+    <p class="alert alert-error pd__alert" role="alert">
+      <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      <span>{{ message }}</span>
+    </p>
+  }
+
+  <section class="det-card" aria-label="Datos del puesto">
+    <div class="det-grid">
+      <div>
+        <div class="det-lbl">Departamento</div>
+        <div class="det-val">{{ current.departmentName }}</div>
+      </div>
+      <div>
+        <div class="det-lbl">Estado en Modulo 1</div>
+        <div>
+          @if (current.evaluado) {
+            <span class="bdg bdg-green">
+              <i class="ti ti-circle-check" aria-hidden="true"></i>
+              Evaluado
+            </span>
+          } @else {
+            <span class="bdg bdg-gray">Sin evaluar</span>
+          }
+        </div>
+      </div>
+      <div>
+        <div class="det-lbl">Creado por</div>
+        <div class="det-val">{{ current.createdByName }}</div>
+      </div>
+      <div>
+        <div class="det-lbl">Fecha de creacion</div>
+        <div class="det-val">{{ createdAtLabel() }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="det-card" aria-labelledby="pd-description">
+    <div class="det-lbl pd__section-lbl" id="pd-description">Descripcion del puesto</div>
+    <div
+      class="det-val pd__text"
+      [class.empty]="!current.descripcion"
+      [textContent]="current.descripcion || 'Sin descripcion registrada.'"
+    ></div>
+  </section>
+
+  <section class="det-card" aria-labelledby="pd-tasks">
+    <div class="det-lbl pd__section-lbl" id="pd-tasks">Tareas principales</div>
+    <div
+      class="det-val pd__text"
+      [class.empty]="!current.tareasPrincipales"
+      [textContent]="current.tareasPrincipales || 'Sin tareas registradas.'"
+    ></div>
+  </section>
+
+  <section class="det-card" aria-labelledby="pd-conditions">
+    <div class="det-lbl pd__section-lbl" id="pd-conditions">Modalidad y entorno</div>
+    @if (hasConditions()) {
+      <div class="pd__conditions">
+        @for (group of conditionGroups(); track group.label) {
+          @if (group.items.length) {
+            <div>
+              <div class="pd__group-lbl">{{ group.label }}</div>
+              <ul class="pd__chips">
+                @for (condition of group.items; track condition.name) {
+                  <li class="bdg bdg-blue">{{ condition.label }}</li>
+                }
+              </ul>
+            </div>
+          }
+        }
+      </div>
+    } @else {
+      <div class="det-val empty">Sin condiciones registradas.</div>
+    }
+  </section>
+
+  <p class="ia-hint">
+    <i class="ti ti-sparkles" aria-hidden="true"></i>
+    @if (current.evaluado) {
+      <span>
+        Este puesto ya tiene una evaluacion vigente en el Modulo 1. Editar sus datos no cambia esa
+        evaluacion: para actualizarla hay que crear una nueva version.
+      </span>
+    } @else {
+      <span>
+        La descripcion, las tareas y las condiciones se enviaran al asistente de IA cuando se inicie
+        la evaluacion de este puesto en el Modulo 1.
+      </span>
+    }
+  </p>
+
+  @if (editOpen() && company(); as selected) {
+    <app-position-form-dialog
+      [companyPublicId]="selected.publicId"
+      [departments]="departments()"
+      [conditions]="conditions()"
+      [position]="current"
+      (saved)="onSaved($event)"
+      (departmentCreated)="onDepartmentCreated($event)"
+      (closed)="editOpen.set(false)"
+    />
+  }
+
+  @if (confirmStatus()) {
+    <app-confirm-dialog
+      [title]="current.status === 'ACTIVE' ? 'Desactivar este puesto' : 'Reactivar este puesto'"
+      [message]="
+        current.status === 'ACTIVE'
+          ? 'Dejara de ofrecerse para nuevas evaluaciones. Su historial y sus evaluaciones se conservan.'
+          : 'Volvera a estar disponible para evaluarse en el Modulo 1.'
+      "
+      [tone]="current.status === 'ACTIVE' ? 'warning' : 'info'"
+      [confirmLabel]="current.status === 'ACTIVE' ? 'Desactivar' : 'Reactivar'"
+      (confirmed)="changeStatus()"
+      (cancelled)="confirmStatus.set(false)"
+    />
+  }
+}
