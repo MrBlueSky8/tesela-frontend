@@ -6,6 +6,7 @@ import { guestGuard } from './core/guards/guest-guard';
 import { Auth } from './features/auth/auth';
 import { CompaniesPage } from './features/companies/companies-page/companies-page';
 import { CompanyCreate } from './features/companies/company-create/company-create';
+import { CompanyProfile } from './features/companies/company-profile/company-profile';
 import { Home } from './features/home/home';
 import { PlaceholderPage } from './features/placeholder/placeholder-page';
 import { MainLayout } from './layout/main-layout/main-layout';
@@ -58,18 +59,16 @@ export const routes: Routes = [
         },
       },
       {
-        // Gestion de la empresa seleccionada. Las pantallas llegan en las fases 2 a 5.
+        // Gestion de la empresa seleccionada. Usuarios, puestos y sedes llegan en las fases 3 a 5.
         path: 'empresa',
         data: { breadcrumb: 'Gestion' },
         canActivateChild: [companyContextGuard],
         children: [
           {
             path: '',
-            component: PlaceholderPage,
+            component: CompanyProfile,
             data: {
               breadcrumb: 'Mi empresa',
-              title: 'Mi empresa',
-              description: 'Datos generales y logo de la empresa.',
               privileges: ['ADMIN_GENERAL'],
             },
           },

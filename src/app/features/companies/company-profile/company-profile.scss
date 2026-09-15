@@ -1,0 +1,115 @@
+.profile {
+  max-width: 760px;
+}
+
+.profile__alert {
+  margin-bottom: 14px;
+}
+
+.profile__inline-alert {
+  margin-top: 12px;
+}
+
+.profile__retry {
+  margin-left: auto;
+}
+
+.profile .frow {
+  margin-bottom: 0;
+}
+
+/* ---- Logo ---- */
+.profile__logo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile__logo {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.profile__logo--initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-green-light);
+  color: var(--ts-green-dark);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.profile__logo-copy {
+  min-width: 0;
+}
+
+.profile__logo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* El input real queda fuera de la vista; lo abre el boton visible. */
+.profile__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- Datos ---- */
+.profile__readonly {
+  padding: 9px 0;
+}
+
+.profile__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 4px 0 14px;
+}
+
+.profile__dirty {
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--ts-amber-dark);
+}
+
+/* ---- Plataforma ---- */
+.profile__inline-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile__inline-field .fi {
+  max-width: 120px;
+}
+
+@media (max-width: 640px) {
+  .profile .frow {
+    grid-template-columns: 1fr;
+  }
+
+  .profile__logo-row {
+    align-items: flex-start;
+  }
+
+  .profile__actions {
+    flex-wrap: wrap;
+  }
+
+  .profile__dirty {
+    flex-basis: 100%;
+  }
+}

@@ -6,19 +6,11 @@ import {
   backendErrorMessage,
   backendFieldErrors,
 } from '../../../core/helpers/backend-error-message';
+import { controlErrorMessage } from '../../../core/helpers/form-error-message';
 import { CreateCompanyRequest } from '../../../core/models/company';
 import { CompanyApiService } from '../company-api-service';
 
 type CompanyField = keyof CreateCompanyRequest;
-
-/** Mensajes por validador, en el orden en que se muestran. */
-const VALIDATION_MESSAGES: Record<string, string> = {
-  required: 'Este campo es obligatorio.',
-  email: 'Ingresa un correo valido.',
-  maxlength: 'Supera la longitud permitida.',
-  pattern: 'El formato no es valido.',
-  min: 'El valor es menor al permitido.',
-};
 
 /**
  * Alta de empresa, reservada a ADMIN_PLATAFORMA (la ruta lo exige y el backend
@@ -85,14 +77,7 @@ export class CompanyCreate {
 
   /** Mensaje a mostrar bajo el campo: primero el del cliente, luego el del backend. */
   fieldError(field: CompanyField): string | null {
-    const control = this.form.controls[field];
-
-    if ((control.touched || control.dirty) && control.errors) {
-      const firstKey = Object.keys(VALIDATION_MESSAGES).find((key) => control.errors?.[key]);
-      return firstKey ? VALIDATION_MESSAGES[firstKey] : 'El valor no es valido.';
-    }
-
-    return this.serverFieldErrors()[field] ?? null;
+    return controlErrorMessage(this.form.controls[field], this.serverFieldErrors()[field]);
   }
 
   private buildPayload(): CreateCompanyRequest {

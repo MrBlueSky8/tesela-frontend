@@ -47,6 +47,24 @@ export interface CreateCompanyRequest {
   adminLimit?: number;
 }
 
+/**
+ * PATCH parcial: solo se aplican los campos presentes. No incluye el logo
+ * (va por /logo) ni el RUC, que no es editable.
+ */
+export type UpdateCompanyRequest = Partial<
+  Pick<
+    CreateCompanyRequest,
+    | 'nombre'
+    | 'razonSocial'
+    | 'descripcion'
+    | 'direccion'
+    | 'telefonoContacto'
+    | 'emailContacto'
+    | 'urlWeb'
+    | 'numeroEmpleados'
+  >
+>;
+
 export interface CompanyPrivilegeResponse {
   publicId: string;
   name: CompanyPrivilege;

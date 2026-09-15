@@ -1,0 +1,414 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando empresa...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error profile__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm profile__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else if (company(); as current) {
+  <div class="ph-row">
+    <div>
+      <div class="ph-t">Mi empresa</div>
+      <div class="ph-s">Datos generales y logo de {{ current.nombre }}.</div>
+    </div>
+
+    @if (current.status === 'ACTIVE') {
+      <span class="bdg bdg-green">Activa</span>
+    } @else {
+      <span class="bdg bdg-gray">Inactiva</span>
+    }
+  </div>
+
+  <div class="profile">
+    <!-- ================= Logo ================= -->
+    <section class="fc" aria-labelledby="logo-heading">
+      <div class="fc-hdr" id="logo-heading">Logo</div>
+
+      <div class="profile__logo-row">
+        @if (current.urlLogo) {
+          <img class="profile__logo" [src]="current.urlLogo" [alt]="'Logo de ' + current.nombre" />
+        } @else {
+          <span class="profile__logo profile__logo--initial" aria-hidden="true">
+            {{ companyInitial() }}
+          </span>
+        }
+
+        <div class="profile__logo-copy">
+          <div class="cell-name">{{ current.urlLogo ? 'Logo actual' : 'Sin logo' }}</div>
+          <div class="cell-sub">JPG, PNG o WEBP. Maximo 5 MB.</div>
+
+          <div class="profile__logo-actions">
+            <input
+              #logoInput
+              class="profile__file"
+              type="file"
+              tabindex="-1"
+              aria-hidden="true"
+              [accept]="acceptedLogoTypes"
+              (change)="onLogoSelected($event)"
+            />
+
+            <button
+              #logoUploadButton
+              class="btn btn-outline btn-sm"
+              type="button"
+              [disabled]="logoBusy()"
+              (click)="openLogoPicker()"
+            >
+              @if (logoBusy()) {
+                <span class="ts-spinner" aria-hidden="true"></span>
+                Procesando...
+              } @else {
+                <i class="ti ti-upload" aria-hidden="true"></i>
+                {{ current.urlLogo ? 'Cambiar logo' : 'Subir logo' }}
+              }
+            </button>
+
+            @if (current.urlLogo) {
+              <button
+                class="btn btn-ghost-red btn-sm"
+                type="button"
+                [disabled]="logoBusy()"
+                (click)="pendingConfirm.set('remove-logo')"
+              >
+                <i class="ti ti-trash" aria-hidden="true"></i>
+                Quitar
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (logoError(); as error) {
+        <p class="alert alert-error profile__inline-alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ error }}</span>
+        </p>
+      }
+    </section>
+
+    <!-- ================= Datos ================= -->
+    <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
+      @if (saveSuccess(); as success) {
+        <p class="alert alert-success profile__alert" role="status">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span>{{ success }}</span>
+        </p>
+      }
+
+      @if (saveError(); as error) {
+        <p class="alert alert-error profile__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ error }}</span>
+        </p>
+      }
+
+      <section class="fc" aria-labelledby="identity-heading">
+        <div class="fc-hdr" id="identity-heading">Identificacion</div>
+
+        <div class="frow">
+          <div class="fg">
+            <span class="fl">RUC</span>
+            <div class="det-val profile__readonly">{{ current.ruc }}</div>
+            <span class="fi-hint">El RUC no se puede modificar.</span>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="nombre">Nombre comercial</label>
+            <input
+              class="fi"
+              id="nombre"
+              type="text"
+              formControlName="nombre"
+              [class.invalid]="fieldError('nombre')"
+              [attr.aria-invalid]="!!fieldError('nombre')"
+              [attr.aria-describedby]="fieldError('nombre') ? 'nombre-error' : null"
+            />
+            @if (fieldError('nombre'); as message) {
+              <span class="fi-err" id="nombre-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg fg-full">
+            <label class="fl" for="razonSocial">Razon social</label>
+            <input
+              class="fi"
+              id="razonSocial"
+              type="text"
+              formControlName="razonSocial"
+              [class.invalid]="fieldError('razonSocial')"
+              [attr.aria-invalid]="!!fieldError('razonSocial')"
+              [attr.aria-describedby]="fieldError('razonSocial') ? 'razonSocial-error' : null"
+            />
+            @if (fieldError('razonSocial'); as message) {
+              <span class="fi-err" id="razonSocial-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg fg-full">
+            <label class="fl" for="descripcion">Descripcion</label>
+            <textarea
+              class="fta"
+              id="descripcion"
+              rows="3"
+              formControlName="descripcion"
+              [class.invalid]="fieldError('descripcion')"
+              [attr.aria-invalid]="!!fieldError('descripcion')"
+              [attr.aria-describedby]="fieldError('descripcion') ? 'descripcion-error' : null"
+            ></textarea>
+            @if (fieldError('descripcion'); as message) {
+              <span class="fi-err" id="descripcion-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="numeroEmpleados">Numero de empleados</label>
+            <input
+              class="fi"
+              id="numeroEmpleados"
+              type="number"
+              min="0"
+              formControlName="numeroEmpleados"
+              [class.invalid]="fieldError('numeroEmpleados')"
+              [attr.aria-invalid]="!!fieldError('numeroEmpleados')"
+              [attr.aria-describedby]="
+                fieldError('numeroEmpleados') ? 'numeroEmpleados-error' : null
+              "
+            />
+            @if (fieldError('numeroEmpleados'); as message) {
+              <span class="fi-err" id="numeroEmpleados-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="fc" aria-labelledby="contact-heading">
+        <div class="fc-hdr" id="contact-heading">Contacto</div>
+
+        <div class="frow">
+          <div class="fg fg-full">
+            <label class="fl" for="direccion">Direccion</label>
+            <input
+              class="fi"
+              id="direccion"
+              type="text"
+              autocomplete="street-address"
+              formControlName="direccion"
+              [class.invalid]="fieldError('direccion')"
+              [attr.aria-invalid]="!!fieldError('direccion')"
+              [attr.aria-describedby]="fieldError('direccion') ? 'direccion-error' : null"
+            />
+            @if (fieldError('direccion'); as message) {
+              <span class="fi-err" id="direccion-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="telefonoContacto">Telefono</label>
+            <input
+              class="fi"
+              id="telefonoContacto"
+              type="tel"
+              autocomplete="tel"
+              formControlName="telefonoContacto"
+              [class.invalid]="fieldError('telefonoContacto')"
+              [attr.aria-invalid]="!!fieldError('telefonoContacto')"
+              [attr.aria-describedby]="
+                fieldError('telefonoContacto') ? 'telefonoContacto-error' : null
+              "
+            />
+            @if (fieldError('telefonoContacto'); as message) {
+              <span class="fi-err" id="telefonoContacto-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="emailContacto">Correo de contacto</label>
+            <input
+              class="fi"
+              id="emailContacto"
+              type="email"
+              autocomplete="email"
+              formControlName="emailContacto"
+              [class.invalid]="fieldError('emailContacto')"
+              [attr.aria-invalid]="!!fieldError('emailContacto')"
+              [attr.aria-describedby]="fieldError('emailContacto') ? 'emailContacto-error' : null"
+            />
+            @if (fieldError('emailContacto'); as message) {
+              <span class="fi-err" id="emailContacto-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg fg-full">
+            <label class="fl" for="urlWeb">Sitio web</label>
+            <input
+              class="fi"
+              id="urlWeb"
+              type="url"
+              formControlName="urlWeb"
+              [class.invalid]="fieldError('urlWeb')"
+              [attr.aria-invalid]="!!fieldError('urlWeb')"
+              [attr.aria-describedby]="fieldError('urlWeb') ? 'urlWeb-error' : null"
+            />
+            @if (fieldError('urlWeb'); as message) {
+              <span class="fi-err" id="urlWeb-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="profile__actions">
+        @if (hasChanges()) {
+          <span class="profile__dirty" role="status">Tienes cambios sin guardar.</span>
+        }
+
+        <button
+          class="btn btn-outline"
+          type="button"
+          [disabled]="!hasChanges() || isSaving()"
+          (click)="onDiscard()"
+        >
+          Descartar
+        </button>
+
+        <button class="btn btn-primary" type="submit" [disabled]="!hasChanges() || isSaving()">
+          @if (isSaving()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+            Guardando...
+          } @else {
+            <i class="ti ti-device-floppy" aria-hidden="true"></i>
+            Guardar cambios
+          }
+        </button>
+      </div>
+    </form>
+
+    <!-- ================= Resumen ================= -->
+    <section class="det-card" aria-label="Resumen">
+      <div class="det-grid">
+        <div>
+          <div class="det-lbl">Limite de administradores generales</div>
+          <div class="det-val">{{ current.adminLimit }}</div>
+        </div>
+
+        <div>
+          <div class="det-lbl">Registrada el</div>
+          <div class="det-val">{{ createdAtLabel() }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Plataforma ================= -->
+    @if (isPlatformAdmin()) {
+      <section class="fc profile__platform" aria-labelledby="platform-heading">
+        <div class="fc-hdr" id="platform-heading">Plataforma</div>
+
+        @if (platformSuccess(); as success) {
+          <p class="alert alert-success profile__inline-alert" role="status">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>
+            <span>{{ success }}</span>
+          </p>
+        }
+
+        @if (platformError(); as error) {
+          <p class="alert alert-error profile__inline-alert" role="alert">
+            <i class="ti ti-alert-circle" aria-hidden="true"></i>
+            <span>{{ error }}</span>
+          </p>
+        }
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="adminLimit">Limite de administradores generales</label>
+            <div class="profile__inline-field">
+              <input
+                class="fi"
+                id="adminLimit"
+                type="number"
+                min="1"
+                [formControl]="adminLimitControl"
+                [class.invalid]="adminLimitMessage()"
+                [attr.aria-invalid]="!!adminLimitMessage()"
+                [attr.aria-describedby]="
+                  adminLimitMessage() ? 'adminLimit-error' : 'adminLimit-hint'
+                "
+              />
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                [disabled]="adminLimitBusy() || !adminLimitChanged()"
+                (click)="onSaveAdminLimit()"
+              >
+                @if (adminLimitBusy()) {
+                  <span class="ts-spinner" aria-hidden="true"></span>
+                }
+                Aplicar
+              </button>
+            </div>
+            @if (adminLimitMessage(); as message) {
+              <span class="fi-err" id="adminLimit-error">{{ message }}</span>
+            } @else {
+              <span class="fi-hint" id="adminLimit-hint">
+                No puede ser menor que los administradores generales activos.
+              </span>
+            }
+          </div>
+
+          <div class="fg">
+            <span class="fl">Estado de la empresa</span>
+            <div class="profile__inline-field">
+              <button
+                class="btn btn-sm"
+                type="button"
+                [class.btn-ghost-red]="current.status === 'ACTIVE'"
+                [class.btn-primary]="current.status !== 'ACTIVE'"
+                [disabled]="statusBusy()"
+                (click)="pendingConfirm.set('toggle-status')"
+              >
+                @if (statusBusy()) {
+                  <span class="ts-spinner" aria-hidden="true"></span>
+                }
+                {{ current.status === 'ACTIVE' ? 'Desactivar empresa' : 'Activar empresa' }}
+              </button>
+            </div>
+            <span class="fi-hint">
+              Una empresa inactiva deja de ser accesible para sus usuarios.
+            </span>
+          </div>
+        </div>
+      </section>
+    }
+  </div>
+
+  @switch (pendingConfirm()) {
+    @case ('remove-logo') {
+      <app-confirm-dialog
+        title="Quitar el logo"
+        message="La empresa se mostrara con su inicial hasta que subas otro logo."
+        confirmLabel="Quitar logo"
+        (confirmed)="removeLogo()"
+        (cancelled)="pendingConfirm.set(null)"
+      />
+    }
+    @case ('toggle-status') {
+      <app-confirm-dialog
+        [title]="current.status === 'ACTIVE' ? 'Desactivar la empresa' : 'Activar la empresa'"
+        [message]="
+          current.status === 'ACTIVE'
+            ? 'Sus usuarios perderan el acceso hasta que la vuelvas a activar.'
+            : 'Sus usuarios con membresia activa recuperaran el acceso.'
+        "
+        [tone]="current.status === 'ACTIVE' ? 'warning' : 'info'"
+        [confirmLabel]="current.status === 'ACTIVE' ? 'Desactivar' : 'Activar'"
+        (confirmed)="toggleStatus()"
+        (cancelled)="pendingConfirm.set(null)"
+      />
+    }
+  }
+}

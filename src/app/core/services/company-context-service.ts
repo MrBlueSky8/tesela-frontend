@@ -120,6 +120,18 @@ export class CompanyContextService {
     return this.restoring$;
   }
 
+  /**
+   * Refleja en el contexto una empresa recien editada (nombre, logo, estado)
+   * sin volver a pedir /my-access: los privilegios no cambian por editarla.
+   */
+  replaceCompany(company: CompanyResponse): void {
+    if (this.companyState()?.publicId !== company.publicId) {
+      return;
+    }
+
+    this.companyState.set(company);
+  }
+
   clear(): void {
     this.resetMemory();
     localStorage.removeItem(STORAGE_KEY);
