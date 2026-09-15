@@ -15,6 +15,8 @@ interface AccessTokenPayload {
   authorities?: string[];
   userPublicId?: string;
   tokenVersion?: number;
+  /** true mientras la cuenta use una contrasena temporal emitida por la plataforma. */
+  mustChangePassword?: boolean;
   exp?: number;
 }
 
@@ -42,6 +44,11 @@ export class TokenService {
   readonly userPublicId = computed(() => {
     this.sessionTick();
     return this.getAccessTokenPayload()?.userPublicId ?? null;
+  });
+
+  readonly mustChangePassword = computed(() => {
+    this.sessionTick();
+    return this.getAccessTokenPayload()?.mustChangePassword === true;
   });
 
   setTokens(accessToken: string, refreshToken: string, rememberMe = true): void {

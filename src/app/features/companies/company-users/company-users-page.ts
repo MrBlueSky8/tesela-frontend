@@ -1,0 +1,194 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { forkJoin } from 'rxjs';
+
+import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
+import { PRIVILEGE_LABELS, touchesAdministration } from '../../../core/helpers/privilege-labels';
+import { CompanyPrivilegeResponse } from '../../../core/models/company';
+import { CompanyMembershipResponse } from '../../../core/models/company-membership';
+import { CompanyContextService } from '../../../core/services/company-context-service';
+import { TokenService } from '../../../core/services/token-service';
+import { CompanyUsersApiService } from '../company-users-api-service';
+import { AddMemberDialog, MemberAddedEvent } from './add-member-dialog/add-member-dialog';
+import { EditMemberDialog, MemberSavedEvent } from './edit-member-dialog/edit-member-dialog';
+
+type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
+
+/**
+ * Miembros de la empresa seleccionada. La ruta exige ADMIN_GENERAL y el
+ * backend vuelve a comprobar cada operacion.
+ */
+@Component({
+  selector: 'app-company-users-page',
+  imports: [AddMemberDialog, EditMemberDialog],
+  templateUrl: './company-users-page.html',
+  styleUrl: './company-users-page.scss',
+})
+export class CompanyUsersPage {
+  private readonly api = inject(CompanyUsersApiService);
+  private readonly companyContext = inject(CompanyContextService);
+  private readonly tokenService = inject(TokenService);
+
+  readonly company = this.companyContext.company;
+  readonly labels = PRIVILEGE_LABELS;
+
+  readonly members = signal<CompanyMembershipResponse[]>([]);
+  readonly catalog = signal<CompanyPrivilegeResponse[]>([]);
+  readonly isLoading = signal(true);
+  readonly loadError = signal<string | null>(null);
+  readonly notice = signal<string | null>(null);
+
+  readonly search = signal('');
+  readonly statusFilter = signal<StatusFilter>('ALL');
+
+  readonly addOpen = signal(false);
+  readonly editing = signal<CompanyMembershipResponse | null>(null);
+
+  readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
+
+  /** GESTIONAR_ADMINS no se hereda de ADMIN_GENERAL: efectivo == asignado. */
+  readonly canManageAdmins = computed(() =>
+    this.companyContext.hasAnyPrivilege(['GESTIONAR_ADMINS']),
+  );
+
+  readonly activeAdmins = computed(
+    () =>
+      this.members().filter(
+        (member) =>
+          member.status === 'ACTIVE' &&
+          member.privileges.some((privilege) => privilege.name === 'ADMIN_GENERAL'),
+      ).length,
+  );
+
+  readonly pendingActivation = computed(
+    () =>
+      this.members().filter((member) => member.status === 'ACTIVE' && member.mustChangePassword)
+        .length,
+  );
+
+  readonly adminLimit = computed(() => this.company()?.adminLimit ?? 0);
+  readonly adminLimitReached = computed(() => this.activeAdmins() >= this.adminLimit());
+
+  readonly filtered = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    const status = this.statusFilter();
+
+    return this.members().filter(
+      (member) =>
+        (status === 'ALL' || member.status === status) &&
+        (!term ||
+          [member.email, `${member.firstNames} ${member.lastNames}`].some((value) =>
+            value.toLowerCase().includes(term),
+          )),
+    );
+  });
+
+  readonly counts = computed(() => ({
+    ALL: this.members().length,
+    ACTIVE: this.members().filter((member) => member.status === 'ACTIVE').length,
+    INACTIVE: this.members().filter((member) => member.status === 'INACTIVE').length,
+  }));
+
+  readonly filters: { value: StatusFilter; label: string }[] = [
+    { value: 'ALL', label: 'Todos' },
+    { value: 'ACTIVE', label: 'Activos' },
+    { value: 'INACTIVE', label: 'Inactivos' },
+  ];
+
+  constructor() {
+    this.load();
+  }
+
+  load(): void {
+    const company = this.company();
+
+    if (!company) {
+      this.isLoading.set(false);
+      this.loadError.set('No hay una empresa seleccionada.');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.loadError.set(null);
+
+    forkJoin({
+      catalog: this.api.privileges(),
+      members: this.api.list(company.publicId),
+    }).subscribe({
+      next: ({ catalog, members }) => {
+        this.catalog.set(catalog);
+        this.members.set(members);
+        this.isLoading.set(false);
+      },
+      error: (error: unknown) => {
+        this.loadError.set(backendErrorMessage(error, 'No pudimos cargar los usuarios.'));
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  onSearch(event: Event): void {
+    this.search.set((event.target as HTMLInputElement).value);
+  }
+
+  /** Nadie modifica su propia membresia (el administrador de plataforma no es miembro). */
+  isSelf(member: CompanyMembershipResponse): boolean {
+    return !this.isPlatformAdmin() && member.userPublicId === this.tokenService.userPublicId();
+  }
+
+  needsAdminManagement(member: CompanyMembershipResponse): boolean {
+    return (
+      touchesAdministration(member.privileges.map((privilege) => privilege.name)) &&
+      !this.canManageAdmins()
+    );
+  }
+
+  isGeneralAdmin(member: CompanyMembershipResponse): boolean {
+    return member.privileges.some((privilege) => privilege.name === 'ADMIN_GENERAL');
+  }
+
+  /** Lo que no queda cubierto por Admin. general, para no repetir badges. */
+  extraPrivileges(member: CompanyMembershipResponse): CompanyPrivilegeResponse[] {
+    return this.isGeneralAdmin(member)
+      ? member.privileges.filter((privilege) => privilege.name === 'GESTIONAR_ADMINS')
+      : member.privileges;
+  }
+
+  initials(member: CompanyMembershipResponse): string {
+    return `${member.firstNames.charAt(0)}${member.lastNames.charAt(0)}`.toUpperCase();
+  }
+
+  openAdd(): void {
+    this.notice.set(null);
+    this.addOpen.set(true);
+  }
+
+  openEdit(member: CompanyMembershipResponse): void {
+    this.notice.set(null);
+    this.editing.set(member);
+  }
+
+  onAdded(event: MemberAddedEvent): void {
+    this.members.update((members) =>
+      [...members, event.membership].sort((a, b) => a.email.localeCompare(b.email)),
+    );
+
+    // Si se creo la cuenta, el propio dialogo confirma a donde se enviaron las credenciales.
+    if (!event.created) {
+      this.notice.set(
+        `${event.membership.firstNames} ${event.membership.lastNames} se agrego a la empresa.`,
+      );
+    }
+  }
+
+  onSaved(event: MemberSavedEvent): void {
+    this.members.update((members) =>
+      members.map((member) =>
+        member.publicId === event.membership.publicId ? event.membership : member,
+      ),
+    );
+
+    if (event.notice) {
+      this.notice.set(event.notice);
+    }
+  }
+}

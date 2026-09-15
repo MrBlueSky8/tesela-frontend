@@ -3,10 +3,16 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { companyContextGuard } from './core/guards/company-context-guard';
 import { guestGuard } from './core/guards/guest-guard';
+import {
+  passwordChangePendingGuard,
+  passwordChangeRequiredGuard,
+} from './core/guards/password-change-guard';
+import { ChangePassword } from './features/auth/change-password/change-password';
 import { Auth } from './features/auth/auth';
 import { CompaniesPage } from './features/companies/companies-page/companies-page';
 import { CompanyCreate } from './features/companies/company-create/company-create';
 import { CompanyProfile } from './features/companies/company-profile/company-profile';
+import { CompanyUsersPage } from './features/companies/company-users/company-users-page';
 import { Home } from './features/home/home';
 import { PlaceholderPage } from './features/placeholder/placeholder-page';
 import { MainLayout } from './layout/main-layout/main-layout';
@@ -18,9 +24,15 @@ export const routes: Routes = [
     canActivate: [guestGuard],
   },
   {
+    // Fuera del layout: con la contrasena temporal no se navega por la app.
+    path: 'change-password',
+    component: ChangePassword,
+    canActivate: [authGuard, passwordChangePendingGuard],
+  },
+  {
     path: '',
     component: MainLayout,
-    canActivate: [authGuard],
+    canActivate: [authGuard, passwordChangeRequiredGuard],
     children: [
       {
         path: '',
@@ -59,7 +71,7 @@ export const routes: Routes = [
         },
       },
       {
-        // Gestion de la empresa seleccionada. Usuarios, puestos y sedes llegan en las fases 3 a 5.
+        // Gestion de la empresa seleccionada. Puestos y sedes llegan en las fases 4 y 5.
         path: 'empresa',
         data: { breadcrumb: 'Gestion' },
         canActivateChild: [companyContextGuard],
@@ -74,11 +86,9 @@ export const routes: Routes = [
           },
           {
             path: 'usuarios',
-            component: PlaceholderPage,
+            component: CompanyUsersPage,
             data: {
               breadcrumb: 'Usuarios',
-              title: 'Usuarios',
-              description: 'Miembros de la empresa y sus privilegios.',
               privileges: ['ADMIN_GENERAL'],
             },
           },

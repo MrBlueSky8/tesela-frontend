@@ -22,4 +22,5 @@ export interface UserProfileResponse {
   phone: string | null;
   createdAt: string;
   updatedAt: string;
+  mustChangePassword: boolean;
 }

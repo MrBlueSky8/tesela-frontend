@@ -1,0 +1,67 @@
+<div class="pp">
+  <fieldset class="pp__group">
+    <legend class="pp__legend">Modulos</legend>
+
+    @for (privilege of modules(); track privilege.publicId) {
+      <ng-container *ngTemplateOutlet="item; context: { $implicit: privilege }"></ng-container>
+    }
+  </fieldset>
+
+  <fieldset class="pp__group">
+    <legend class="pp__legend">Administracion</legend>
+
+    @if (!canManageAdmins() && !disabled()) {
+      <p class="pp__note" [id]="idPrefix() + '-admins-note'">
+        <i class="ti ti-lock" aria-hidden="true"></i>
+        Dar o quitar Admin. general o Gestionar admins requiere el privilegio Gestionar admins.
+      </p>
+    }
+
+    @for (privilege of administration(); track privilege.publicId) {
+      <ng-container *ngTemplateOutlet="item; context: { $implicit: privilege }"></ng-container>
+    }
+  </fieldset>
+
+  @if (adminGeneral() && adminLimitReached()) {
+    <p class="alert alert-amber pp__alert" role="status">
+      <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+      <span>
+        La empresa ya alcanzo su limite de administradores generales. Pide a Fundades que lo amplie
+        antes de concederlo.
+      </span>
+    </p>
+  }
+</div>
+
+<ng-template #item let-privilege>
+  <label
+    class="pp__item"
+    [class.pp__item--on]="isChecked(privilege.name)"
+    [class.pp__item--locked]="isLocked(privilege.name)"
+    [for]="inputId(privilege.name)"
+  >
+    <input
+      class="chk-inp"
+      type="checkbox"
+      [id]="inputId(privilege.name)"
+      [checked]="isChecked(privilege.name)"
+      [disabled]="isLocked(privilege.name)"
+      [attr.aria-describedby]="inputId(privilege.name) + '-desc'"
+      (change)="onToggle(privilege.name, $event)"
+    />
+    <span class="pp__copy">
+      <span class="pp__name">
+        {{ labelOf(privilege.name) }}
+        @if (isImplied(privilege.name)) {
+          <span class="bdg bdg-green">Incluido</span>
+        }
+      </span>
+      <span class="pp__desc" [id]="inputId(privilege.name) + '-desc'">
+        {{ privilege.description }}
+        @if (isImplied(privilege.name)) {
+          (incluido en Admin. general)
+        }
+      </span>
+    </span>
+  </label>
+</ng-template>

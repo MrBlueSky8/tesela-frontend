@@ -35,6 +35,10 @@ export class Auth {
     if (email) {
       this.form.patchValue({ email });
     }
+
+    if (this.route.snapshot.queryParamMap.get('passwordChanged') === '1') {
+      this.loginSuccess.set('Contrasena actualizada. Ingresa con tu nueva contrasena.');
+    }
   }
 
   onLogin(): void {

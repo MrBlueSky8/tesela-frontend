@@ -1,0 +1,200 @@
+<div class="ph-row">
+  <div>
+    <div class="ph-t">Usuarios</div>
+    <div class="ph-s">Personas que trabajan en {{ company()?.nombre }} y lo que pueden hacer.</div>
+  </div>
+
+  <button
+    class="btn btn-primary btn-sm"
+    type="button"
+    [disabled]="isLoading() || !!loadError()"
+    (click)="openAdd()"
+  >
+    <i class="ti ti-user-plus" aria-hidden="true"></i>
+    Agregar usuario
+  </button>
+</div>
+
+@if (notice(); as message) {
+  <p class="alert alert-success cu__alert" role="status">
+    <i class="ti ti-circle-check" aria-hidden="true"></i>
+    <span>{{ message }}</span>
+  </p>
+}
+
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando usuarios...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error cu__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm cu__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else {
+  <div class="stat-row cu__stats">
+    <div class="stat-card">
+      <div class="stat-lbl">Miembros activos</div>
+      <div class="stat-val">{{ counts().ACTIVE }}</div>
+    </div>
+    <div class="stat-card" [class.cu__stat--limit]="adminLimitReached()">
+      <div class="stat-lbl">Administradores generales</div>
+      <div class="stat-val">
+        {{ activeAdmins() }} <span class="cu__stat-of">de {{ adminLimit() }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Pendientes de activacion</div>
+      <div class="stat-val">{{ pendingActivation() }}</div>
+    </div>
+  </div>
+
+  <div class="search-row cu__toolbar">
+    <div class="search-wrap">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input
+        class="search-inp"
+        type="search"
+        placeholder="Buscar por nombre o correo"
+        aria-label="Buscar usuarios"
+        [value]="search()"
+        (input)="onSearch($event)"
+      />
+    </div>
+
+    <div class="cu__filters" role="group" aria-label="Filtrar por estado">
+      @for (filter of filters; track filter.value) {
+        <button
+          class="cu__filter"
+          type="button"
+          [class.cu__filter--on]="statusFilter() === filter.value"
+          [attr.aria-pressed]="statusFilter() === filter.value"
+          (click)="statusFilter.set(filter.value)"
+        >
+          {{ filter.label }} <span class="cu__count">{{ counts()[filter.value] }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-users" aria-hidden="true"></i>
+      <p>
+        {{
+          members().length
+            ? 'Ningun usuario coincide con el filtro.'
+            : 'La empresa todavia no tiene usuarios.'
+        }}
+      </p>
+    </div>
+  } @else {
+    <div class="list-tbl">
+      <div class="list-hdr cu__grid" aria-hidden="true">
+        <span>Usuario</span>
+        <span>Privilegios</span>
+        <span>Estado</span>
+        <span></span>
+      </div>
+
+      <ul class="cu__list">
+        @for (member of filtered(); track member.publicId) {
+          <li class="list-row cu__grid">
+            <div class="cu__identity">
+              <span class="cu__ava" aria-hidden="true">{{ initials(member) }}</span>
+              <span class="cu__copy">
+                <span class="cell-name">{{ member.firstNames }} {{ member.lastNames }}</span>
+                <span class="cell-sub">{{ member.email }}</span>
+              </span>
+            </div>
+
+            <div class="cu__privileges">
+              @if (isGeneralAdmin(member)) {
+                <span class="bdg bdg-purple">
+                  <i class="ti ti-shield-check" aria-hidden="true"></i>
+                  Acceso total
+                </span>
+              }
+              @for (privilege of extraPrivileges(member); track privilege.publicId) {
+                <span class="bdg bdg-blue">{{ labels[privilege.name] }}</span>
+              } @empty {
+                @if (!isGeneralAdmin(member)) {
+                  <span class="cell-meta empty">Sin privilegios</span>
+                }
+              }
+            </div>
+
+            <div class="cu__status">
+              @if (member.status === 'ACTIVE') {
+                <span class="bdg bdg-green">Activa</span>
+              } @else {
+                <span class="bdg bdg-gray">Inactiva</span>
+              }
+              @if (member.mustChangePassword) {
+                <span class="bdg bdg-amber">Pendiente de activacion</span>
+              }
+            </div>
+
+            <div class="cu__action">
+              @if (isSelf(member)) {
+                <span class="cell-meta">
+                  Tu cuenta
+                  <span class="cu__sr">(no puedes modificar tu propia membresia)</span>
+                </span>
+              } @else {
+                <button
+                  class="btn btn-outline btn-sm"
+                  type="button"
+                  [attr.aria-label]="
+                    (needsAdminManagement(member) ? 'Ver a ' : 'Editar a ') +
+                    member.firstNames +
+                    ' ' +
+                    member.lastNames
+                  "
+                  (click)="openEdit(member)"
+                >
+                  @if (needsAdminManagement(member)) {
+                    <i class="ti ti-lock" aria-hidden="true"></i>
+                    Ver
+                  } @else {
+                    <i class="ti ti-pencil" aria-hidden="true"></i>
+                    Editar
+                  }
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+}
+
+@if (addOpen() && company(); as current) {
+  <app-add-member-dialog
+    [companyPublicId]="current.publicId"
+    [catalog]="catalog()"
+    [canManageAdmins]="canManageAdmins()"
+    [adminLimitReached]="adminLimitReached()"
+    (added)="onAdded($event)"
+    (closed)="addOpen.set(false)"
+  />
+}
+
+@if (editing(); as member) {
+  @if (company(); as current) {
+    <app-edit-member-dialog
+      [companyPublicId]="current.publicId"
+      [membership]="member"
+      [catalog]="catalog()"
+      [canManageAdmins]="canManageAdmins()"
+      [adminLimitReached]="adminLimitReached()"
+      (saved)="onSaved($event)"
+      (closed)="editing.set(null)"
+    />
+  }
+}

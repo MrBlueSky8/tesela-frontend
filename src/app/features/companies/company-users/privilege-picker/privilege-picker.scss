@@ -1,0 +1,99 @@
+.pp {
+  display: grid;
+  gap: 14px;
+}
+
+.pp__group {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.pp__legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ts-text-3);
+}
+
+.pp__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ts-text-2);
+}
+
+.pp__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-card);
+  cursor: pointer;
+  transition:
+    border-color 0.1s,
+    background 0.1s;
+}
+
+.pp__item .chk-inp {
+  margin-top: 2px;
+}
+
+.pp__item:hover {
+  border-color: var(--ts-text-3);
+}
+
+.pp__item:focus-within {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.pp__item--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.pp__item--locked {
+  cursor: not-allowed;
+}
+
+.pp__item--locked:not(.pp__item--on) {
+  opacity: 0.6;
+}
+
+.pp__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pp__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ts-text);
+}
+
+.pp__desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ts-text-2);
+}
+
+.pp__alert {
+  margin: 0;
+}

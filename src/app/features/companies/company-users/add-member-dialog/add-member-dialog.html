@@ -1,0 +1,283 @@
+<app-modal-shell title="Agregar usuario" icon="user-plus" size="wide" (closed)="closed.emit()">
+  @if (mode() === 'done') {
+    <div class="modal-body">
+      <div class="confirm-body">
+        <div class="confirm-ico confirm-ico--info">
+          <i class="ti ti-mail-check" aria-hidden="true"></i>
+        </div>
+        <div class="confirm-t">Cuenta creada</div>
+        <div class="confirm-s" role="status">
+          Enviamos las credenciales a <strong>{{ deliveredTo() }}</strong> en un PDF protegido con
+          su numero de documento. Al ingresar se le pedira cambiar la contrasena.
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button #doneButton class="btn btn-primary btn-sm" type="button" (click)="closed.emit()">
+        Entendido
+      </button>
+    </div>
+  } @else {
+    <div class="modal-body">
+      <div class="amd__modes" role="group" aria-label="Tipo de alta">
+        <button
+          class="amd__mode"
+          type="button"
+          [class.amd__mode--on]="mode() === 'existing'"
+          [attr.aria-pressed]="mode() === 'existing'"
+          (click)="switchToExisting()"
+        >
+          <i class="ti ti-search" aria-hidden="true"></i>
+          Cuenta existente
+        </button>
+        <button
+          class="amd__mode"
+          type="button"
+          [class.amd__mode--on]="mode() === 'new'"
+          [attr.aria-pressed]="mode() === 'new'"
+          (click)="switchToNew()"
+        >
+          <i class="ti ti-user-plus" aria-hidden="true"></i>
+          Cuenta nueva
+        </button>
+      </div>
+
+      @if (submitError(); as error) {
+        <div class="alert alert-error amd__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <div>
+            <div>{{ error }}</div>
+            @if (errorHint() === 'duplicate-email') {
+              <button
+                class="amd__link"
+                type="button"
+                (click)="switchToExisting(createForm.controls.email.value)"
+              >
+                Buscar esa cuenta y agregarla
+              </button>
+            } @else if (errorHint() === 'names-mismatch') {
+              <div class="amd__hint">
+                Si el nombre registrado para ese documento tiene un error, solicita la correccion a
+                Fundades.
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (mode() === 'existing') {
+        <div class="fg">
+          <label class="fl" for="amd-search">Buscar por correo, documento o nombre</label>
+          <div class="search-wrap">
+            <i class="ti ti-search" aria-hidden="true"></i>
+            <input
+              #searchInput
+              class="search-inp"
+              id="amd-search"
+              type="search"
+              autocomplete="off"
+              [formControl]="searchControl"
+              aria-describedby="amd-search-status"
+            />
+          </div>
+        </div>
+
+        <div class="amd__results" id="amd-search-status" role="status">
+          @switch (searchState()) {
+            @case ('idle') {
+              <p class="amd__state">
+                Escribe al menos {{ minSearchLength }} caracteres para buscar.
+              </p>
+            }
+            @case ('short') {
+              <p class="amd__state">Escribe al menos {{ minSearchLength }} caracteres.</p>
+            }
+            @case ('loading') {
+              <p class="amd__state">
+                <span class="ts-spinner" aria-hidden="true"></span>
+                Buscando...
+              </p>
+            }
+            @case ('error') {
+              <p class="amd__state">No pudimos buscar. Intenta nuevamente.</p>
+            }
+            @case ('empty') {
+              <p class="amd__state">
+                No encontramos cuentas que puedas agregar.
+                <button class="amd__link" type="button" (click)="switchToNew()">
+                  Crear una cuenta nueva
+                </button>
+              </p>
+            }
+            @case ('results') {
+              <span class="amd__sr">{{ results().length }} resultados.</span>
+            }
+          }
+        </div>
+
+        @if (searchState() === 'results') {
+          <fieldset class="amd__list">
+            <legend class="amd__sr">Resultados de la busqueda</legend>
+            @for (user of results(); track user.publicId) {
+              <label
+                class="amd__option"
+                [class.amd__option--on]="selectedUser()?.publicId === user.publicId"
+              >
+                <input
+                  type="radio"
+                  name="amd-assignable"
+                  class="chk-inp"
+                  [checked]="selectedUser()?.publicId === user.publicId"
+                  (change)="selectUser(user)"
+                />
+                <span class="amd__option-copy">
+                  <span class="cell-name">{{ user.email }}</span>
+                  <span class="cell-sub">
+                    {{ user.firstNames }} {{ user.lastNames }} · {{ maskDocument(user) }}
+                  </span>
+                </span>
+              </label>
+            }
+          </fieldset>
+        }
+      } @else {
+        <p class="alert alert-amber amd__notice">
+          <i class="ti ti-file-lock" aria-hidden="true"></i>
+          <span>
+            La persona recibira sus credenciales por correo en un PDF protegido con su numero de
+            documento.
+          </span>
+        </p>
+
+        <form
+          class="frow amd__form"
+          [formGroup]="createForm"
+          (ngSubmit)="onCreate()"
+          novalidate
+          id="amd-create"
+        >
+          <div class="fg fg-full">
+            <label class="fl" for="amd-email">Correo</label>
+            <input
+              #emailInput
+              class="fi"
+              id="amd-email"
+              type="email"
+              autocomplete="off"
+              formControlName="email"
+              [class.invalid]="fieldError('email')"
+              [attr.aria-invalid]="!!fieldError('email')"
+              [attr.aria-describedby]="fieldError('email') ? 'amd-email-error' : null"
+            />
+            @if (fieldError('email'); as message) {
+              <span class="fi-err" id="amd-email-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="amd-doc-type">Tipo de documento</label>
+            <select class="fsel" id="amd-doc-type" formControlName="documentType">
+              @for (type of documentTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="amd-doc-number">Numero de documento</label>
+            <input
+              class="fi"
+              id="amd-doc-number"
+              type="text"
+              autocomplete="off"
+              formControlName="documentNumber"
+              [class.invalid]="fieldError('documentNumber')"
+              [attr.aria-invalid]="!!fieldError('documentNumber')"
+              [attr.aria-describedby]="fieldError('documentNumber') ? 'amd-doc-number-error' : null"
+            />
+            @if (fieldError('documentNumber'); as message) {
+              <span class="fi-err" id="amd-doc-number-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="amd-first-names">Nombres</label>
+            <input
+              class="fi"
+              id="amd-first-names"
+              type="text"
+              autocomplete="off"
+              formControlName="firstNames"
+              [class.invalid]="fieldError('firstNames')"
+              [attr.aria-invalid]="!!fieldError('firstNames')"
+              [attr.aria-describedby]="fieldError('firstNames') ? 'amd-first-names-error' : null"
+            />
+            @if (fieldError('firstNames'); as message) {
+              <span class="fi-err" id="amd-first-names-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="amd-last-names">Apellidos</label>
+            <input
+              class="fi"
+              id="amd-last-names"
+              type="text"
+              autocomplete="off"
+              formControlName="lastNames"
+              [class.invalid]="fieldError('lastNames')"
+              [attr.aria-invalid]="!!fieldError('lastNames')"
+              [attr.aria-describedby]="fieldError('lastNames') ? 'amd-last-names-error' : null"
+            />
+            @if (fieldError('lastNames'); as message) {
+              <span class="fi-err" id="amd-last-names-error">{{ message }}</span>
+            }
+          </div>
+        </form>
+      }
+
+      @if (mode() === 'new' || selectedUser()) {
+        <div class="amd__privileges">
+          <div class="fc-hdr">Privilegios en la empresa</div>
+          <app-privilege-picker
+            idPrefix="amd-privileges"
+            [catalog]="catalog()"
+            [(selected)]="privileges"
+            [canManageAdmins]="canManageAdmins()"
+            [adminLimitReached]="adminLimitReached()"
+          />
+        </div>
+      }
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
+
+      @if (mode() === 'existing') {
+        <button
+          class="btn btn-primary btn-sm"
+          type="button"
+          [disabled]="!selectedUser() || isSubmitting()"
+          (click)="onAddExisting()"
+        >
+          @if (isSubmitting()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+          }
+          Agregar a la empresa
+        </button>
+      } @else {
+        <button
+          class="btn btn-primary btn-sm"
+          type="submit"
+          form="amd-create"
+          [disabled]="isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+          }
+          Crear y enviar credenciales
+        </button>
+      }
+    </div>
+  }
+</app-modal-shell>

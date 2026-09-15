@@ -1,0 +1,170 @@
+.cu__alert {
+  margin-bottom: 14px;
+}
+
+.cu__retry {
+  margin-left: auto;
+}
+
+.cu__stat--limit {
+  border-color: var(--ts-amber);
+}
+
+.cu__stat-of {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ts-text-3);
+}
+
+.cu__toolbar {
+  flex-wrap: wrap;
+}
+
+/* Si no cabe junto a los filtros, el buscador baja a su propia linea en vez de encogerse. */
+.cu__toolbar .search-wrap {
+  min-width: 240px;
+}
+
+.cu__filters {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-surface-alt);
+}
+
+.cu__filter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ts-text-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.cu__filter--on {
+  background: var(--ts-card);
+  color: var(--ts-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.cu__filter:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.cu__count {
+  font-size: 11px;
+  color: var(--ts-text-3);
+}
+
+.cu__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cu__grid {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1.2fr) 96px;
+}
+
+.cu__identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cu__ava {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ts-purple-light);
+  color: var(--ts-purple-dark);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cu__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cu__copy .cell-name,
+.cu__copy .cell-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cu__privileges,
+.cu__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cu__action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cu__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .cu__grid {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* En pantallas angostas la fila apila privilegios y estado bajo el nombre. */
+  .list-hdr.cu__grid > :nth-child(2),
+  .list-hdr.cu__grid > :nth-child(3) {
+    display: none;
+  }
+
+  .cu__privileges,
+  .cu__status {
+    grid-column: 1 / 2;
+  }
+
+  .cu__action {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .stat-row.cu__stats {
+    gap: 8px;
+  }
+
+  .cu__stats .stat-card {
+    padding: 10px;
+  }
+
+  .cu__stats .stat-val {
+    font-size: 20px;
+  }
+
+  .cu__stats .stat-lbl {
+    font-size: 11px;
+  }
+}

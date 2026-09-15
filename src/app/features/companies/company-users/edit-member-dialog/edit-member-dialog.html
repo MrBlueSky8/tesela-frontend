@@ -1,0 +1,156 @@
+<app-modal-shell title="Editar membresia" icon="user-edit" size="wide" (closed)="closed.emit()">
+  @if (confirming(); as confirmation) {
+    <div class="modal-body">
+      <div class="confirm-body">
+        @if (confirmation === 'deactivate') {
+          <div class="confirm-ico confirm-ico--warning">
+            <i class="ti ti-user-off" aria-hidden="true"></i>
+          </div>
+          <div class="confirm-t" id="emd-confirm-title">Desactivar a {{ fullName() }}</div>
+          <div class="confirm-s">
+            Perdera el acceso a esta empresa hasta que la vuelvas a activar. Su cuenta y sus otras
+            empresas no cambian.
+          </div>
+        } @else {
+          <div class="confirm-ico confirm-ico--info">
+            <i class="ti ti-mail-forward" aria-hidden="true"></i>
+          </div>
+          <div class="confirm-t" id="emd-confirm-title">Reenviar credenciales</div>
+          <div class="confirm-s">
+            Enviaremos una nueva contrasena temporal a {{ member().email }}. La anterior dejara de
+            funcionar.
+          </div>
+        }
+      </div>
+    </div>
+    <div class="modal-foot confirm-foot">
+      <button class="btn btn-outline btn-sm" type="button" (click)="cancelConfirmation()">
+        Cancelar
+      </button>
+      <button
+        #confirmButton
+        class="btn btn-sm"
+        type="button"
+        [class.btn-ghost-red]="confirmation === 'deactivate'"
+        [class.btn-primary]="confirmation === 'resend'"
+        aria-describedby="emd-confirm-title"
+        (click)="confirm()"
+      >
+        {{ confirmation === 'deactivate' ? 'Desactivar' : 'Reenviar' }}
+      </button>
+    </div>
+  } @else {
+    <div class="modal-body">
+      <div class="emd__who">
+        <div class="emd__ava" aria-hidden="true">
+          {{ member().firstNames.charAt(0) }}{{ member().lastNames.charAt(0) }}
+        </div>
+        <div class="emd__who-copy">
+          <div class="cell-name">{{ fullName() }}</div>
+          <div class="cell-sub">{{ member().email }}</div>
+        </div>
+        @if (member().mustChangePassword) {
+          <span class="bdg bdg-amber">Pendiente de activacion</span>
+        }
+      </div>
+
+      @if (notice(); as message) {
+        <p class="alert alert-success emd__alert" role="status">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      @if (error(); as message) {
+        <p class="alert alert-error emd__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      @if (locked()) {
+        <p class="alert alert-amber emd__alert">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          <span>
+            Esta persona es administradora. Modificarla requiere el privilegio Gestionar admins.
+          </span>
+        </p>
+      }
+
+      <fieldset class="emd__status" [disabled]="locked()">
+        <legend class="emd__legend">Estado en la empresa</legend>
+        <label class="chk-lbl">
+          <input
+            class="chk-inp"
+            type="radio"
+            name="emd-status"
+            [checked]="status() === 'ACTIVE'"
+            (change)="setStatus('ACTIVE')"
+          />
+          <span>Activa</span>
+        </label>
+        <label class="chk-lbl">
+          <input
+            class="chk-inp"
+            type="radio"
+            name="emd-status"
+            [checked]="status() === 'INACTIVE'"
+            (change)="setStatus('INACTIVE')"
+          />
+          <span>Inactiva</span>
+        </label>
+      </fieldset>
+
+      <div class="fc-hdr">Privilegios en la empresa</div>
+      <app-privilege-picker
+        idPrefix="emd-privileges"
+        [catalog]="catalog()"
+        [(selected)]="privileges"
+        [canManageAdmins]="canManageAdmins()"
+        [disabled]="locked()"
+        [adminLimitReached]="warnAdminLimit()"
+      />
+
+      @if (canResend()) {
+        <div class="emd__resend">
+          <div>
+            <div class="cell-name">Aun no activa su cuenta</div>
+            <div class="cell-sub">
+              Si no recibio el correo, envia una nueva contrasena temporal.
+            </div>
+          </div>
+          <button
+            #resendButton
+            class="btn btn-outline btn-sm"
+            type="button"
+            [disabled]="isSaving()"
+            (click)="onResend()"
+          >
+            <i class="ti ti-mail-forward" aria-hidden="true"></i>
+            Reenviar credenciales
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">
+        {{ locked() ? 'Cerrar' : 'Cancelar' }}
+      </button>
+      @if (!locked()) {
+        <button
+          #saveButton
+          class="btn btn-primary btn-sm"
+          type="button"
+          [disabled]="!hasChanges() || isSaving()"
+          (click)="onSave()"
+        >
+          @if (isSaving()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+          }
+          Guardar cambios
+        </button>
+      }
+    </div>
+  }
+</app-modal-shell>

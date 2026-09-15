@@ -51,6 +51,19 @@ export class AuthService {
       );
   }
 
+  /**
+   * PATCH /api/users/me/password. El backend incrementa tokenVersion, asi que
+   * las sesiones abiertas (incluida esta) quedan invalidadas: hay que volver a entrar.
+   */
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http
+      .patch<ApiResponse<unknown>>(`${environment.base}/api/users/me/password`, {
+        currentPassword,
+        newPassword,
+      })
+      .pipe(map(() => void 0));
+  }
+
   logout(): void {
     this.tokenService.clearTokens();
   }
