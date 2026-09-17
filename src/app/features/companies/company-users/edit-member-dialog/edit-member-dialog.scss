@@ -61,3 +61,25 @@
   border: 1px dashed var(--ts-border-2);
   border-radius: var(--ts-radius-sm);
 }
+
+.emd__site {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-blue-light);
+  color: var(--ts-blue-dark);
+  font-size: 12.5px;
+}
+
+.emd__site a {
+  color: inherit;
+  font-weight: 600;
+}
+
+.emd__site--none {
+  background: var(--ts-surface-alt);
+  color: var(--ts-text-2);
+}

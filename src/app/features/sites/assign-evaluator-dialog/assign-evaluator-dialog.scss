@@ -1,0 +1,73 @@
+.aed__intro {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ts-text-2);
+}
+
+.aed__alert {
+  margin: 12px 0;
+}
+
+.aed__search {
+  margin-bottom: 10px;
+}
+
+.aed__state {
+  margin: 8px 0;
+  font-size: 12.5px;
+  color: var(--ts-text-3);
+}
+
+.aed__list {
+  display: grid;
+  gap: 6px;
+  max-height: 300px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: none;
+}
+
+.aed__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  cursor: pointer;
+}
+
+.aed__option:focus-within {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.aed__option--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.aed__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.aed__copy .cell-name,
+.aed__copy .cell-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aed__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

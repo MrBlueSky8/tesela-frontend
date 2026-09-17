@@ -1,0 +1,151 @@
+<div class="ph-row">
+  <div>
+    <div class="ph-t">Sedes</div>
+    <div class="ph-s">Sedes fisicas de la empresa y los evaluadores asignados a cada una.</div>
+  </div>
+
+  <button
+    class="btn btn-teal btn-sm"
+    type="button"
+    [disabled]="isLoading() || !!loadError()"
+    (click)="openNew()"
+  >
+    <i class="ti ti-plus" aria-hidden="true"></i>
+    Nueva sede
+  </button>
+</div>
+
+@if (notice(); as message) {
+  <p class="alert alert-success sp__alert" role="status">
+    <i class="ti ti-circle-check" aria-hidden="true"></i>
+    <span>{{ message }}</span>
+  </p>
+}
+
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando sedes...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error sp__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm sp__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else {
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().active }}</div>
+      <div class="stat-lbl">Sedes activas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().evaluators }}</div>
+      <div class="stat-lbl">Evaluadores asignados</div>
+    </div>
+    <div class="stat-card" [class.sp__stat--warn]="stats().withoutEvaluator > 0">
+      <div class="stat-val">{{ stats().withoutEvaluator }}</div>
+      <div class="stat-lbl">Sedes sin evaluador</div>
+    </div>
+  </div>
+
+  @if (sites().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-map-pin" aria-hidden="true"></i>
+      <p>Aun no hay sedes registradas. Registra la primera para asignarle evaluadores.</p>
+      <button class="btn btn-teal" type="button" (click)="openNew()">
+        <i class="ti ti-plus" aria-hidden="true"></i>
+        Nueva sede
+      </button>
+    </div>
+  } @else {
+    <div class="search-row sp__toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input
+          class="search-inp"
+          type="search"
+          placeholder="Buscar por nombre o ciudad"
+          aria-label="Buscar sedes"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+      <select
+        class="fsel sp__filter"
+        aria-label="Filtrar por estado"
+        [value]="statusFilter()"
+        (change)="onStatusFilter($event)"
+      >
+        <option value="ACTIVE">Activas</option>
+        <option value="INACTIVE">Inactivas</option>
+        <option value="ALL">Todas</option>
+      </select>
+    </div>
+
+    <p class="sp__count" role="status">
+      {{ filtered().length }} {{ filtered().length === 1 ? 'sede' : 'sedes' }}
+    </p>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <p>Ninguna sede coincide con los filtros.</p>
+        <button class="btn btn-outline btn-sm" type="button" (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </div>
+    } @else {
+      <div class="list-tbl">
+        <div class="list-hdr sp__grid" aria-hidden="true">
+          <span>Sede</span>
+          <span>Direccion</span>
+          <span>Evaluadores</span>
+          <span></span>
+        </div>
+        <ul class="sp__list">
+          @for (site of filtered(); track site.publicId) {
+            <li>
+              <a class="list-row sp__grid sp__row" [routerLink]="[site.publicId]">
+                <span class="sp__identity">
+                  <span class="cell-name">
+                    {{ site.nombre }}
+                    @if (site.status === 'INACTIVE') {
+                      <span class="bdg bdg-gray">Inactiva</span>
+                    }
+                  </span>
+                  <span class="cell-sub">{{ site.ciudad || 'Sin ciudad' }}</span>
+                </span>
+                <span class="cell-meta sp__address" [class.empty]="!site.direccion">
+                  {{ site.direccion || 'Sin direccion' }}
+                </span>
+                <span>
+                  @if (countFor(site) > 0) {
+                    <span class="bdg bdg-green">
+                      {{ countFor(site) }} {{ countFor(site) === 1 ? 'evaluador' : 'evaluadores' }}
+                    </span>
+                  } @else {
+                    <span class="bdg bdg-amber">Sin evaluador</span>
+                  }
+                </span>
+                <span class="sp__chevron" aria-hidden="true">
+                  <i class="ti ti-chevron-right"></i>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+}
+
+@if (formOpen() && company(); as current) {
+  <app-site-form-dialog
+    [companyPublicId]="current.publicId"
+    (saved)="onSaved($event)"
+    (closed)="formOpen.set(false)"
+  />
+}

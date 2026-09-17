@@ -12,10 +12,14 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { RouterLink } from '@angular/router';
+
 import { backendErrorMessage } from '../../../../core/helpers/backend-error-message';
+import { SiteEvaluatorResponse } from '../../../../core/models/site';
 import {
   explicitPrivileges,
   samePrivileges,
+  isSiteAssignable,
   touchesAdministration,
 } from '../../../../core/helpers/privilege-labels';
 import {
@@ -48,7 +52,7 @@ export interface MemberSavedEvent {
  */
 @Component({
   selector: 'app-edit-member-dialog',
-  imports: [ModalShell, PrivilegePicker],
+  imports: [RouterLink, ModalShell, PrivilegePicker],
   templateUrl: './edit-member-dialog.html',
   styleUrl: './edit-member-dialog.scss',
 })
@@ -66,6 +70,8 @@ export class EditMemberDialog implements OnInit {
   readonly catalog = input.required<CompanyPrivilegeResponse[]>();
   readonly canManageAdmins = input(false);
   readonly adminLimitReached = input(false);
+  /** Sede activa del miembro; se gestiona desde Sedes. */
+  readonly siteAssignment = input<SiteEvaluatorResponse | null>(null);
 
   readonly saved = output<MemberSavedEvent>();
   readonly closed = output<void>();
@@ -83,6 +89,9 @@ export class EditMemberDialog implements OnInit {
   readonly confirming = signal<Confirmation | null>(null);
 
   readonly assigned = computed(() => this.member().privileges.map((privilege) => privilege.name));
+
+  /** Evaluador potencial: tiene sentido mostrarle una sede. */
+  readonly siteAssignable = computed(() => isSiteAssignable(this.assigned()));
 
   readonly fullName = computed(() => `${this.member().firstNames} ${this.member().lastNames}`);
 

@@ -1,0 +1,73 @@
+<app-modal-shell
+  [title]="isEdit() ? 'Editar sede' : 'Nueva sede'"
+  icon="map-pin"
+  (closed)="closed.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="modal-body">
+      @if (error(); as message) {
+        <p class="alert alert-error sfd__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      <div class="fg">
+        <label class="fl" for="sfd-nombre">Nombre de la sede</label>
+        <input
+          class="fi"
+          id="sfd-nombre"
+          type="text"
+          autocomplete="off"
+          maxlength="200"
+          placeholder="Ej.: Sede Principal"
+          formControlName="nombre"
+          [class.invalid]="fieldError('nombre')"
+          [attr.aria-invalid]="!!fieldError('nombre')"
+          [attr.aria-describedby]="fieldError('nombre') ? 'sfd-nombre-error' : null"
+        />
+        @if (fieldError('nombre'); as message) {
+          <span class="fi-err" id="sfd-nombre-error">{{ message }}</span>
+        }
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="sfd-ciudad">Ciudad <span class="opt">opcional</span></label>
+        <input
+          class="fi"
+          id="sfd-ciudad"
+          type="text"
+          autocomplete="off"
+          maxlength="150"
+          placeholder="Ej.: Lima - Surco"
+          formControlName="ciudad"
+        />
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="sfd-direccion">Direccion <span class="opt">opcional</span></label>
+        <input
+          class="fi"
+          id="sfd-direccion"
+          type="text"
+          autocomplete="off"
+          maxlength="300"
+          placeholder="Ej.: Av. Ejemplo 123"
+          formControlName="direccion"
+        />
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
+      <button class="btn btn-teal btn-sm" type="submit" [disabled]="isSaving() || !canSave()">
+        @if (isSaving()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+        } @else {
+          <i class="ti ti-check" aria-hidden="true"></i>
+        }
+        {{ isEdit() ? 'Guardar cambios' : 'Registrar sede' }}
+      </button>
+    </div>
+  </form>
+</app-modal-shell>

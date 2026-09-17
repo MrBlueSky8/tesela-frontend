@@ -1,0 +1,247 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando sede...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error sd__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <a class="btn btn-outline btn-sm sd__back-error" routerLink="..">Volver a sedes</a>
+  </div>
+} @else if (site(); as current) {
+  <div class="ph-row">
+    <div>
+      <div class="ph-t">
+        {{ current.nombre }}
+        @if (current.status === 'INACTIVE') {
+          <span class="bdg bdg-gray sd__title-badge">Inactiva</span>
+        }
+      </div>
+      <div class="ph-s">{{ current.ciudad || 'Sin ciudad registrada' }}</div>
+    </div>
+
+    <div class="sd__actions">
+      <a class="btn btn-outline btn-sm" routerLink="..">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        Volver
+      </a>
+      <button class="btn btn-outline btn-sm" type="button" (click)="openEdit()">
+        <i class="ti ti-pencil" aria-hidden="true"></i>
+        Editar
+      </button>
+      <button
+        class="btn btn-sm"
+        type="button"
+        [class.btn-ghost-red]="current.status === 'ACTIVE'"
+        [class.btn-outline]="current.status !== 'ACTIVE'"
+        [disabled]="statusBusy()"
+        (click)="askStatusChange()"
+      >
+        @if (statusBusy()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+        }
+        {{ current.status === 'ACTIVE' ? 'Desactivar' : 'Reactivar' }}
+      </button>
+    </div>
+  </div>
+
+  @if (notice(); as message) {
+    <p class="alert alert-success sd__alert" role="status">
+      <i class="ti ti-circle-check" aria-hidden="true"></i>
+      <span>{{ message }}</span>
+    </p>
+  }
+
+  @if (actionError(); as message) {
+    <p class="alert alert-error sd__alert" role="alert">
+      <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      <span>{{ message }}</span>
+    </p>
+  }
+
+  <section class="det-card" aria-label="Datos de la sede">
+    <div class="det-grid">
+      <div>
+        <div class="det-lbl">Ciudad</div>
+        <div class="det-val" [class.empty]="!current.ciudad">
+          {{ current.ciudad || 'Sin ciudad' }}
+        </div>
+      </div>
+      <div>
+        <div class="det-lbl">Direccion</div>
+        <div class="det-val" [class.empty]="!current.direccion">
+          {{ current.direccion || 'Sin direccion' }}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fc" aria-labelledby="sd-evaluators">
+    <div class="sd__section-head">
+      <div>
+        <div class="fc-hdr sd__section-title" id="sd-evaluators">Evaluadores</div>
+        <p class="sd__section-sub">
+          {{ activeEvaluators() }}
+          {{ activeEvaluators() === 1 ? 'evaluador activo' : 'evaluadores activos' }}. Operan solo
+          en esta sede.
+        </p>
+      </div>
+      <button
+        class="btn btn-teal btn-sm"
+        type="button"
+        [disabled]="current.status !== 'ACTIVE'"
+        [attr.aria-describedby]="current.status !== 'ACTIVE' ? 'sd-assign-note' : null"
+        (click)="openAssign()"
+      >
+        <i class="ti ti-user-plus" aria-hidden="true"></i>
+        Asignar evaluador
+      </button>
+    </div>
+
+    @if (current.status !== 'ACTIVE') {
+      <p class="alert alert-amber sd__alert" id="sd-assign-note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <span>La sede esta inactiva: reactivala para asignar o reactivar evaluadores.</span>
+      </p>
+    }
+
+    @if (sortedEvaluators().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-user-check" aria-hidden="true"></i>
+        <p>Esta sede aun no tiene evaluadores asignados.</p>
+      </div>
+    } @else {
+      <ul class="sd__list">
+        @for (evaluator of sortedEvaluators(); track evaluator.publicId) {
+          <li class="sd__row" [class.sd__row--inactive]="evaluator.status !== 'ACTIVE'">
+            @if (confirmingId() === evaluator.publicId) {
+              <div class="sd__confirm">
+                <p class="sd__confirm-text">
+                  <strong
+                    >¿Desactivar a {{ evaluator.firstNames }} {{ evaluator.lastNames }}?</strong
+                  >
+                  Dejara de operar en esta sede. La asignacion se conserva en el historial.
+                </p>
+                <div class="sd__row-actions">
+                  <button
+                    class="btn btn-outline btn-sm"
+                    type="button"
+                    [attr.data-assignment]="evaluator.publicId"
+                    data-action="confirm"
+                    (click)="cancelDeactivate(evaluator)"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    class="btn btn-ghost-red btn-sm"
+                    type="button"
+                    [disabled]="rowBusyId() === evaluator.publicId"
+                    (click)="setStatus(evaluator, 'INACTIVE')"
+                  >
+                    Desactivar
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="sd__info">
+                <div class="cell-name">
+                  {{ evaluator.firstNames }} {{ evaluator.lastNames }}
+                  @if (evaluator.status !== 'ACTIVE') {
+                    <span class="bdg bdg-gray">Inactiva</span>
+                  } @else if (isNoLongerEligible(evaluator)) {
+                    <span
+                      class="bdg bdg-amber"
+                      title="Ya no cumple los requisitos para evaluar en una sede"
+                    >
+                      No elegible
+                    </span>
+                  }
+                </div>
+                <div class="cell-sub">{{ evaluator.email }} · {{ privilegeLabels(evaluator) }}</div>
+              </div>
+              <div class="sd__row-actions">
+                @if (evaluator.status === 'ACTIVE') {
+                  <button
+                    class="btn btn-ghost-red btn-sm"
+                    type="button"
+                    [attr.data-assignment]="evaluator.publicId"
+                    data-action="status"
+                    [attr.aria-label]="
+                      'Desactivar a ' + evaluator.firstNames + ' ' + evaluator.lastNames
+                    "
+                    (click)="askDeactivate(evaluator)"
+                  >
+                    Desactivar
+                  </button>
+                } @else {
+                  <button
+                    class="btn btn-outline btn-sm"
+                    type="button"
+                    [attr.data-assignment]="evaluator.publicId"
+                    data-action="status"
+                    [attr.aria-label]="
+                      'Reactivar a ' + evaluator.firstNames + ' ' + evaluator.lastNames
+                    "
+                    [disabled]="rowBusyId() === evaluator.publicId || current.status !== 'ACTIVE'"
+                    (click)="setStatus(evaluator, 'ACTIVE')"
+                  >
+                    Reactivar
+                  </button>
+                }
+              </div>
+            }
+
+            @if (rowErrorFor(evaluator); as error) {
+              <div class="sd__row-error" role="alert">
+                <span class="fi-err">{{ error.message }}</span>
+                @if (error.offerTransfer) {
+                  <button
+                    class="btn btn-outline btn-sm"
+                    type="button"
+                    [disabled]="rowBusyId() === evaluator.publicId"
+                    (click)="transferHere(evaluator)"
+                  >
+                    <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
+                    Trasladar a esta sede
+                  </button>
+                }
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  @if (editOpen() && company(); as selected) {
+    <app-site-form-dialog
+      [companyPublicId]="selected.publicId"
+      [site]="current"
+      (saved)="onSaved($event)"
+      (closed)="editOpen.set(false)"
+    />
+  }
+
+  @if (assignOpen() && company(); as selected) {
+    <app-assign-evaluator-dialog
+      [companyPublicId]="selected.publicId"
+      [site]="current"
+      [members]="members()"
+      [assignments]="assignments()"
+      (assigned)="onAssigned($event)"
+      (closed)="assignOpen.set(false)"
+    />
+  }
+
+  @if (confirmStatus()) {
+    <app-confirm-dialog
+      [title]="current.status === 'ACTIVE' ? 'Desactivar esta sede' : 'Reactivar esta sede'"
+      [message]="statusMessage()"
+      [tone]="current.status === 'ACTIVE' ? 'warning' : 'info'"
+      [confirmLabel]="current.status === 'ACTIVE' ? 'Desactivar' : 'Reactivar'"
+      (confirmed)="changeStatus()"
+      (cancelled)="confirmStatus.set(false)"
+    />
+  }
+}

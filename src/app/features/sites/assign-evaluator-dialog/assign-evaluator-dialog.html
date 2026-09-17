@@ -1,0 +1,103 @@
+<app-modal-shell title="Asignar evaluador" icon="user-check" size="wide" (closed)="closed.emit()">
+  <div class="modal-body">
+    <p class="aed__intro">
+      Asigna a <strong>{{ site().nombre }}</strong> a un miembro con Admin. de sede o un privilegio
+      de modulo. Cada evaluador tiene una sede operativa.
+    </p>
+
+    @if (error(); as message) {
+      <p class="alert alert-error aed__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    @if (candidates().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-user-question" aria-hidden="true"></i>
+        <p>
+          No hay miembros que puedas asignar. Para ser evaluador de una sede, un miembro activo
+          necesita Admin. de sede o un privilegio de modulo, y no ser administrador general.
+        </p>
+        <a class="btn btn-outline btn-sm" routerLink="/empresa/usuarios" (click)="closed.emit()">
+          Ir a Usuarios
+        </a>
+      </div>
+    } @else {
+      <div class="search-wrap aed__search">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input
+          class="search-inp"
+          type="search"
+          placeholder="Buscar por nombre o correo"
+          aria-label="Buscar miembros"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      @if (filtered().length === 0) {
+        <p class="aed__state" role="status">Ningun miembro coincide con la busqueda.</p>
+      } @else {
+        <fieldset class="aed__list">
+          <legend class="aed__sr">Miembros elegibles</legend>
+          @for (candidate of filtered(); track candidate.member.publicId) {
+            <label
+              class="aed__option"
+              [class.aed__option--on]="selectedId() === candidate.member.publicId"
+            >
+              <input
+                class="chk-inp"
+                type="radio"
+                name="aed-candidate"
+                [checked]="selectedId() === candidate.member.publicId"
+                (change)="select(candidate)"
+              />
+              <span class="aed__copy">
+                <span class="cell-name">
+                  {{ candidate.member.firstNames }} {{ candidate.member.lastNames }}
+                </span>
+                <span class="cell-sub">
+                  {{ candidate.member.email }} · {{ privilegeLabels(candidate.member) }}
+                </span>
+              </span>
+              @if (candidate.currentAssignment; as current) {
+                <span class="bdg bdg-amber">En {{ current.siteName }}</span>
+              }
+            </label>
+          }
+        </fieldset>
+      }
+
+      @if (isTransfer() && selected(); as candidate) {
+        <p class="alert alert-amber aed__alert" role="status">
+          <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
+          <span>
+            Se trasladara desde
+            <strong>{{ candidate.currentAssignment?.siteName ?? 'su sede actual' }}</strong
+            >: esa asignacion quedara inactiva y se conservara en el historial.
+          </span>
+        </p>
+      }
+    }
+  </div>
+
+  <div class="modal-foot">
+    <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
+    @if (candidates().length > 0) {
+      <button
+        class="btn btn-teal btn-sm"
+        type="button"
+        [disabled]="!selected() || isSaving()"
+        (click)="onSubmit()"
+      >
+        @if (isSaving()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+        } @else {
+          <i class="ti ti-check" aria-hidden="true"></i>
+        }
+        {{ isTransfer() ? 'Trasladar y asignar' : 'Asignar' }}
+      </button>
+    }
+  </div>
+</app-modal-shell>

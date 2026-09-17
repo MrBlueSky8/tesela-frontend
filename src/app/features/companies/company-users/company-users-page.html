@@ -137,6 +137,15 @@
               @if (member.mustChangePassword) {
                 <span class="bdg bdg-amber">Pendiente de activacion</span>
               }
+              @if (siteOf(member); as assignment) {
+                <a
+                  class="bdg bdg-blue cu__site"
+                  [routerLink]="['/empresa/sedes', assignment.sitePublicId]"
+                >
+                  <i class="ti ti-map-pin" aria-hidden="true"></i>
+                  {{ assignment.siteName }}
+                </a>
+              }
             </div>
 
             <div class="cu__action">
@@ -190,6 +199,7 @@
     <app-edit-member-dialog
       [companyPublicId]="current.publicId"
       [membership]="member"
+      [siteAssignment]="siteOf(member)"
       [catalog]="catalog()"
       [canManageAdmins]="canManageAdmins()"
       [adminLimitReached]="adminLimitReached()"

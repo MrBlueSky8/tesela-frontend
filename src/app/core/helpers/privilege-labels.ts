@@ -65,3 +65,17 @@ export function samePrivileges(
   const right = explicitPrivileges(b);
   return left.length === right.length && left.every((privilege, i) => privilege === right[i]);
 }
+
+/**
+ * Puede asignarse a una sede: sin Admin. general (ya alcanza todas) y con
+ * Admin. de sede o algun modulo. Espejo de SiteEvaluatorService.requireAssignable;
+ * el estado activo de la membresia se valida aparte.
+ */
+export function isSiteAssignable(privileges: readonly CompanyPrivilege[]): boolean {
+  return (
+    !privileges.includes('ADMIN_GENERAL') &&
+    privileges.some(
+      (privilege) => privilege === 'ADMIN_SEDE' || MODULE_PRIVILEGES.includes(privilege),
+    )
+  );
+}

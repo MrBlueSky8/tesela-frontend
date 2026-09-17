@@ -111,6 +111,26 @@
         [adminLimitReached]="warnAdminLimit()"
       />
 
+      @if (siteAssignment(); as assignment) {
+        <div class="emd__site">
+          <i class="ti ti-map-pin" aria-hidden="true"></i>
+          <span>
+            Sede asignada:
+            <a [routerLink]="['/empresa/sedes', assignment.sitePublicId]" (click)="closed.emit()">
+              {{ assignment.siteName }}
+            </a>
+          </span>
+        </div>
+      } @else if (siteAssignable()) {
+        <div class="emd__site emd__site--none">
+          <i class="ti ti-map-pin-off" aria-hidden="true"></i>
+          <span>
+            Sin sede asignada. Asignala desde
+            <a routerLink="/empresa/sedes" (click)="closed.emit()">Sedes</a>.
+          </span>
+        </div>
+      }
+
       @if (canResend()) {
         <div class="emd__resend">
           <div>

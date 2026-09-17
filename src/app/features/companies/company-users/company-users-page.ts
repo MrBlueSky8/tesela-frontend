@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
@@ -7,6 +8,8 @@ import { CompanyPrivilegeResponse } from '../../../core/models/company';
 import { CompanyMembershipResponse } from '../../../core/models/company-membership';
 import { CompanyContextService } from '../../../core/services/company-context-service';
 import { TokenService } from '../../../core/services/token-service';
+import { SiteEvaluatorResponse } from '../../../core/models/site';
+import { SitesApiService } from '../../sites/sites-api-service';
 import { CompanyUsersApiService } from '../company-users-api-service';
 import { AddMemberDialog, MemberAddedEvent } from './add-member-dialog/add-member-dialog';
 import { EditMemberDialog, MemberSavedEvent } from './edit-member-dialog/edit-member-dialog';
@@ -19,12 +22,13 @@ type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
  */
 @Component({
   selector: 'app-company-users-page',
-  imports: [AddMemberDialog, EditMemberDialog],
+  imports: [RouterLink, AddMemberDialog, EditMemberDialog],
   templateUrl: './company-users-page.html',
   styleUrl: './company-users-page.scss',
 })
 export class CompanyUsersPage {
   private readonly api = inject(CompanyUsersApiService);
+  private readonly sitesApi = inject(SitesApiService);
   private readonly companyContext = inject(CompanyContextService);
   private readonly tokenService = inject(TokenService);
 
@@ -32,6 +36,8 @@ export class CompanyUsersPage {
   readonly labels = PRIVILEGE_LABELS;
 
   readonly members = signal<CompanyMembershipResponse[]>([]);
+  /** Asignaciones a sedes de toda la empresa, para mostrar la sede de cada miembro. */
+  readonly assignments = signal<SiteEvaluatorResponse[]>([]);
   readonly catalog = signal<CompanyPrivilegeResponse[]>([]);
   readonly isLoading = signal(true);
   readonly loadError = signal<string | null>(null);
@@ -113,10 +119,12 @@ export class CompanyUsersPage {
     forkJoin({
       catalog: this.api.privileges(),
       members: this.api.list(company.publicId),
+      assignments: this.sitesApi.assignments(company.publicId),
     }).subscribe({
-      next: ({ catalog, members }) => {
+      next: ({ catalog, members, assignments }) => {
         this.catalog.set(catalog);
         this.members.set(members);
+        this.assignments.set(assignments);
         this.isLoading.set(false);
       },
       error: (error: unknown) => {
@@ -124,6 +132,16 @@ export class CompanyUsersPage {
         this.isLoading.set(false);
       },
     });
+  }
+
+  /** Asignacion activa del miembro, si tiene. */
+  siteOf(member: CompanyMembershipResponse): SiteEvaluatorResponse | null {
+    return (
+      this.assignments().find(
+        (assignment) =>
+          assignment.membershipPublicId === member.publicId && assignment.status === 'ACTIVE',
+      ) ?? null
+    );
   }
 
   onSearch(event: Event): void {

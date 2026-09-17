@@ -15,6 +15,8 @@ import { CompanyProfile } from './features/companies/company-profile/company-pro
 import { CompanyUsersPage } from './features/companies/company-users/company-users-page';
 import { PositionDetail } from './features/organization/position-detail/position-detail';
 import { PositionsPage } from './features/organization/positions-page/positions-page';
+import { SiteDetail } from './features/sites/site-detail/site-detail';
+import { SitesPage } from './features/sites/sites-page/sites-page';
 import { Home } from './features/home/home';
 import { PlaceholderPage } from './features/placeholder/placeholder-page';
 import { MainLayout } from './layout/main-layout/main-layout';
@@ -73,7 +75,7 @@ export const routes: Routes = [
         },
       },
       {
-        // Gestion de la empresa seleccionada. Sedes llega en la fase 5.
+        // Gestion de la empresa seleccionada.
         path: 'empresa',
         data: { breadcrumb: 'Gestion' },
         canActivateChild: [companyContextGuard],
@@ -116,14 +118,25 @@ export const routes: Routes = [
             ],
           },
           {
+            // Sin componente: los hijos heredan breadcrumb y privilegios.
             path: 'sedes',
-            component: PlaceholderPage,
             data: {
               breadcrumb: 'Sedes',
-              title: 'Sedes',
-              description: 'Sedes de la empresa y evaluadores asignados.',
               privileges: ['ADMIN_GENERAL'],
             },
+            children: [
+              {
+                path: '',
+                component: SitesPage,
+                // Vacio para no repetir la miga heredada del padre.
+                data: { breadcrumb: '' },
+              },
+              {
+                path: ':sitePublicId',
+                component: SiteDetail,
+                data: { breadcrumb: 'Detalle de la sede' },
+              },
+            ],
           },
         ],
       },

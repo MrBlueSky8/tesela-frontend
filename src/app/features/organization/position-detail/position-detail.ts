@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin, map } from 'rxjs';
+import { distinctUntilChanged, forkJoin, map } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import {
@@ -28,10 +28,7 @@ export class PositionDetail {
 
   readonly company = this.companyContext.company;
 
-  private readonly positionId = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('positionPublicId') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('positionPublicId') ?? '' },
-  );
+  private readonly positionId = signal('');
 
   readonly position = signal<PositionResponse | null>(null);
   readonly departments = signal<DepartmentResponse[]>([]);
@@ -70,7 +67,22 @@ export class PositionDetail {
   readonly hasConditions = computed(() => (this.position()?.condiciones.length ?? 0) > 0);
 
   constructor() {
-    this.load();
+    // Angular reutiliza el componente si solo cambia el parametro (p. ej. con
+    // Atras/Adelante entre dos detalles): hay que recargar en cada cambio.
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('positionPublicId') ?? ''),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((id) => {
+        this.editOpen.set(false);
+        this.confirmStatus.set(false);
+        this.notice.set(null);
+        this.actionError.set(null);
+        this.positionId.set(id);
+        this.load();
+      });
   }
 
   load(): void {
