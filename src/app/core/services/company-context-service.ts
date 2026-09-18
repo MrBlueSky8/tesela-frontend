@@ -24,6 +24,9 @@ interface StoredSelection {
 
 const STORAGE_KEY = 'selected_company';
 
+/** Espera minima entre refrescos de privilegios al volver a la ventana. */
+const REFRESH_INTERVAL_MS = 60_000;
+
 /**
  * Empresa seleccionada y privilegios efectivos del usuario en ella.
  *
@@ -43,6 +46,10 @@ export class CompanyContextService {
 
   /** Usuario al que pertenece el contexto cargado en memoria. */
   private ownerPublicId: string | null = null;
+
+  /** Ultimo refresco de privilegios (ms), para no pedir /my-access en cada foco. */
+  private lastRefreshAt = 0;
+  private refreshing = false;
 
   /** Restauracion en curso, compartida entre el layout y los guards. */
   private restoring$: Observable<boolean> | null = null;
@@ -132,6 +139,48 @@ export class CompanyContextService {
     this.companyState.set(company);
   }
 
+  /**
+   * Vuelve a pedir /my-access de la empresa seleccionada, como mucho una vez
+   * por minuto. Asi un privilegio quitado por un administrador deja de verse
+   * sin cerrar sesion. Un 403/404 significa que ya no hay acceso: se olvida la
+   * seleccion. Los errores de red se ignoran y se reintenta en el siguiente foco.
+   */
+  refreshAccess(): void {
+    const company = this.companyState();
+    const now = Date.now();
+
+    if (!company || this.refreshing || now - this.lastRefreshAt < REFRESH_INTERVAL_MS) {
+      return;
+    }
+
+    this.refreshing = true;
+    this.lastRefreshAt = now;
+
+    this.companyApi
+      .myAccess(company.publicId)
+      .pipe(
+        finalize(() => {
+          this.refreshing = false;
+        }),
+      )
+      .subscribe({
+        next: (access) => {
+          // La seleccion pudo cambiar mientras llegaba la respuesta.
+          if (this.companyState()?.publicId === company.publicId) {
+            this.accessState.set(access);
+          }
+        },
+        error: (error: unknown) => {
+          const rejected =
+            error instanceof HttpErrorResponse && (error.status === 403 || error.status === 404);
+
+          if (rejected && this.companyState()?.publicId === company.publicId) {
+            this.clear();
+          }
+        },
+      });
+  }
+
   clear(): void {
     this.resetMemory();
     localStorage.removeItem(STORAGE_KEY);
@@ -165,6 +214,7 @@ export class CompanyContextService {
   }
 
   private apply(company: CompanyResponse, access: CompanyMyAccessResponse): void {
+    this.lastRefreshAt = Date.now();
     const userPublicId = this.tokenService.userPublicId();
 
     this.ownerPublicId = userPublicId;

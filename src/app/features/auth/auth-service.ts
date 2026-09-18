@@ -64,6 +64,33 @@ export class AuthService {
       .pipe(map(() => void 0));
   }
 
+  /** Respuesta generica: el backend no revela si el correo existe. */
+  startPasswordReset(email: string): Observable<string> {
+    return this.http
+      .post<ApiResponse<{ message: string }>>(`${this.apiUrl}/password-reset/start`, { email })
+      .pipe(map((response) => response.message));
+  }
+
+  /** Canjea el codigo por un token de un solo uso para fijar la contrasena. */
+  verifyPasswordResetCode(email: string, code: string): Observable<string> {
+    return this.http
+      .post<ApiResponse<{ resetToken: string; expiresAt: string }>>(
+        `${this.apiUrl}/password-reset/verify`,
+        { email, code },
+      )
+      .pipe(map((response) => response.data.resetToken));
+  }
+
+  confirmPasswordReset(email: string, resetToken: string, newPassword: string): Observable<void> {
+    return this.http
+      .post<ApiResponse<unknown>>(`${this.apiUrl}/password-reset/confirm`, {
+        email,
+        resetToken,
+        newPassword,
+      })
+      .pipe(map(() => void 0));
+  }
+
   logout(): void {
     this.tokenService.clearTokens();
   }

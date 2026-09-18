@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { CompanyContextService } from '../../core/services/company-context-service';
@@ -18,9 +18,17 @@ import { Topbar } from '../components/topbar/topbar';
   styleUrl: './main-layout.scss',
 })
 export class MainLayout {
+  private readonly companyContext = inject(CompanyContextService);
+
   constructor() {
     // Carga la empresa guardada (o la unica del usuario) para que el sidebar
     // muestre la gestion y los modulos sin esperar a una ruta protegida.
-    inject(CompanyContextService).restore().subscribe();
+    this.companyContext.restore().subscribe();
+  }
+
+  /** Al volver a la pestana se refrescan los privilegios (con limite de frecuencia). */
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.companyContext.refreshAccess();
   }
 }

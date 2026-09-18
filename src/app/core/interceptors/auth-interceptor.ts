@@ -7,7 +7,11 @@ import { TokenService } from '../services/token-service';
  * Endpoints que TeselaBackend expone sin autenticacion
  * (auth/security/SecurityConfig): no deben llevar Authorization.
  */
-export const PUBLIC_ENDPOINTS = ['/api/auth/login', '/api/auth/refresh-token'];
+export const PUBLIC_ENDPOINTS = [
+  '/api/auth/login',
+  '/api/auth/refresh-token',
+  '/api/auth/password-reset',
+];
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const tokenService = inject(TokenService);

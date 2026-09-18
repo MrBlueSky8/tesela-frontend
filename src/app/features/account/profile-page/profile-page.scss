@@ -1,0 +1,73 @@
+.account {
+  max-width: 760px;
+}
+
+.account__alert {
+  margin-bottom: 14px;
+}
+
+.account__retry {
+  margin-left: auto;
+}
+
+.account__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.account__note--lead {
+  margin: 0 0 12px;
+}
+
+.account .frow {
+  margin-bottom: 0;
+}
+
+.account__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.account__actions--split {
+  justify-content: space-between;
+}
+
+.account__access-admin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.account__access-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account__access {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--ts-border);
+}
+
+.account__access:first-child {
+  border-top: 0;
+}
+
+.account__privileges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

@@ -1,27 +1,53 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
+import { SidebarItem } from '../../core/models/sidebar-item';
+import { CompanyContextService } from '../../core/services/company-context-service';
+import { SidebarAccessService } from '../../core/services/sidebar-access-service';
 import { TokenService } from '../../core/services/token-service';
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN_PLATAFORMA: 'Administrador de plataforma',
-  USUARIO: 'Usuario',
-};
+/** Secciones del sidebar que se ofrecen como accesos directos en el inicio. */
+const SHORTCUT_SECTIONS = ['plataforma', 'gestion', 'modulos'];
 
+/**
+ * Inicio segun el rol: accesos directos a lo que el usuario puede usar,
+ * calculados con las mismas reglas que el sidebar (rol global y privilegios
+ * efectivos en la empresa seleccionada).
+ */
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
   private readonly tokenService = inject(TokenService);
+  private readonly sidebarAccess = inject(SidebarAccessService);
+  private readonly companyContext = inject(CompanyContextService);
 
   readonly username = computed(() => this.tokenService.username() ?? 'Usuario');
+  readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
+  readonly company = this.companyContext.company;
 
-  readonly roleLabel = computed(() => {
-    const role = this.tokenService.role();
-    return role ? (ROLE_LABELS[role] ?? role) : 'Sin rol global';
-  });
+  readonly sections = computed(() =>
+    this.sidebarAccess
+      .sidebarSections()
+      .filter((section) => SHORTCUT_SECTIONS.includes(section.id))
+      .map((section) => ({ ...section, items: section.items.filter((item) => !!item.route) }))
+      .filter((section) => section.items.length > 0),
+  );
 
-  readonly userPublicId = this.tokenService.userPublicId;
+  /** Nombre del icono Tabler o color del punto. */
+  iconValue(item: SidebarItem): string {
+    const icon = item.icon;
+    return !icon ? '' : icon.type === 'tabler' ? icon.name : icon.color;
+  }
+
+  /** Usuario de empresa con empresa elegida pero sin nada que usar en ella. */
+  readonly withoutPrivileges = computed(
+    () =>
+      !this.isPlatformAdmin() &&
+      !!this.company() &&
+      !this.sections().some((section) => section.id !== 'plataforma'),
+  );
 }

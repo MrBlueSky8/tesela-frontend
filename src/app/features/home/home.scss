@@ -1,11 +1,73 @@
-.home__card {
-  max-width: 640px;
+.home {
+  max-width: 760px;
 }
 
-.home__hint {
-  max-width: 640px;
+.home__empty .btn {
+  margin-top: 10px;
 }
 
-code {
-  font-size: 12px;
+.home__alert {
+  margin-bottom: 16px;
+}
+
+.home__section {
+  margin-bottom: 18px;
+}
+
+.home__section-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ts-text-3);
+}
+
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home__tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius);
+  background: var(--ts-card);
+  color: var(--ts-text);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.home__tile:hover,
+.home__tile:focus-visible {
+  border-color: var(--ts-green);
+}
+
+.home__tile-icon {
+  font-size: 18px;
+  color: var(--ts-green-dark);
+}
+
+.home__tile-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.home__tile-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.home__tile-arrow {
+  color: var(--ts-text-3);
 }

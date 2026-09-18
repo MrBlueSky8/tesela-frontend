@@ -43,6 +43,13 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
         mobileTab: true,
         mobileOrder: 2,
       },
+      {
+        id: 'people',
+        label: 'Personas',
+        icon: { type: 'tabler', name: 'id-badge-2' },
+        route: '/plataforma/personas',
+        allowedGlobalRoles: ['ADMIN_PLATAFORMA'],
+      },
     ],
   },
   {

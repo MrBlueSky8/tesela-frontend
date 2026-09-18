@@ -1,0 +1,276 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando perfil...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error account__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm account__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else if (profile(); as current) {
+  <div class="ph">
+    <div class="ph-t">Mi perfil</div>
+    <div class="ph-s">Tus datos, tu contrasena y las empresas a las que tienes acceso.</div>
+  </div>
+
+  <div class="account">
+    <!-- ================= Identidad ================= -->
+    <section class="fc" aria-labelledby="identity-heading">
+      <div class="fc-hdr" id="identity-heading">Identidad</div>
+
+      <div class="det-grid">
+        <div>
+          <div class="det-lbl">Nombre completo</div>
+          <div class="det-val">{{ fullName() }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">{{ documentLabel() }}</div>
+          <div class="det-val">{{ current.documentNumber }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">Correo de la cuenta</div>
+          <div class="det-val">{{ current.email }}</div>
+        </div>
+      </div>
+
+      <p class="cell-sub account__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        Si tu nombre o documento tienen un error, solicita la correccion al soporte de Fundades.
+      </p>
+    </section>
+
+    <!-- ================= Datos personales ================= -->
+    <section class="fc" aria-labelledby="personal-heading">
+      <div class="fc-hdr" id="personal-heading">Datos personales</div>
+
+      @if (saveSuccess(); as message) {
+        <p class="alert alert-success account__alert" role="status">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+      @if (saveError(); as message) {
+        <p class="alert alert-error account__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="acc-phone">Telefono</label>
+            <input
+              class="fi"
+              id="acc-phone"
+              type="tel"
+              formControlName="telefono"
+              autocomplete="tel"
+              [class.invalid]="fieldError('telefono')"
+              [attr.aria-invalid]="!!fieldError('telefono')"
+              [attr.aria-describedby]="fieldError('telefono') ? 'acc-phone-error' : null"
+            />
+            @if (fieldError('telefono'); as message) {
+              <span class="fi-err" id="acc-phone-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="acc-address">Direccion</label>
+            <input
+              class="fi"
+              id="acc-address"
+              type="text"
+              formControlName="direccion"
+              autocomplete="street-address"
+              maxlength="120"
+              [class.invalid]="fieldError('direccion')"
+              [attr.aria-invalid]="!!fieldError('direccion')"
+              [attr.aria-describedby]="fieldError('direccion') ? 'acc-address-error' : null"
+            />
+            @if (fieldError('direccion'); as message) {
+              <span class="fi-err" id="acc-address-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="acc-birth">Fecha de nacimiento</label>
+            <input
+              class="fi"
+              id="acc-birth"
+              type="date"
+              formControlName="fechaNacimiento"
+              autocomplete="bday"
+              [max]="maxBirthDate"
+            />
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="acc-gender">Genero</label>
+            <select class="fsel" id="acc-gender" formControlName="genero">
+              <option value="" disabled>Selecciona</option>
+              @for (option of genderOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="account__actions">
+          <button class="btn btn-ghost" type="button" (click)="onDiscard()" [disabled]="isSaving() || form.pristine">
+            Descartar
+          </button>
+          <button class="btn btn-primary" type="submit" [disabled]="isSaving() || form.pristine">
+            @if (isSaving()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Guardando...</span>
+            } @else {
+              <i class="ti ti-device-floppy" aria-hidden="true"></i>
+              <span>Guardar cambios</span>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================= Contrasena ================= -->
+    <section class="fc" aria-labelledby="password-heading">
+      <div class="fc-hdr" id="password-heading">Contrasena</div>
+
+      <p class="cell-sub account__note account__note--lead">
+        Al cambiarla se cerraran todas tus sesiones y tendras que volver a ingresar.
+      </p>
+
+      @if (passwordError(); as message) {
+        <p class="alert alert-error account__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" novalidate>
+        <div class="fg">
+          <label class="fl" for="acc-current">Contrasena actual</label>
+          <input
+            class="fi"
+            id="acc-current"
+            [type]="showPasswords() ? 'text' : 'password'"
+            formControlName="currentPassword"
+            autocomplete="current-password"
+            [class.invalid]="passwordFieldError('currentPassword')"
+            [attr.aria-invalid]="!!passwordFieldError('currentPassword')"
+            [attr.aria-describedby]="passwordFieldError('currentPassword') ? 'acc-current-error' : null"
+          />
+          @if (passwordFieldError('currentPassword'); as message) {
+            <span class="fi-err" id="acc-current-error">{{ message }}</span>
+          }
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="acc-new">Nueva contrasena</label>
+            <input
+              class="fi"
+              id="acc-new"
+              [type]="showPasswords() ? 'text' : 'password'"
+              formControlName="newPassword"
+              autocomplete="new-password"
+              [class.invalid]="passwordFieldError('newPassword')"
+              [attr.aria-invalid]="!!passwordFieldError('newPassword')"
+              [attr.aria-describedby]="passwordFieldError('newPassword') ? 'acc-new-error' : 'acc-new-hint'"
+            />
+            @if (passwordFieldError('newPassword'); as message) {
+              <span class="fi-err" id="acc-new-error">{{ message }}</span>
+            } @else {
+              <span class="fi-hint" id="acc-new-hint">Minimo {{ passwordMin }} caracteres.</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="acc-confirm">Confirma la nueva contrasena</label>
+            <input
+              class="fi"
+              id="acc-confirm"
+              [type]="showPasswords() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              [class.invalid]="passwordFieldError('confirmPassword')"
+              [attr.aria-invalid]="!!passwordFieldError('confirmPassword')"
+              [attr.aria-describedby]="passwordFieldError('confirmPassword') ? 'acc-confirm-error' : null"
+            />
+            @if (passwordFieldError('confirmPassword'); as message) {
+              <span class="fi-err" id="acc-confirm-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="account__actions account__actions--split">
+          <label class="chk-lbl">
+            <input class="chk-inp" type="checkbox" [checked]="showPasswords()" (change)="togglePasswords()" />
+            <span>Mostrar contrasenas</span>
+          </label>
+          <button class="btn btn-primary" type="submit" [disabled]="isChangingPassword()">
+            @if (isChangingPassword()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Cambiando...</span>
+            } @else {
+              <i class="ti ti-lock" aria-hidden="true"></i>
+              <span>Cambiar contrasena</span>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================= Accesos ================= -->
+    <section class="fc" aria-labelledby="access-heading">
+      <div class="fc-hdr" id="access-heading">Mis accesos</div>
+
+      @if (isPlatformAdmin()) {
+        <p class="account__access-admin">
+          <span class="bdg bdg-green">
+            <i class="ti ti-shield-check" aria-hidden="true"></i>
+            Administrador de plataforma
+          </span>
+          <span class="cell-sub">Tienes acceso a todas las empresas registradas.</span>
+        </p>
+      } @else if (accessesLoading()) {
+        <div class="ts-loading" role="status">
+          <span class="ts-spinner" aria-hidden="true"></span>
+          Cargando accesos...
+        </div>
+      } @else if (accessesError(); as error) {
+        <div class="alert alert-error account__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ error }}</span>
+          <button class="btn btn-outline btn-sm account__retry" type="button" (click)="loadAccesses()">
+            Reintentar
+          </button>
+        </div>
+      } @else if (accesses().length === 0) {
+        <p class="cell-sub">Aun no perteneces a ninguna empresa activa.</p>
+      } @else {
+        <ul class="account__access-list">
+          @for (item of accesses(); track item.company.publicId) {
+            <li class="account__access">
+              <div class="cell-name">{{ item.company.nombre }}</div>
+              <div class="account__privileges">
+                @for (privilege of item.privileges; track privilege) {
+                  <span class="bdg bdg-gray">{{ privilegeLabel(privilege) }}</span>
+                } @empty {
+                  <span class="cell-sub">Sin privilegios asignados</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+}

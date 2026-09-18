@@ -76,10 +76,19 @@
           }
         </div>
 
-        <label class="chk-lbl auth__remember">
-          <input class="chk-inp" type="checkbox" formControlName="rememberMe" />
-          <span>Mantener la sesion iniciada</span>
-        </label>
+        <div class="auth__row">
+          <label class="chk-lbl auth__remember">
+            <input class="chk-inp" type="checkbox" formControlName="rememberMe" />
+            <span>Mantener la sesion iniciada</span>
+          </label>
+          <a
+            class="auth__forgot"
+            routerLink="/recuperar-contrasena"
+            [queryParams]="form.controls.email.valid ? { email: form.controls.email.value } : {}"
+          >
+            ¿Olvidaste tu contrasena?
+          </a>
+        </div>
 
         <button
           class="btn btn-primary btn-block auth__submit"

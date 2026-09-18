@@ -9,6 +9,9 @@ import {
 } from './core/guards/password-change-guard';
 import { ChangePassword } from './features/auth/change-password/change-password';
 import { Auth } from './features/auth/auth';
+import { PeoplePage } from './features/platform/people-page/people-page';
+import { ProfilePage } from './features/account/profile-page/profile-page';
+import { PasswordReset } from './features/auth/password-reset/password-reset';
 import { CompaniesPage } from './features/companies/companies-page/companies-page';
 import { CompanyCreate } from './features/companies/company-create/company-create';
 import { CompanyProfile } from './features/companies/company-profile/company-profile';
@@ -25,6 +28,11 @@ export const routes: Routes = [
   {
     path: 'login',
     component: Auth,
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'recuperar-contrasena',
+    component: PasswordReset,
     canActivate: [guestGuard],
   },
   {
@@ -65,14 +73,19 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'profile',
-        component: PlaceholderPage,
+        path: 'plataforma/personas',
+        component: PeoplePage,
         canActivate: [authGuard],
         data: {
-          breadcrumb: 'Mi perfil',
-          title: 'Mi perfil',
-          description: 'Datos de la cuenta y preferencias.',
+          breadcrumb: 'Personas',
+          roles: ['ADMIN_PLATAFORMA'],
         },
+      },
+      {
+        path: 'profile',
+        component: ProfilePage,
+        canActivate: [authGuard],
+        data: { breadcrumb: 'Mi perfil' },
       },
       {
         // Gestion de la empresa seleccionada.

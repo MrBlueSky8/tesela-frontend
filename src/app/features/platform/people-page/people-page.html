@@ -1,0 +1,197 @@
+<div class="ph">
+  <div class="ph-t">Personas</div>
+  <div class="ph-s">Soporte: busca a una persona por su documento y corrige sus datos registrados.</div>
+</div>
+
+<div class="people">
+  <section class="fc" aria-labelledby="search-heading">
+    <div class="fc-hdr" id="search-heading">Buscar por documento</div>
+
+    @if (searchError(); as message) {
+      <p class="alert alert-error people__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <form class="people__search" [formGroup]="searchForm" (ngSubmit)="onSearch()" novalidate>
+      <div class="fg">
+        <label class="fl" for="pp-search-type">Tipo</label>
+        <select class="fsel" id="pp-search-type" formControlName="documentType">
+          @for (option of documentOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="fg people__search-number">
+        <label class="fl" for="pp-search-number">Numero de documento</label>
+        <input class="fi" id="pp-search-number" type="text" formControlName="documentNumber" autocomplete="off" />
+      </div>
+      <button class="btn btn-primary people__search-btn" type="submit" [disabled]="isSearching()">
+        @if (isSearching()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+          <span>Buscando...</span>
+        } @else {
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <span>Buscar</span>
+        }
+      </button>
+    </form>
+    <p class="cell-sub people__hint">La busqueda es exacta: no se listan personas ni se muestran coincidencias parciales.</p>
+  </section>
+
+  @if (person(); as current) {
+    <section class="fc" aria-labelledby="person-heading">
+      <div class="fc-hdr" id="person-heading" tabindex="-1" #resultHeading>
+        {{ current.firstNames }} {{ current.lastNames }}
+      </div>
+
+      <div class="people__accounts">
+        <div class="det-lbl">Cuentas de esta persona</div>
+        @for (account of current.accounts; track account.publicId) {
+          <div class="people__account">
+            <span class="cell-name">{{ account.email }}</span>
+            <span class="bdg" [class.bdg-green]="account.status === 'ACTIVE'" [class.bdg-gray]="account.status !== 'ACTIVE'">
+              {{ accountStatus(account.status) }}
+            </span>
+          </div>
+        } @empty {
+          <p class="cell-sub">Sin cuentas asociadas.</p>
+        }
+      </div>
+
+      <p class="cell-sub people__hint">Los cambios se aplican a todas las cuentas de esta persona.</p>
+
+      @if (saveSuccess(); as message) {
+        <p class="alert alert-success people__alert" role="status">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+      @if (saveError(); as message) {
+        <p class="alert alert-error people__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
+      <form [formGroup]="editForm" (ngSubmit)="onSave()" novalidate>
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="pp-type">Tipo de documento</label>
+            <select class="fsel" id="pp-type" formControlName="documentType">
+              @for (option of documentOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl" for="pp-number">Numero de documento</label>
+            <input class="fi" id="pp-number" type="text" formControlName="documentNumber"
+                   [class.invalid]="fieldError('documentNumber')"
+                   [attr.aria-invalid]="!!fieldError('documentNumber')"
+                   [attr.aria-describedby]="fieldError('documentNumber') ? 'pp-number-error' : null" />
+            @if (fieldError('documentNumber'); as message) {
+              <span class="fi-err" id="pp-number-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="pp-first">Nombres</label>
+            <input class="fi" id="pp-first" type="text" formControlName="firstNames"
+                   [class.invalid]="fieldError('firstNames')"
+                   [attr.aria-invalid]="!!fieldError('firstNames')"
+                   [attr.aria-describedby]="fieldError('firstNames') ? 'pp-first-error' : null" />
+            @if (fieldError('firstNames'); as message) {
+              <span class="fi-err" id="pp-first-error">{{ message }}</span>
+            }
+          </div>
+          <div class="fg">
+            <label class="fl" for="pp-last">Apellidos</label>
+            <input class="fi" id="pp-last" type="text" formControlName="lastNames"
+                   [class.invalid]="fieldError('lastNames')"
+                   [attr.aria-invalid]="!!fieldError('lastNames')"
+                   [attr.aria-describedby]="fieldError('lastNames') ? 'pp-last-error' : null" />
+            @if (fieldError('lastNames'); as message) {
+              <span class="fi-err" id="pp-last-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="pp-birth">Fecha de nacimiento</label>
+            <input class="fi" id="pp-birth" type="date" formControlName="birthDate" />
+          </div>
+          <div class="fg">
+            <label class="fl" for="pp-gender">Genero</label>
+            <select class="fsel" id="pp-gender" formControlName="gender">
+              <option value="" disabled>Sin registrar</option>
+              @for (option of genderOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="pp-phone">Telefono</label>
+            <input class="fi" id="pp-phone" type="tel" formControlName="phone"
+                   [class.invalid]="fieldError('phone')"
+                   [attr.aria-invalid]="!!fieldError('phone')"
+                   [attr.aria-describedby]="fieldError('phone') ? 'pp-phone-error' : null" />
+            @if (fieldError('phone'); as message) {
+              <span class="fi-err" id="pp-phone-error">{{ message }}</span>
+            }
+          </div>
+          <div class="fg">
+            <label class="fl" for="pp-address">Direccion</label>
+            <input class="fi" id="pp-address" type="text" formControlName="address" maxlength="120"
+                   [class.invalid]="fieldError('address')"
+                   [attr.aria-invalid]="!!fieldError('address')"
+                   [attr.aria-describedby]="fieldError('address') ? 'pp-address-error' : null" />
+            @if (fieldError('address'); as message) {
+              <span class="fi-err" id="pp-address-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        @if (confirmDocumentChange()) {
+          <div class="alert alert-amber people__alert" role="alert">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            <span>
+              Vas a cambiar el documento que identifica a esta persona y con el que abre sus PDF de
+              credenciales. ¿Confirmas el cambio?
+            </span>
+          </div>
+        }
+
+        <div class="people__actions">
+          @if (confirmDocumentChange()) {
+            <button class="btn btn-ghost" type="button" (click)="onCancelDocumentChange()" [disabled]="isSaving()">
+              Revisar
+            </button>
+          } @else {
+            <button class="btn btn-ghost" type="button" (click)="onDiscard()" [disabled]="isSaving() || editForm.pristine">
+              Descartar
+            </button>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="isSaving() || editForm.pristine">
+            @if (isSaving()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Guardando...</span>
+            } @else if (confirmDocumentChange()) {
+              <span>Si, guardar</span>
+            } @else {
+              <i class="ti ti-device-floppy" aria-hidden="true"></i>
+              <span>Guardar cambios</span>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+</div>

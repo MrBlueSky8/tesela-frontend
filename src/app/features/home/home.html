@@ -1,45 +1,61 @@
 <div class="ph">
   <div class="ph-t">Inicio</div>
-  <div class="ph-s">Sesion iniciada correctamente.</div>
-</div>
-
-<div class="det-card home__card">
-  <div class="det-grid">
-    <div>
-      <div class="det-lbl">Usuario</div>
-      <div class="det-val">{{ username() }}</div>
-    </div>
-
-    <div>
-      <div class="det-lbl">Rol global</div>
-      <div>
-        <span class="bdg bdg-green">
-          <i class="ti ti-shield-check" aria-hidden="true"></i>
-          {{ roleLabel() }}
-        </span>
-      </div>
-    </div>
-
-    @if (userPublicId(); as publicId) {
-      <div>
-        <div class="det-lbl">Public ID</div>
-        <div class="det-val">
-          <code>{{ publicId }}</code>
-        </div>
-      </div>
+  <div class="ph-s">
+    @if (isPlatformAdmin()) {
+      Administracion de la plataforma ADAPTIA.
+    } @else if (company(); as current) {
+      Trabajando en {{ current.nombre }}.
+    } @else {
+      Bienvenido, {{ username() }}.
     }
-
-    <div>
-      <div class="det-lbl">Estado</div>
-      <div class="det-val">Sesion activa</div>
-    </div>
   </div>
 </div>
 
-<div class="ia-hint home__hint">
-  <i class="ti ti-sparkles" aria-hidden="true"></i>
-  <span>
-    Esta pantalla es provisional: muestra los datos que viajan dentro del token de acceso. El
-    dashboard real se construira sobre los modulos de evaluacion.
-  </span>
+<div class="home">
+  @if (!isPlatformAdmin() && !company()) {
+    <div class="fc home__empty">
+      <div class="fc-hdr">Elige una empresa</div>
+      <p class="cell-sub">
+        Selecciona la empresa con la que vas a trabajar para ver sus modulos y opciones de gestion.
+      </p>
+      <a class="btn btn-primary" routerLink="/companies">
+        <i class="ti ti-building-community" aria-hidden="true"></i>
+        <span>Ir a Mis empresas</span>
+      </a>
+    </div>
+  }
+
+  @if (withoutPrivileges()) {
+    <div class="alert alert-amber home__alert" role="status">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span>
+        Aun no tienes privilegios asignados en esta empresa. Pide a su administrador que te habilite
+        un modulo.
+      </span>
+    </div>
+  }
+
+  @for (section of sections(); track section.id) {
+    <section class="home__section" [attr.aria-labelledby]="'home-' + section.id">
+      <h2 class="home__section-title" [id]="'home-' + section.id">{{ section.label }}</h2>
+      <ul class="home__grid">
+        @for (item of section.items; track item.id) {
+          <li>
+            <a class="home__tile" [routerLink]="item.route">
+              @switch (item.icon?.type) {
+                @case ('tabler') {
+                  <i [class]="'ti ti-' + iconValue(item) + ' home__tile-icon'" aria-hidden="true"></i>
+                }
+                @case ('dot') {
+                  <span class="home__tile-dot" [style.background]="iconValue(item)" aria-hidden="true"></span>
+                }
+              }
+              <span class="home__tile-label">{{ item.label }}</span>
+              <i class="ti ti-chevron-right home__tile-arrow" aria-hidden="true"></i>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
 </div>
