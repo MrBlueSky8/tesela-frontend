@@ -13,6 +13,7 @@ import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import { GENDER_OPTIONS } from '../../../core/helpers/person-labels';
+import { transientMessage } from '../../../core/helpers/transient-message';
 import { PRIVILEGE_LABELS } from '../../../core/helpers/privilege-labels';
 import { CompanyPrivilege, CompanyResponse } from '../../../core/models/company';
 import { Gender, UserProfileResponse } from '../../../core/models/user-profile-response';
@@ -73,7 +74,8 @@ export class ProfilePage {
 
   readonly isSaving = signal(false);
   readonly saveError = signal<string | null>(null);
-  readonly saveSuccess = signal<string | null>(null);
+  // Confirmacion: se borra sola a los pocos segundos.
+  readonly saveSuccess = transientMessage();
 
   readonly isChangingPassword = signal(false);
   readonly passwordError = signal<string | null>(null);

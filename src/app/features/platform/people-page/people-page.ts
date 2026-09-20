@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import { GENDER_OPTIONS } from '../../../core/helpers/person-labels';
+import { transientMessage } from '../../../core/helpers/transient-message';
 import { DocumentType, Gender } from '../../../core/models/user-profile-response';
 import { AdminPersonResponse, PeopleApiService, UpdatePersonRequest } from '../people-api-service';
 
@@ -45,7 +46,8 @@ export class PeoplePage {
 
   readonly isSaving = signal(false);
   readonly saveError = signal<string | null>(null);
-  readonly saveSuccess = signal<string | null>(null);
+  // Confirmacion: se borra sola a los pocos segundos.
+  readonly saveSuccess = transientMessage();
   /** Confirmacion en linea antes de cambiar el documento (identifica a la persona). */
   readonly confirmDocumentChange = signal(false);
 

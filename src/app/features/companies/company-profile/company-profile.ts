@@ -16,11 +16,13 @@ import {
   backendFieldErrors,
 } from '../../../core/helpers/backend-error-message';
 import { controlErrorMessage } from '../../../core/helpers/form-error-message';
+import { transientMessage } from '../../../core/helpers/transient-message';
 import { CompanyResponse, UpdateCompanyRequest } from '../../../core/models/company';
 import { CompanyContextService } from '../../../core/services/company-context-service';
 import { TokenService } from '../../../core/services/token-service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyApiService } from '../company-api-service';
+import { COMPANY_FIELD_LIMITS, CompanyLimitedField } from '../company-field-limits';
 
 type ProfileField = keyof Required<UpdateCompanyRequest>;
 
@@ -74,17 +76,19 @@ export class CompanyProfile {
   // ---- Datos
   readonly isSaving = signal(false);
   readonly saveError = signal<string | null>(null);
-  readonly saveSuccess = signal<string | null>(null);
+  // Confirmacion: se borra sola a los pocos segundos.
+  readonly saveSuccess = transientMessage();
   readonly serverFieldErrors = signal<Record<string, string>>({});
 
   readonly form = this.fb.nonNullable.group({
-    nombre: ['', [Validators.required, Validators.maxLength(150)]],
-    razonSocial: ['', [Validators.required, Validators.maxLength(250)]],
-    descripcion: ['', [Validators.required, Validators.maxLength(500)]],
-    direccion: ['', [Validators.required, Validators.maxLength(150)]],
-    telefonoContacto: ['', [Validators.required, Validators.pattern(/^[0-9+() -]{6,15}$/)]],
-    emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(150)]],
-    urlWeb: ['', [Validators.required, Validators.maxLength(500)]],
+    nombre: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.nombre)]],
+    razonSocial: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.razonSocial)]],
+    descripcion: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.descripcion)]],
+    direccion: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.direccion)]],
+    // Opcionales: vacio equivale a "sin dato", como en el backend.
+    telefonoContacto: ['', [Validators.pattern(/^$|^[0-9+() -]{6,15}$/)]],
+    emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(COMPANY_FIELD_LIMITS.emailContacto)]],
+    urlWeb: ['', [Validators.maxLength(COMPANY_FIELD_LIMITS.urlWeb)]],
     numeroEmpleados: [null as number | null, [Validators.required, Validators.min(0)]],
   });
 
@@ -114,7 +118,7 @@ export class CompanyProfile {
   readonly adminLimitError = signal<string | null>(null);
   readonly statusBusy = signal(false);
   readonly platformError = signal<string | null>(null);
-  readonly platformSuccess = signal<string | null>(null);
+  readonly platformSuccess = transientMessage();
 
   readonly pendingConfirm = signal<PendingConfirm | null>(null);
 
@@ -176,6 +180,23 @@ export class CompanyProfile {
   }
 
   // ---------------------------------------------------------------- Datos
+
+  readonly limits = COMPANY_FIELD_LIMITS;
+
+  /** "123/500" bajo un campo con maximo, para no descubrirlo al guardar. */
+  counter(field: CompanyLimitedField): string {
+    return `${this.lengthOf(field)}/${COMPANY_FIELD_LIMITS[field]}`;
+  }
+
+  counterIsFull(field: CompanyLimitedField): boolean {
+    return this.lengthOf(field) >= COMPANY_FIELD_LIMITS[field];
+  }
+
+  private lengthOf(field: CompanyLimitedField): number {
+    // Se lee del signal para recalcular con cada tecla.
+    const value = (this.formValue() as Record<string, unknown>)[field];
+    return typeof value === 'string' ? value.length : 0;
+  }
 
   fieldError(field: ProfileField): string | null {
     return controlErrorMessage(this.form.controls[field], this.serverFieldErrors()[field]);
@@ -386,9 +407,9 @@ export class CompanyProfile {
       razonSocial: company.razonSocial,
       descripcion: company.descripcion,
       direccion: company.direccion,
-      telefonoContacto: company.telefonoContacto,
+      telefonoContacto: company.telefonoContacto ?? '',
       emailContacto: company.emailContacto,
-      urlWeb: company.urlWeb,
+      urlWeb: company.urlWeb ?? '',
       numeroEmpleados: company.numeroEmpleados,
     });
   }
@@ -400,7 +421,8 @@ export class CompanyProfile {
     for (const field of TEXT_FIELDS) {
       const next = value[field].trim();
 
-      if (next !== company[field]) {
+      // Un campo opcional vacio llega como null desde el backend.
+      if (next !== (company[field] ?? '')) {
         changes[field] = next;
       }
     }

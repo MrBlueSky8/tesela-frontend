@@ -9,6 +9,7 @@ import {
 import { controlErrorMessage } from '../../../core/helpers/form-error-message';
 import { CreateCompanyRequest } from '../../../core/models/company';
 import { CompanyApiService } from '../company-api-service';
+import { COMPANY_FIELD_LIMITS, CompanyLimitedField } from '../company-field-limits';
 
 type CompanyField = keyof CreateCompanyRequest;
 
@@ -33,14 +34,15 @@ export class CompanyCreate {
   readonly serverFieldErrors = signal<Record<string, string>>({});
 
   readonly form = this.fb.nonNullable.group({
-    ruc: ['', [Validators.required, Validators.maxLength(20)]],
-    nombre: ['', [Validators.required, Validators.maxLength(150)]],
-    razonSocial: ['', [Validators.required, Validators.maxLength(250)]],
-    descripcion: ['', [Validators.required, Validators.maxLength(500)]],
-    direccion: ['', [Validators.required, Validators.maxLength(150)]],
-    telefonoContacto: ['', [Validators.required, Validators.pattern(/^[0-9+() -]{6,15}$/)]],
-    emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(150)]],
-    urlWeb: ['', [Validators.required, Validators.maxLength(500)]],
+    ruc: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.ruc)]],
+    nombre: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.nombre)]],
+    razonSocial: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.razonSocial)]],
+    descripcion: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.descripcion)]],
+    direccion: ['', [Validators.required, Validators.maxLength(COMPANY_FIELD_LIMITS.direccion)]],
+    // Opcionales, igual que en CreateCompanyRequest.
+    telefonoContacto: ['', [Validators.pattern(/^$|^[0-9+() -]{6,15}$/)]],
+    emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(COMPANY_FIELD_LIMITS.emailContacto)]],
+    urlWeb: ['', [Validators.maxLength(COMPANY_FIELD_LIMITS.urlWeb)]],
     numeroEmpleados: [null as number | null, [Validators.required, Validators.min(0)]],
     adminLimit: [null as number | null, [Validators.min(1)]],
   });
@@ -73,6 +75,21 @@ export class CompanyCreate {
         this.submitError.set(backendErrorMessage(error, 'No pudimos registrar la empresa.'));
       },
     });
+  }
+
+  readonly limits = COMPANY_FIELD_LIMITS;
+
+  /** "123/500" bajo un campo con maximo, para no descubrirlo al guardar. */
+  counter(field: CompanyLimitedField): string {
+    return `${this.lengthOf(field)}/${COMPANY_FIELD_LIMITS[field]}`;
+  }
+
+  counterIsFull(field: CompanyLimitedField): boolean {
+    return this.lengthOf(field) >= COMPANY_FIELD_LIMITS[field];
+  }
+
+  private lengthOf(field: CompanyLimitedField): number {
+    return this.form.controls[field].value.length;
   }
 
   /** Mensaje a mostrar bajo el campo: primero el del cliente, luego el del backend. */

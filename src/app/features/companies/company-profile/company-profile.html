@@ -99,6 +99,9 @@
         <p class="alert alert-success profile__alert" role="status">
           <i class="ti ti-circle-check" aria-hidden="true"></i>
           <span>{{ success }}</span>
+          <button class="alert-close" type="button" (click)="saveSuccess.set(null)" aria-label="Cerrar aviso">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
         </p>
       }
 
@@ -126,6 +129,7 @@
               id="nombre"
               type="text"
               formControlName="nombre"
+              [maxlength]="limits.nombre"
               [class.invalid]="fieldError('nombre')"
               [attr.aria-invalid]="!!fieldError('nombre')"
               [attr.aria-describedby]="fieldError('nombre') ? 'nombre-error' : null"
@@ -133,6 +137,7 @@
             @if (fieldError('nombre'); as message) {
               <span class="fi-err" id="nombre-error">{{ message }}</span>
             }
+            <span class="fi-count" [class.is-full]="counterIsFull('nombre')">{{ counter('nombre') }}</span>
           </div>
 
           <div class="fg fg-full">
@@ -142,6 +147,7 @@
               id="razonSocial"
               type="text"
               formControlName="razonSocial"
+              [maxlength]="limits.razonSocial"
               [class.invalid]="fieldError('razonSocial')"
               [attr.aria-invalid]="!!fieldError('razonSocial')"
               [attr.aria-describedby]="fieldError('razonSocial') ? 'razonSocial-error' : null"
@@ -149,6 +155,7 @@
             @if (fieldError('razonSocial'); as message) {
               <span class="fi-err" id="razonSocial-error">{{ message }}</span>
             }
+            <span class="fi-count" [class.is-full]="counterIsFull('razonSocial')">{{ counter('razonSocial') }}</span>
           </div>
 
           <div class="fg fg-full">
@@ -158,6 +165,7 @@
               id="descripcion"
               rows="3"
               formControlName="descripcion"
+              [maxlength]="limits.descripcion"
               [class.invalid]="fieldError('descripcion')"
               [attr.aria-invalid]="!!fieldError('descripcion')"
               [attr.aria-describedby]="fieldError('descripcion') ? 'descripcion-error' : null"
@@ -165,6 +173,7 @@
             @if (fieldError('descripcion'); as message) {
               <span class="fi-err" id="descripcion-error">{{ message }}</span>
             }
+            <span class="fi-count" [class.is-full]="counterIsFull('descripcion')">{{ counter('descripcion') }}</span>
           </div>
 
           <div class="fg">
@@ -200,6 +209,7 @@
               type="text"
               autocomplete="street-address"
               formControlName="direccion"
+              [maxlength]="limits.direccion"
               [class.invalid]="fieldError('direccion')"
               [attr.aria-invalid]="!!fieldError('direccion')"
               [attr.aria-describedby]="fieldError('direccion') ? 'direccion-error' : null"
@@ -207,10 +217,11 @@
             @if (fieldError('direccion'); as message) {
               <span class="fi-err" id="direccion-error">{{ message }}</span>
             }
+            <span class="fi-count" [class.is-full]="counterIsFull('direccion')">{{ counter('direccion') }}</span>
           </div>
 
           <div class="fg">
-            <label class="fl" for="telefonoContacto">Telefono</label>
+            <label class="fl" for="telefonoContacto">Telefono (opcional)</label>
             <input
               class="fi"
               id="telefonoContacto"
@@ -236,6 +247,7 @@
               type="email"
               autocomplete="email"
               formControlName="emailContacto"
+              [maxlength]="limits.emailContacto"
               [class.invalid]="fieldError('emailContacto')"
               [attr.aria-invalid]="!!fieldError('emailContacto')"
               [attr.aria-describedby]="fieldError('emailContacto') ? 'emailContacto-error' : null"
@@ -243,15 +255,17 @@
             @if (fieldError('emailContacto'); as message) {
               <span class="fi-err" id="emailContacto-error">{{ message }}</span>
             }
+            <span class="fi-count" [class.is-full]="counterIsFull('emailContacto')">{{ counter('emailContacto') }}</span>
           </div>
 
           <div class="fg fg-full">
-            <label class="fl" for="urlWeb">Sitio web</label>
+            <label class="fl" for="urlWeb">Sitio web (opcional)</label>
             <input
               class="fi"
               id="urlWeb"
               type="url"
               formControlName="urlWeb"
+              [maxlength]="limits.urlWeb"
               [class.invalid]="fieldError('urlWeb')"
               [attr.aria-invalid]="!!fieldError('urlWeb')"
               [attr.aria-describedby]="fieldError('urlWeb') ? 'urlWeb-error' : null"
@@ -259,6 +273,7 @@
             @if (fieldError('urlWeb'); as message) {
               <span class="fi-err" id="urlWeb-error">{{ message }}</span>
             }
+            <span class="fi-count" [class.is-full]="counterIsFull('urlWeb')">{{ counter('urlWeb') }}</span>
           </div>
         </div>
       </section>
@@ -313,6 +328,9 @@
           <p class="alert alert-success profile__inline-alert" role="status">
             <i class="ti ti-circle-check" aria-hidden="true"></i>
             <span>{{ success }}</span>
+            <button class="alert-close" type="button" (click)="platformSuccess.set(null)" aria-label="Cerrar aviso">
+              <i class="ti ti-x" aria-hidden="true"></i>
+            </button>
           </p>
         }
 

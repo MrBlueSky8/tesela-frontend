@@ -489,6 +489,18 @@ a:hover {
   color: var(--ts-text-3);
 }
 
+/* Contador de caracteres de un campo con limite. */
+.fi-count {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--ts-text-3);
+  text-align: right;
+}
+
+.fi-count.is-full {
+  color: var(--ts-amber-dark);
+}
+
 .fi-err {
   margin-top: 3px;
   font-size: 11px;
@@ -656,6 +668,24 @@ a:hover {
   background: var(--ts-green-light);
   border: 1px solid rgba(29, 158, 117, 0.25);
   color: var(--ts-green-dark);
+}
+
+/* Cierra un aviso que ademas se oculta solo pasados unos segundos. */
+.alert-close {
+  margin-left: auto;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.alert-close:hover,
+.alert-close:focus-visible {
+  opacity: 1;
 }
 
 .alert-amber {

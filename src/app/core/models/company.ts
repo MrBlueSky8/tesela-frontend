@@ -20,7 +20,8 @@ export interface CompanyResponse {
   ruc: string;
   nombre: string;
   direccion: string;
-  telefonoContacto: string;
+  /** Opcional en el backend. */
+  telefonoContacto: string | null;
   emailContacto: string;
   status: CompanyStatus;
   razonSocial: string;
@@ -28,7 +29,8 @@ export interface CompanyResponse {
   descripcion: string;
   numeroEmpleados: number;
   adminLimit: number;
-  urlWeb: string;
+  /** Opcional en el backend. */
+  urlWeb: string | null;
   createdAt: string;
   updatedAt: string;
 }
