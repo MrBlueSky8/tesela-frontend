@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { SidebarItem as SidebarItemModel } from '../../../core/models/sidebar-item';
 import { CompanyContextService } from '../../../core/services/company-context-service';
@@ -16,7 +16,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [SidebarItem, RouterLink],
+  imports: [SidebarItem],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })

@@ -4,6 +4,7 @@ import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angu
 import { filter, map, startWith } from 'rxjs';
 
 import { LayoutStateService } from '../../../core/services/layout-state-service';
+import { CompanySwitcher } from './company-switcher/company-switcher';
 
 export interface Crumb {
   label: string;
@@ -12,7 +13,7 @@ export interface Crumb {
 
 @Component({
   selector: 'app-topbar',
-  imports: [RouterLink],
+  imports: [RouterLink, CompanySwitcher],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
 })

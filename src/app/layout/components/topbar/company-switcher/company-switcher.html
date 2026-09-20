@@ -1,0 +1,126 @@
+<div class="cs">
+  <button
+    class="cs__trigger"
+    type="button"
+    (click)="toggle()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="menu"
+    [attr.aria-label]="
+      company()
+        ? 'Empresa actual: ' + company()!.nombre + '. Cambiar de empresa'
+        : 'Seleccionar empresa'
+    "
+  >
+    @if (company(); as current) {
+      @if (current.urlLogo) {
+        <img class="cs__logo" [src]="current.urlLogo" alt="" />
+      } @else {
+        <span class="cs__logo cs__logo--initial" aria-hidden="true">{{ currentInitial() }}</span>
+      }
+
+      <span class="cs__copy">
+        <span class="cs__label">Empresa</span>
+        <span class="cs__name">{{ current.nombre }}</span>
+      </span>
+    } @else {
+      <span class="cs__logo cs__logo--empty" aria-hidden="true">
+        <i class="ti ti-building" aria-hidden="true"></i>
+      </span>
+      <span class="cs__copy">
+        <span class="cs__name cs__name--empty">Seleccionar empresa</span>
+      </span>
+    }
+
+    <i class="ti ti-selector cs__chev" aria-hidden="true"></i>
+  </button>
+
+  @if (isOpen()) {
+    <div class="cs__menu" role="menu">
+      <div class="cs__menu-hdr">Cambiar de empresa</div>
+
+      <div class="cs__search">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input
+          class="cs__search-inp"
+          type="search"
+          placeholder="Buscar por nombre, razon social o RUC"
+          aria-label="Buscar empresa"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      @if (selectError(); as error) {
+        <p class="alert alert-error cs__alert" role="alert">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          <span>{{ error }}</span>
+        </p>
+      }
+
+      @if (isLoading()) {
+        <div class="cs__state" role="status">
+          <span class="ts-spinner" aria-hidden="true"></span>
+          Cargando empresas...
+        </div>
+      } @else if (loadError(); as error) {
+        <div class="cs__state">
+          <span>{{ error }}</span>
+          <button class="btn btn-outline btn-sm" type="button" (click)="load()">Reintentar</button>
+        </div>
+      } @else if (matches().length === 0) {
+        <div class="cs__state">
+          @if (search().trim()) {
+            Ninguna empresa coincide con la busqueda.
+          } @else {
+            Aun no perteneces a ninguna empresa.
+          }
+        </div>
+      } @else {
+        <ul class="cs__list">
+          @for (item of matches(); track item.publicId) {
+            <li>
+              <button
+                class="cs__item"
+                type="button"
+                role="menuitem"
+                [disabled]="!!selectingId()"
+                [attr.aria-current]="item.publicId === company()?.publicId ? 'true' : null"
+                (click)="onSelect(item)"
+              >
+                @if (item.urlLogo) {
+                  <img class="cs__item-logo" [src]="item.urlLogo" alt="" />
+                } @else {
+                  <span class="cs__item-logo cs__item-logo--initial" aria-hidden="true">
+                    {{ initial(item) }}
+                  </span>
+                }
+
+                <span class="cs__item-copy">
+                  <span class="cs__item-name">{{ item.nombre }}</span>
+                  <span class="cs__item-sub">{{ item.ruc }}</span>
+                </span>
+
+                @if (selectingId() === item.publicId) {
+                  <span class="ts-spinner" aria-hidden="true"></span>
+                } @else if (item.publicId === company()?.publicId) {
+                  <i class="ti ti-check cs__item-check" aria-hidden="true"></i>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+
+        @if (hiddenCount(); as hidden) {
+          <p class="cs__more">
+            Se muestran las primeras {{ matches().length }}. Busca para ver las otras {{ hidden }}.
+          </p>
+        }
+      }
+
+      <a class="cs__all" routerLink="/companies" (click)="close()">
+        <i class="ti ti-list" aria-hidden="true"></i>
+        Ver todas las empresas
+      </a>
+    </div>
+  }
+</div>

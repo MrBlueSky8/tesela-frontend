@@ -1,0 +1,260 @@
+.cs {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.cs__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+  padding: 5px 8px;
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  background: var(--ts-surface-alt);
+  color: var(--ts-text);
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+
+.cs__trigger:hover,
+.cs__trigger[aria-expanded='true'] {
+  border-color: var(--ts-border-2);
+}
+
+.cs__trigger:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 2px;
+}
+
+.cs__logo {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.cs__logo--initial,
+.cs__logo--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-green-light);
+  color: var(--ts-green-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cs__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.cs__label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ts-text-3);
+}
+
+.cs__name {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cs__name--empty {
+  color: var(--ts-text-2);
+  font-weight: 500;
+}
+
+.cs__chev {
+  flex-shrink: 0;
+  color: var(--ts-text-3);
+  font-size: 15px;
+}
+
+/* ---- Desplegable ---- */
+.cs__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  padding: 10px;
+  border: 1px solid var(--ts-border);
+  border-radius: 10px;
+  background: var(--ts-card);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.cs__menu-hdr {
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ts-text-3);
+}
+
+.cs__search {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.cs__search i {
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  color: var(--ts-text-3);
+  font-size: 14px;
+  transform: translateY(-50%);
+}
+
+.cs__search-inp {
+  width: 100%;
+  padding: 7px 10px 7px 29px;
+  border: 1px solid var(--ts-border);
+  border-radius: 7px;
+  background: var(--ts-surface-alt);
+  font-size: 12.5px;
+  color: var(--ts-text);
+}
+
+.cs__search-inp:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.cs__alert {
+  margin-bottom: 8px;
+}
+
+.cs__state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  font-size: 12.5px;
+  color: var(--ts-text-2);
+}
+
+.cs__list {
+  max-height: 264px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.cs__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ts-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cs__item:hover:not(:disabled),
+.cs__item:focus-visible {
+  background: var(--ts-neutral-light);
+}
+
+.cs__item:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.cs__item[aria-current='true'] {
+  background: var(--ts-green-light);
+}
+
+.cs__item-logo {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.cs__item-logo--initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-neutral-light);
+  color: var(--ts-text-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cs__item-copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.cs__item-name {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cs__item-sub {
+  font-size: 11px;
+  color: var(--ts-text-3);
+}
+
+.cs__item-check {
+  color: var(--ts-green-dark);
+}
+
+.cs__more {
+  margin: 6px 4px 0;
+  font-size: 11px;
+  color: var(--ts-text-3);
+}
+
+.cs__all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ts-border);
+  color: var(--ts-green-dark);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.cs__all:hover {
+  text-decoration: underline;
+}
+
+/* En pantallas angostas el boton queda como icono. */
+@media (max-width: 639.98px) {
+  .cs__copy {
+    display: none;
+  }
+
+  .cs__trigger {
+    padding: 5px 6px;
+  }
+}

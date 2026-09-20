@@ -13,6 +13,8 @@
     ></i>
   </button>
 
+  <app-company-switcher />
+
   <nav class="bc" aria-label="Ruta de navegacion">
     @for (crumb of crumbs(); track crumb.label; let i = $index) {
       @if (i > 0) {

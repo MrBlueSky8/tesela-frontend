@@ -144,29 +144,10 @@
   transition: background 0.12s;
 }
 
-.sb-emp:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.sb-emp:focus-visible {
-  outline: 2px solid var(--ts-green);
-  outline-offset: 2px;
-}
-
 .sb--collapsed .sb-emp {
   justify-content: center;
   margin: 10px 8px 0;
   padding: 6px 0;
-}
-
-.sb-emp--empty {
-  border-style: dashed;
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 12px;
-}
-
-.sb-emp--empty i {
-  font-size: 16px;
 }
 
 .sb-emp-logo {

@@ -26,6 +26,9 @@ export class Home {
   private readonly companyContext = inject(CompanyContextService);
 
   readonly username = computed(() => this.tokenService.username() ?? 'Usuario');
+
+  /** Confirmacion del cambio de empresa hecho desde el encabezado. */
+  readonly switchedCompany = this.companyContext.justSwitchedTo;
   readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
   readonly company = this.companyContext.company;
 

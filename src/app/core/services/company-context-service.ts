@@ -10,8 +10,10 @@ import {
   shareReplay,
   switchMap,
   tap,
+  throwError,
 } from 'rxjs';
 
+import { transientMessage } from '../helpers/transient-message';
 import { CompanyApiService } from '../../features/companies/company-api-service';
 import { CompanyMyAccessResponse, CompanyPrivilege, CompanyResponse } from '../models/company';
 import { TokenService } from './token-service';
@@ -51,10 +53,20 @@ export class CompanyContextService {
   private lastRefreshAt = 0;
   private refreshing = false;
 
+  /** Empresas del usuario, cacheadas para el selector del encabezado. */
+  private companies$: Observable<CompanyResponse[]> | null = null;
+  private companiesOwner: string | null = null;
+
   /** Restauracion en curso, compartida entre el layout y los guards. */
   private restoring$: Observable<boolean> | null = null;
 
   readonly company = this.companyState.asReadonly();
+
+  /**
+   * Nombre de la empresa recien elegida desde el encabezado. Vive aqui y no en
+   * Inicio porque cambiar de empresa estando ya en Inicio no recrea la pagina.
+   */
+  readonly justSwitchedTo = transientMessage();
   readonly access = this.accessState.asReadonly();
 
   readonly hasCompany = computed(() => !!this.companyState() && !!this.accessState());
@@ -77,6 +89,29 @@ export class CompanyContextService {
   hasAnyPrivilege(privileges: readonly CompanyPrivilege[]): boolean {
     const effective = this.effectivePrivileges();
     return privileges.some((privilege) => effective.has(privilege));
+  }
+
+  /**
+   * Empresas a las que el usuario puede entrar. Se piden una vez por sesion y
+   * se comparten entre quienes las necesiten; un fallo no deja nada cacheado.
+   */
+  availableCompanies(): Observable<CompanyResponse[]> {
+    const userPublicId = this.tokenService.userPublicId();
+
+    if (this.companiesOwner !== userPublicId) {
+      this.companiesOwner = userPublicId;
+      this.companies$ = null;
+    }
+
+    this.companies$ ??= this.companyApi.list().pipe(
+      catchError((error: unknown) => {
+        this.companies$ = null;
+        return throwError(() => error);
+      }),
+      shareReplay(1),
+    );
+
+    return this.companies$;
   }
 
   /** Selecciona una empresa: primero confirma el acceso y solo entonces la fija. */
@@ -137,6 +172,8 @@ export class CompanyContextService {
     }
 
     this.companyState.set(company);
+    // El nombre o el logo pudieron cambiar: la lista cacheada ya no sirve.
+    this.companies$ = null;
   }
 
   /**
@@ -229,6 +266,8 @@ export class CompanyContextService {
 
   private resetMemory(): void {
     this.ownerPublicId = null;
+    this.companies$ = null;
+    this.companiesOwner = null;
     this.companyState.set(null);
     this.accessState.set(null);
   }

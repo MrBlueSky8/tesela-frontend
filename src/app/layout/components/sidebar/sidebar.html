@@ -8,13 +8,9 @@
     }
   </div>
 
+  <!-- Solo indica la empresa activa: se cambia desde el encabezado. -->
   @if (company(); as current) {
-    <a
-      class="sb-emp"
-      routerLink="/companies"
-      [title]="collapsed() ? current.nombre : 'Cambiar de empresa'"
-      [attr.aria-label]="'Empresa actual: ' + current.nombre + '. Cambiar de empresa'"
-    >
+    <div class="sb-emp" [title]="current.nombre">
       @if (current.urlLogo) {
         <img class="sb-emp-logo" [src]="current.urlLogo" alt="" />
       } @else {
@@ -28,14 +24,8 @@
           <span class="sb-emp-lbl">Empresa</span>
           <span class="sb-emp-name">{{ current.nombre }}</span>
         </span>
-        <i class="ti ti-selector sb-emp-chev" aria-hidden="true"></i>
       }
-    </a>
-  } @else if (!collapsed()) {
-    <a class="sb-emp sb-emp--empty" routerLink="/companies">
-      <i class="ti ti-building" aria-hidden="true"></i>
-      <span class="sb-emp-name">Seleccionar empresa</span>
-    </a>
+    </div>
   }
 
   <nav class="sb-nav" aria-label="Navegacion principal">
