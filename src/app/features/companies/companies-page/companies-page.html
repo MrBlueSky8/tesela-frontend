@@ -4,7 +4,7 @@
     <div class="ph-s">
       {{
         isPlatformAdmin()
-          ? 'Empresas registradas en la plataforma. Entra en una para gestionarla.'
+          ? 'Directorio de empresas registradas. Abre una para ver su ficha y gestionarla.'
           : 'Entra en la empresa con la que quieres trabajar. Tambien puedes cambiarla desde el encabezado.'
       }}
     </div>
@@ -122,6 +122,9 @@
               <span class="companies__action">
                 @if (selectingId() === company.publicId) {
                   <span class="ts-spinner" aria-hidden="true"></span>
+                } @else if (isPlatformAdmin()) {
+                  <span class="cell-meta companies__open">Ver ficha</span>
+                  <i class="ti ti-chevron-right" aria-hidden="true"></i>
                 } @else if (company.publicId === currentCompanyId()) {
                   <span class="bdg bdg-purple">
                     <i class="ti ti-check" aria-hidden="true"></i>

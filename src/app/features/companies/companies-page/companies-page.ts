@@ -8,9 +8,12 @@ import { TokenService } from '../../../core/services/token-service';
 import { CompanyApiService } from '../company-api-service';
 
 /**
- * Listado de empresas y punto de seleccion del contexto.
- * Un USUARIO ve solo sus empresas activas; ADMIN_PLATAFORMA ve todas y puede
- * dar de alta nuevas. En ambos casos, elegir una fija el contexto de trabajo.
+ * Listado de empresas.
+ *
+ * <p>Para Fundades es el directorio administrativo: cada fila abre la ficha de
+ * la empresa, sin cambiar su empresa de trabajo. Para un usuario de empresa es
+ * la lista de las suyas y elegir una fija su empresa de trabajo, lo mismo que
+ * hace el selector del encabezado.
  */
 @Component({
   selector: 'app-companies-page',
@@ -88,6 +91,12 @@ export class CompaniesPage {
 
   selectCompany(company: CompanyResponse): void {
     if (this.selectingId()) {
+      return;
+    }
+
+    if (this.isPlatformAdmin()) {
+      // Fundades administra la empresa; no pasa a trabajar como ella.
+      void this.router.navigate(['/plataforma/empresas', company.publicId]);
       return;
     }
 

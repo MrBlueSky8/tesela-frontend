@@ -4,7 +4,7 @@
     <div class="ph-s">Registra una empresa para que sus usuarios puedan trabajar en ADAPTIA.</div>
   </div>
 
-  <a class="btn btn-outline btn-sm" routerLink="/companies">
+  <a class="btn btn-outline btn-sm" routerLink="/plataforma/empresas">
     <i class="ti ti-arrow-left" aria-hidden="true"></i>
     Volver
   </a>
@@ -188,7 +188,7 @@
 
     <div class="frow">
       <div class="fg">
-        <label class="fl" for="numeroEmpleados">Numero de empleados</label>
+        <label class="fl" for="numeroEmpleados">Numero de empleados (opcional)</label>
         <input
           class="fi"
           id="numeroEmpleados"
@@ -232,7 +232,7 @@
   </div>
 
   <div class="company-create__actions">
-    <a class="btn btn-outline" routerLink="/companies">Cancelar</a>
+    <a class="btn btn-outline" routerLink="/plataforma/empresas">Cancelar</a>
 
     <button class="btn btn-primary" type="submit" [disabled]="isSubmitting()">
       @if (isSubmitting()) {

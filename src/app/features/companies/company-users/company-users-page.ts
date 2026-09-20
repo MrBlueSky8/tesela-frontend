@@ -6,7 +6,7 @@ import { backendErrorMessage } from '../../../core/helpers/backend-error-message
 import { PRIVILEGE_LABELS, touchesAdministration } from '../../../core/helpers/privilege-labels';
 import { CompanyPrivilegeResponse } from '../../../core/models/company';
 import { CompanyMembershipResponse } from '../../../core/models/company-membership';
-import { CompanyContextService } from '../../../core/services/company-context-service';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { TokenService } from '../../../core/services/token-service';
 import { SiteEvaluatorResponse } from '../../../core/models/site';
 import { SitesApiService } from '../../sites/sites-api-service';
@@ -29,10 +29,10 @@ type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 export class CompanyUsersPage {
   private readonly api = inject(CompanyUsersApiService);
   private readonly sitesApi = inject(SitesApiService);
-  private readonly companyContext = inject(CompanyContextService);
+  private readonly companyScope = inject(CompanyScopeService);
   private readonly tokenService = inject(TokenService);
 
-  readonly company = this.companyContext.company;
+  readonly company = this.companyScope.company;
   readonly labels = PRIVILEGE_LABELS;
 
   readonly members = signal<CompanyMembershipResponse[]>([]);
@@ -53,7 +53,7 @@ export class CompanyUsersPage {
 
   /** GESTIONAR_ADMINS no se hereda de ADMIN_GENERAL: efectivo == asignado. */
   readonly canManageAdmins = computed(() =>
-    this.companyContext.hasAnyPrivilege(['GESTIONAR_ADMINS']),
+    this.companyScope.hasAnyPrivilege(['GESTIONAR_ADMINS']),
   );
 
   readonly activeAdmins = computed(

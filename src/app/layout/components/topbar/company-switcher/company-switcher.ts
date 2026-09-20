@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { backendErrorMessage } from '../../../../core/helpers/backend-error-message';
 import { CompanyResponse } from '../../../../core/models/company';
 import { CompanyContextService } from '../../../../core/services/company-context-service';
+import { TokenService } from '../../../../core/services/token-service';
 
 /** Sin buscar, el desplegable solo muestra las primeras; el resto sale al buscar. */
 const VISIBLE_WITHOUT_SEARCH = 8;
@@ -25,6 +26,12 @@ export class CompanySwitcher {
   private readonly companyContext = inject(CompanyContextService);
   private readonly router = inject(Router);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly tokenService = inject(TokenService);
+
+  /** Fundades va al directorio administrativo; el resto, a su lista de empresas. */
+  readonly allCompaniesLink = computed(() =>
+    this.tokenService.role() === 'ADMIN_PLATAFORMA' ? '/plataforma/empresas' : '/companies',
+  );
 
   readonly company = this.companyContext.company;
 

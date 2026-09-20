@@ -1,0 +1,71 @@
+.cas__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.cas__back:hover {
+  color: var(--ts-text);
+}
+
+.cas__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cas__identity .ph-s {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cas__notice {
+  margin-bottom: 14px;
+}
+
+.cas__alert {
+  margin-bottom: 14px;
+}
+
+.cas__retry {
+  margin-left: auto;
+}
+
+.cas__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.cas__tab {
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+  color: var(--ts-text-2);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.cas__tab:hover {
+  color: var(--ts-text);
+}
+
+.cas__tab--active {
+  border-bottom-color: var(--ts-green);
+  color: var(--ts-green-dark);
+}
+
+.cas__tab:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: -2px;
+}

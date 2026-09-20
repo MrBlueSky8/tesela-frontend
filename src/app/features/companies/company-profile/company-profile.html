@@ -12,6 +12,7 @@
     </button>
   </div>
 } @else if (company(); as current) {
+  @if (!isAdminScope()) {
   <div class="ph-row">
     <div>
       <div class="ph-t">Mi empresa</div>
@@ -24,6 +25,7 @@
       <span class="bdg bdg-gray">Inactiva</span>
     }
   </div>
+  }
 
   <div class="profile">
     <!-- ================= Logo ================= -->
@@ -177,7 +179,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="numeroEmpleados">Numero de empleados</label>
+            <label class="fl" for="numeroEmpleados">Numero de empleados (opcional)</label>
             <input
               class="fi"
               id="numeroEmpleados"

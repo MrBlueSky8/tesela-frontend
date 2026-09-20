@@ -4,7 +4,7 @@ import { forkJoin } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import { SiteEvaluatorResponse, SiteResponse } from '../../../core/models/site';
-import { CompanyContextService } from '../../../core/services/company-context-service';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { SiteFormDialog } from '../site-form-dialog/site-form-dialog';
 import { SitesApiService } from '../sites-api-service';
 
@@ -19,9 +19,9 @@ type StatusFilter = 'ACTIVE' | 'INACTIVE' | 'ALL';
 })
 export class SitesPage {
   private readonly api = inject(SitesApiService);
-  private readonly companyContext = inject(CompanyContextService);
+  private readonly companyScope = inject(CompanyScopeService);
 
-  readonly company = this.companyContext.company;
+  readonly company = this.companyScope.company;
 
   readonly sites = signal<SiteResponse[]>([]);
   readonly assignments = signal<SiteEvaluatorResponse[]>([]);

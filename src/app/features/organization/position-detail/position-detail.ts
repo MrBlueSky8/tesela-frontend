@@ -9,7 +9,7 @@ import {
   JobConditionResponse,
   PositionResponse,
 } from '../../../core/models/organization';
-import { CompanyContextService } from '../../../core/services/company-context-service';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { OrganizationApiService } from '../organization-api-service';
 import { PositionFormDialog } from '../position-form-dialog/position-form-dialog';
@@ -23,10 +23,10 @@ import { PositionFormDialog } from '../position-form-dialog/position-form-dialog
 })
 export class PositionDetail {
   private readonly api = inject(OrganizationApiService);
-  private readonly companyContext = inject(CompanyContextService);
+  private readonly companyScope = inject(CompanyScopeService);
   private readonly route = inject(ActivatedRoute);
 
-  readonly company = this.companyContext.company;
+  readonly company = this.companyScope.company;
 
   private readonly positionId = signal('');
 

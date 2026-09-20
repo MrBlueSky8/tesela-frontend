@@ -8,7 +8,7 @@ import {
   JobConditionResponse,
   PositionResponse,
 } from '../../../core/models/organization';
-import { CompanyContextService } from '../../../core/services/company-context-service';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { TokenService } from '../../../core/services/token-service';
 import { DepartmentsDialog } from '../departments-dialog/departments-dialog';
 import { OrganizationApiService } from '../organization-api-service';
@@ -28,10 +28,10 @@ type StatusFilter = 'ACTIVE' | 'INACTIVE' | 'ALL';
 })
 export class PositionsPage {
   private readonly api = inject(OrganizationApiService);
-  private readonly companyContext = inject(CompanyContextService);
+  private readonly companyScope = inject(CompanyScopeService);
   private readonly tokenService = inject(TokenService);
 
-  readonly company = this.companyContext.company;
+  readonly company = this.companyScope.company;
 
   readonly positions = signal<PositionResponse[]>([]);
   readonly departments = signal<DepartmentResponse[]>([]);

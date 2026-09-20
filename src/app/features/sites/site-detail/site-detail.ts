@@ -16,7 +16,7 @@ import { backendErrorMessage } from '../../../core/helpers/backend-error-message
 import { PRIVILEGE_LABELS, isSiteAssignable } from '../../../core/helpers/privilege-labels';
 import { CompanyMembershipResponse } from '../../../core/models/company-membership';
 import { SiteEvaluatorResponse, SiteResponse } from '../../../core/models/site';
-import { CompanyContextService } from '../../../core/services/company-context-service';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyUsersApiService } from '../../companies/company-users-api-service';
 import { AssignEvaluatorDialog } from '../assign-evaluator-dialog/assign-evaluator-dialog';
@@ -40,12 +40,12 @@ interface RowError {
 export class SiteDetail {
   private readonly api = inject(SitesApiService);
   private readonly usersApi = inject(CompanyUsersApiService);
-  private readonly companyContext = inject(CompanyContextService);
+  private readonly companyScope = inject(CompanyScopeService);
   private readonly route = inject(ActivatedRoute);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly company = this.companyContext.company;
+  readonly company = this.companyScope.company;
 
   private readonly siteId = signal('');
 

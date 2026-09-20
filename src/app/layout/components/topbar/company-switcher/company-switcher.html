@@ -117,7 +117,7 @@
         }
       }
 
-      <a class="cs__all" routerLink="/companies" (click)="close()">
+      <a class="cs__all" [routerLink]="allCompaniesLink()" (click)="close()">
         <i class="ti ti-list" aria-hidden="true"></i>
         Ver todas las empresas
       </a>

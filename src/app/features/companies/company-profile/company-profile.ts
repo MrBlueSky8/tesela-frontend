@@ -18,7 +18,7 @@ import {
 import { controlErrorMessage } from '../../../core/helpers/form-error-message';
 import { transientMessage } from '../../../core/helpers/transient-message';
 import { CompanyResponse, UpdateCompanyRequest } from '../../../core/models/company';
-import { CompanyContextService } from '../../../core/services/company-context-service';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { TokenService } from '../../../core/services/token-service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyApiService } from '../company-api-service';
@@ -58,7 +58,7 @@ type PendingConfirm = 'remove-logo' | 'toggle-status';
 export class CompanyProfile {
   private readonly fb = inject(FormBuilder);
   private readonly companyApi = inject(CompanyApiService);
-  private readonly companyContext = inject(CompanyContextService);
+  private readonly companyScope = inject(CompanyScopeService);
   private readonly tokenService = inject(TokenService);
 
   private readonly injector = inject(Injector);
@@ -68,6 +68,8 @@ export class CompanyProfile {
 
   readonly acceptedLogoTypes = LOGO_MIME_TYPES.join(',');
   readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
+
+  readonly isAdminScope = this.companyScope.isAdminScope;
 
   readonly company = signal<CompanyResponse | null>(null);
   readonly isLoading = signal(true);
@@ -89,7 +91,7 @@ export class CompanyProfile {
     telefonoContacto: ['', [Validators.pattern(/^$|^[0-9+() -]{6,15}$/)]],
     emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(COMPANY_FIELD_LIMITS.emailContacto)]],
     urlWeb: ['', [Validators.maxLength(COMPANY_FIELD_LIMITS.urlWeb)]],
-    numeroEmpleados: [null as number | null, [Validators.required, Validators.min(0)]],
+    numeroEmpleados: [null as number | null, [Validators.min(0)]],
   });
 
   private readonly formValue = toSignal(this.form.valueChanges, {
@@ -153,7 +155,7 @@ export class CompanyProfile {
   }
 
   load(): void {
-    const selected = this.companyContext.company();
+    const selected = this.companyScope.company();
 
     if (!selected) {
       // El guard de la ruta lo impide; queda como defensa.
@@ -394,7 +396,7 @@ export class CompanyProfile {
   /** Toda respuesta del backend pasa por aqui: pantalla y sidebar ven lo mismo. */
   private applyCompany(company: CompanyResponse): void {
     this.company.set(company);
-    this.companyContext.replaceCompany(company);
+    this.companyScope.replaceCompany(company);
 
     if (!this.adminLimitControl.dirty || this.adminLimitControl.value === company.adminLimit) {
       this.adminLimitControl.reset(company.adminLimit);

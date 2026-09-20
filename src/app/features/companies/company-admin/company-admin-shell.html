@@ -1,0 +1,86 @@
+@if (isLoading() && !company()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando empresa...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error cas__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm cas__retry" type="button" (click)="scope.reload()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="/plataforma/empresas">Volver al directorio</a>
+} @else if (company(); as current) {
+  <div class="cas">
+    <a class="cas__back" routerLink="/plataforma/empresas">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Directorio de empresas
+    </a>
+
+    <div class="cas__head">
+      <div class="cas__identity">
+        <div class="ph-t">{{ current.nombre }}</div>
+        <div class="ph-s">
+          RUC {{ current.ruc }} ·
+          @if (current.status === 'ACTIVE') {
+            <span class="bdg bdg-green">Activa</span>
+          } @else {
+            <span class="bdg bdg-gray">Inactiva</span>
+          }
+        </div>
+      </div>
+
+      <button
+        class="btn btn-outline btn-sm"
+        type="button"
+        (click)="enterCompany()"
+        [disabled]="isEntering()"
+      >
+        @if (isEntering()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+          <span>Entrando...</span>
+        } @else {
+          <i class="ti ti-login-2" aria-hidden="true"></i>
+          <span>Entrar a esta empresa</span>
+        }
+      </button>
+    </div>
+
+    <p class="alert alert-amber cas__notice" role="status">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span>
+        Estas administrando {{ current.nombre }}.
+        @if (activeCompany(); as active) {
+          Tu empresa de trabajo sigue siendo {{ active.nombre }}.
+        } @else {
+          No tienes ninguna empresa de trabajo seleccionada.
+        }
+      </span>
+    </p>
+
+    @if (enterError(); as error) {
+      <p class="alert alert-error cas__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ error }}</span>
+      </p>
+    }
+
+    <nav class="cas__tabs" aria-label="Secciones de la empresa">
+      <a
+        class="cas__tab"
+        routerLink="."
+        routerLinkActive="cas__tab--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Ficha
+      </a>
+      <a class="cas__tab" routerLink="usuarios" routerLinkActive="cas__tab--active">Usuarios</a>
+      <a class="cas__tab" routerLink="puestos" routerLinkActive="cas__tab--active">Puestos</a>
+      <a class="cas__tab" routerLink="sedes" routerLinkActive="cas__tab--active">Sedes</a>
+    </nav>
+
+    <router-outlet />
+  </div>
+}

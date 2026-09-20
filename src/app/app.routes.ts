@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth-guard';
 import { companyContextGuard } from './core/guards/company-context-guard';
+import { CompanyScopeService } from './core/services/company-scope-service';
 import { guestGuard } from './core/guards/guest-guard';
 import {
   passwordChangePendingGuard,
@@ -13,6 +14,7 @@ import { PeoplePage } from './features/platform/people-page/people-page';
 import { ProfilePage } from './features/account/profile-page/profile-page';
 import { PasswordReset } from './features/auth/password-reset/password-reset';
 import { CompaniesPage } from './features/companies/companies-page/companies-page';
+import { CompanyAdminShell } from './features/companies/company-admin/company-admin-shell';
 import { CompanyCreate } from './features/companies/company-create/company-create';
 import { CompanyProfile } from './features/companies/company-profile/company-profile';
 import { CompanyUsersPage } from './features/companies/company-users/company-users-page';
@@ -73,6 +75,58 @@ export const routes: Routes = [
         },
       },
       {
+        // Directorio de empresas y ficha de cada una. Administrar una empresa
+        // no cambia la empresa de trabajo del usuario.
+        path: 'plataforma/empresas',
+        canActivate: [authGuard],
+        data: {
+          breadcrumb: 'Empresas',
+          roles: ['ADMIN_PLATAFORMA'],
+        },
+        children: [
+          {
+            path: '',
+            component: CompaniesPage,
+            data: { breadcrumb: '' },
+          },
+          {
+            path: ':companyPublicId',
+            component: CompanyAdminShell,
+            // Instancia propia: aqui el alcance es la empresa de la ruta.
+            providers: [CompanyScopeService],
+            data: { breadcrumb: 'Ficha' },
+            children: [
+              { path: '', component: CompanyProfile, data: { breadcrumb: '' } },
+              { path: 'usuarios', component: CompanyUsersPage, data: { breadcrumb: 'Usuarios' } },
+              {
+                path: 'puestos',
+                data: { breadcrumb: 'Puestos' },
+                children: [
+                  { path: '', component: PositionsPage, data: { breadcrumb: '' } },
+                  {
+                    path: ':positionPublicId',
+                    component: PositionDetail,
+                    data: { breadcrumb: 'Detalle del puesto' },
+                  },
+                ],
+              },
+              {
+                path: 'sedes',
+                data: { breadcrumb: 'Sedes' },
+                children: [
+                  { path: '', component: SitesPage, data: { breadcrumb: '' } },
+                  {
+                    path: ':sitePublicId',
+                    component: SiteDetail,
+                    data: { breadcrumb: 'Detalle de la sede' },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
         path: 'plataforma/personas',
         component: PeoplePage,
         canActivate: [authGuard],
@@ -92,6 +146,8 @@ export const routes: Routes = [
         path: 'empresa',
         data: { breadcrumb: 'Gestion' },
         canActivateChild: [companyContextGuard],
+        // El alcance de esta rama es la empresa seleccionada.
+        providers: [CompanyScopeService],
         children: [
           {
             path: '',

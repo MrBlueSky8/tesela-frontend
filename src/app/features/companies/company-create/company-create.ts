@@ -43,7 +43,7 @@ export class CompanyCreate {
     telefonoContacto: ['', [Validators.pattern(/^$|^[0-9+() -]{6,15}$/)]],
     emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(COMPANY_FIELD_LIMITS.emailContacto)]],
     urlWeb: ['', [Validators.maxLength(COMPANY_FIELD_LIMITS.urlWeb)]],
-    numeroEmpleados: [null as number | null, [Validators.required, Validators.min(0)]],
+    numeroEmpleados: [null as number | null, [Validators.min(0)]],
     adminLimit: [null as number | null, [Validators.min(1)]],
   });
 
@@ -65,7 +65,8 @@ export class CompanyCreate {
     this.companyApi.create(this.buildPayload()).subscribe({
       next: (company) => {
         this.isSubmitting.set(false);
-        void this.router.navigate(['/companies'], {
+        // Solo Fundades da de alta empresas: vuelve a su directorio.
+        void this.router.navigate(['/plataforma/empresas'], {
           state: { createdCompany: company.nombre },
         });
       },
@@ -109,7 +110,8 @@ export class CompanyCreate {
       telefonoContacto: value.telefonoContacto.trim(),
       emailContacto: value.emailContacto.trim(),
       urlWeb: value.urlWeb.trim(),
-      numeroEmpleados: value.numeroEmpleados ?? 0,
+      // Vacio significa "sin dato": no se envia.
+      ...(value.numeroEmpleados != null ? { numeroEmpleados: value.numeroEmpleados } : {}),
       // Vacio significa "usar el limite por defecto del backend".
       ...(value.adminLimit != null ? { adminLimit: value.adminLimit } : {}),
     };

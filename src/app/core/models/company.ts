@@ -27,7 +27,8 @@ export interface CompanyResponse {
   razonSocial: string;
   urlLogo: string | null;
   descripcion: string;
-  numeroEmpleados: number;
+  /** Opcional en el backend. */
+  numeroEmpleados: number | null;
   adminLimit: number;
   /** Opcional en el backend. */
   urlWeb: string | null;
@@ -43,7 +44,8 @@ export interface CreateCompanyRequest {
   emailContacto: string;
   razonSocial: string;
   descripcion: string;
-  numeroEmpleados: number;
+  /** Opcional. */
+  numeroEmpleados?: number;
   urlWeb: string;
   /** Opcional: si no llega, el backend aplica el limite por defecto. */
   adminLimit?: number;
