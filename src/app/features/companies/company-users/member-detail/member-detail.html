@@ -1,0 +1,244 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando usuario...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error md__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm md__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="..">Volver a usuarios</a>
+} @else if (member(); as current) {
+  <div class="md">
+    <a class="md__back" routerLink="..">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Usuarios
+    </a>
+
+    <div class="ph-row">
+      <div>
+        <div class="ph-t">{{ fullName() }}</div>
+        <div class="ph-s">{{ current.email }}</div>
+      </div>
+
+      <div class="md__badges">
+        @if (current.status === 'ACTIVE') {
+          <span class="bdg bdg-green">Membresia activa</span>
+        } @else {
+          <span class="bdg bdg-gray">Membresia inactiva</span>
+        }
+        @if (current.mustChangePassword) {
+          <span class="bdg bdg-amber">Pendiente de activacion</span>
+        }
+      </div>
+    </div>
+
+    @if (saveSuccess(); as message) {
+      <p class="alert alert-success md__alert" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button
+          class="alert-close"
+          type="button"
+          (click)="saveSuccess.set(null)"
+          aria-label="Cerrar aviso"
+        >
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </p>
+    }
+
+    @if (saveError(); as message) {
+      <p class="alert alert-error md__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <!-- ================= Identidad ================= -->
+    <section class="fc" aria-labelledby="identity-heading">
+      <div class="fc-hdr" id="identity-heading">Identidad</div>
+
+      <div class="det-grid">
+        <div>
+          <div class="det-lbl">Nombres</div>
+          <div class="det-val">{{ current.firstNames }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">Apellidos</div>
+          <div class="det-val">{{ current.lastNames }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">{{ documentLabel() }}</div>
+          <div class="det-val">{{ current.documentNumber }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">Correo de la cuenta</div>
+          <div class="det-val">{{ current.email }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">Estado de la cuenta</div>
+          <div class="det-val">{{ accountStatusLabel() }}</div>
+        </div>
+      </div>
+
+      <p class="cell-sub md__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        @if (isPlatformAdmin()) {
+          Nombres, apellidos y documento se corrigen desde
+          <a routerLink="/plataforma/personas">Plataforma → Personas</a>.
+        } @else {
+          Si el nombre o el documento tienen un error, solicita la correccion al soporte de Fundades.
+        }
+      </p>
+    </section>
+
+    <!-- ================= Contacto ================= -->
+    <section class="fc" aria-labelledby="contact-heading">
+      <div class="fc-hdr" id="contact-heading">Datos de contacto</div>
+
+      <p class="cell-sub md__note md__note--lead">
+        <i class="ti ti-users" aria-hidden="true"></i>
+        Pertenecen a la persona, no a esta cuenta: el cambio se vera tambien en sus otras cuentas y
+        empresas.
+      </p>
+
+      @if (!canEditPerson()) {
+        <p class="alert alert-amber md__alert" role="status">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          <span>
+            Este usuario tiene privilegios de administracion. Para editar sus datos necesitas el
+            privilegio Gestionar admins.
+          </span>
+        </p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="md-phone">Telefono</label>
+            <input
+              class="fi"
+              id="md-phone"
+              type="tel"
+              formControlName="telefono"
+              [class.invalid]="fieldError('telefono')"
+              [attr.aria-invalid]="!!fieldError('telefono')"
+              [attr.aria-describedby]="fieldError('telefono') ? 'md-phone-error' : null"
+            />
+            @if (fieldError('telefono'); as message) {
+              <span class="fi-err" id="md-phone-error">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="md-address">Direccion</label>
+            <input
+              class="fi"
+              id="md-address"
+              type="text"
+              maxlength="120"
+              formControlName="direccion"
+              [class.invalid]="fieldError('direccion')"
+              [attr.aria-invalid]="!!fieldError('direccion')"
+              [attr.aria-describedby]="fieldError('direccion') ? 'md-address-error' : null"
+            />
+            @if (fieldError('direccion'); as message) {
+              <span class="fi-err" id="md-address-error">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="md-birth">Fecha de nacimiento</label>
+            <input class="fi" id="md-birth" type="date" formControlName="fechaNacimiento" />
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="md-gender">Genero</label>
+            <select class="fsel" id="md-gender" formControlName="genero">
+              <option value="" disabled>Sin registrar</option>
+              @for (option of genderOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        @if (canEditPerson()) {
+          <div class="md__actions">
+            <button
+              class="btn btn-ghost"
+              type="button"
+              (click)="onDiscard()"
+              [disabled]="isSaving() || form.pristine"
+            >
+              Descartar
+            </button>
+            <button class="btn btn-primary" type="submit" [disabled]="isSaving() || form.pristine">
+              @if (isSaving()) {
+                <span class="ts-spinner" aria-hidden="true"></span>
+                <span>Guardando...</span>
+              } @else {
+                <i class="ti ti-device-floppy" aria-hidden="true"></i>
+                <span>Guardar cambios</span>
+              }
+            </button>
+          </div>
+        }
+      </form>
+    </section>
+
+    <!-- ================= Acceso ================= -->
+    <section class="fc" aria-labelledby="access-heading">
+      <div class="fc-hdr" id="access-heading">Acceso en esta empresa</div>
+
+      <div class="md__privileges">
+        @for (privilege of current.privileges; track privilege.publicId) {
+          <span class="bdg bdg-blue">{{ labels[privilege.name] }}</span>
+        } @empty {
+          <span class="cell-meta">Sin privilegios asignados</span>
+        }
+      </div>
+
+      @if (siteAssignment(); as assignment) {
+        <p class="cell-sub md__note">
+          <i class="ti ti-map-pin" aria-hidden="true"></i>
+          Sede asignada:
+          <a [routerLink]="['../..', 'sedes', assignment.sitePublicId]">{{ assignment.siteName }}</a>
+        </p>
+      }
+
+      <div class="md__actions">
+        @if (isSelf()) {
+          <span class="cell-meta">No puedes modificar tu propia membresia.</span>
+        } @else {
+          <button class="btn btn-outline" type="button" (click)="editOpen.set(true)">
+            <i class="ti ti-shield-cog" aria-hidden="true"></i>
+            <span>Editar acceso</span>
+          </button>
+        }
+      </div>
+    </section>
+  </div>
+
+  @if (editOpen() && membershipForDialog(); as membership) {
+    @if (company(); as currentCompany) {
+      <app-edit-member-dialog
+        [companyPublicId]="currentCompany.publicId"
+        [membership]="membership"
+        [catalog]="catalog()"
+        [canManageAdmins]="canManageAdmins()"
+        [adminLimitReached]="adminLimitReached()"
+        [siteAssignment]="siteAssignment()"
+        (saved)="onAccessSaved($event)"
+        (closed)="editOpen.set(false)"
+      />
+    }
+  }
+}

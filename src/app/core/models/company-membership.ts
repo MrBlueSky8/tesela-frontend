@@ -1,5 +1,5 @@
 import { CompanyPrivilegeResponse, MembershipStatus } from './company';
-import { DocumentType } from './user-profile-response';
+import { DocumentType, Gender, UserStatus } from './user-profile-response';
 
 /** Espejo de company/dto/CompanyMembershipResponse. */
 export interface CompanyMembershipResponse {
@@ -16,6 +16,43 @@ export interface CompanyMembershipResponse {
   updatedAt: string;
   /** La cuenta aun usa la contrasena temporal: se le pueden reenviar credenciales. */
   mustChangePassword: boolean;
+}
+
+/**
+ * Espejo de company/dto/CompanyMemberDetailResponse: la membresia mas los
+ * datos de la persona. La persona es compartida por todas sus cuentas.
+ */
+export interface CompanyMemberDetailResponse {
+  publicId: string;
+  companyPublicId: string;
+  userPublicId: string;
+  email: string;
+  accountStatus: UserStatus;
+  status: MembershipStatus;
+  privileges: CompanyPrivilegeResponse[];
+  mustChangePassword: boolean;
+  personPublicId: string;
+  documentType: DocumentType;
+  documentNumber: string;
+  firstNames: string;
+  lastNames: string;
+  birthDate: string | null;
+  gender: Gender | null;
+  address: string | null;
+  phone: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * PATCH de los datos de contacto de la persona. Sin identidad: nombres,
+ * apellidos y documento solo los corrige Fundades.
+ */
+export interface UpdateMemberPersonRequest {
+  telefono?: string;
+  direccion?: string;
+  fechaNacimiento?: string;
+  genero?: Gender;
 }
 
 /** Resultado de la busqueda de usuarios que aun no pertenecen a la empresa. */

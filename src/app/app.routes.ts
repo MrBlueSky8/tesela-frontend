@@ -18,6 +18,7 @@ import { CompanyAdminShell } from './features/companies/company-admin/company-ad
 import { CompanyCreate } from './features/companies/company-create/company-create';
 import { CompanyProfile } from './features/companies/company-profile/company-profile';
 import { CompanyUsersPage } from './features/companies/company-users/company-users-page';
+import { MemberDetail } from './features/companies/company-users/member-detail/member-detail';
 import { PositionDetail } from './features/organization/position-detail/position-detail';
 import { PositionsPage } from './features/organization/positions-page/positions-page';
 import { SiteDetail } from './features/sites/site-detail/site-detail';
@@ -97,7 +98,18 @@ export const routes: Routes = [
             data: { breadcrumb: 'Ficha' },
             children: [
               { path: '', component: CompanyProfile, data: { breadcrumb: '' } },
-              { path: 'usuarios', component: CompanyUsersPage, data: { breadcrumb: 'Usuarios' } },
+              {
+                path: 'usuarios',
+                data: { breadcrumb: 'Usuarios' },
+                children: [
+                  { path: '', component: CompanyUsersPage, data: { breadcrumb: '' } },
+                  {
+                    path: ':membershipPublicId',
+                    component: MemberDetail,
+                    data: { breadcrumb: 'Detalle del usuario' },
+                  },
+                ],
+              },
               {
                 path: 'puestos',
                 data: { breadcrumb: 'Puestos' },
@@ -158,12 +170,25 @@ export const routes: Routes = [
             },
           },
           {
+            // Sin componente: los hijos heredan breadcrumb y privilegios.
             path: 'usuarios',
-            component: CompanyUsersPage,
             data: {
               breadcrumb: 'Usuarios',
               privileges: ['ADMIN_GENERAL'],
             },
+            children: [
+              {
+                path: '',
+                component: CompanyUsersPage,
+                // Vacio para no repetir la miga heredada del padre.
+                data: { breadcrumb: '' },
+              },
+              {
+                path: ':membershipPublicId',
+                component: MemberDetail,
+                data: { breadcrumb: 'Detalle del usuario' },
+              },
+            ],
           },
           {
             // Sin componente: los hijos heredan breadcrumb y privilegios.

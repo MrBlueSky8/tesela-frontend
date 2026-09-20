@@ -1,0 +1,65 @@
+.md {
+  max-width: 760px;
+}
+
+.md__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.md__back:hover {
+  color: var(--ts-text);
+}
+
+.md__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.md__alert {
+  margin-bottom: 14px;
+}
+
+.md__retry {
+  margin-left: auto;
+}
+
+.md__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.md__note--lead {
+  margin: 0 0 12px;
+}
+
+.md__note a {
+  color: var(--ts-green-dark);
+}
+
+.md .frow {
+  margin-bottom: 0;
+}
+
+.md__privileges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.md__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}

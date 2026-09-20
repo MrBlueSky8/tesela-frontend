@@ -104,13 +104,13 @@
       <ul class="cu__list">
         @for (member of filtered(); track member.publicId) {
           <li class="list-row cu__grid">
-            <div class="cu__identity">
+            <a class="cu__identity cu__identity--link" [routerLink]="[member.publicId]">
               <span class="cu__ava" aria-hidden="true">{{ initials(member) }}</span>
               <span class="cu__copy">
                 <span class="cell-name">{{ member.firstNames }} {{ member.lastNames }}</span>
                 <span class="cell-sub">{{ member.email }}</span>
               </span>
-            </div>
+            </a>
 
             <div class="cu__privileges">
               @if (isGeneralAdmin(member)) {
@@ -149,6 +149,15 @@
             </div>
 
             <div class="cu__action">
+              <a
+                class="btn btn-ghost btn-sm"
+                [routerLink]="[member.publicId]"
+                [attr.aria-label]="'Ver ficha de ' + member.firstNames + ' ' + member.lastNames"
+              >
+                <i class="ti ti-id-badge-2" aria-hidden="true"></i>
+                Ficha
+              </a>
+
               @if (isSelf(member)) {
                 <span class="cell-meta">
                   Tu cuenta

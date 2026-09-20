@@ -8,9 +8,11 @@ import { CompanyPrivilegeResponse } from '../../core/models/company';
 import {
   AddCompanyUserRequest,
   AssignableUserResponse,
+  CompanyMemberDetailResponse,
   CompanyMembershipResponse,
   CreateCompanyUserRequest,
   UpdateCompanyMembershipRequest,
+  UpdateMemberPersonRequest,
 } from '../../core/models/company-membership';
 
 /** Miembros de una empresa. Aparte de CompanyApiService para no inflarlo. */
@@ -85,6 +87,27 @@ export class CompanyUsersApiService {
       .pipe(map((response) => response.data));
   }
 
+  /** Ficha del miembro: incluye los datos de la persona. */
+  get(companyPublicId: string, membershipPublicId: string): Observable<CompanyMemberDetailResponse> {
+    return this.http
+      .get<ApiResponse<CompanyMemberDetailResponse>>(this.memberUrl(companyPublicId, membershipPublicId))
+      .pipe(map((response) => response.data));
+  }
+
+  /** Solo datos de contacto; el backend ignora cualquier dato de identidad. */
+  updatePerson(
+    companyPublicId: string,
+    membershipPublicId: string,
+    payload: UpdateMemberPersonRequest,
+  ): Observable<CompanyMemberDetailResponse> {
+    return this.http
+      .patch<ApiResponse<CompanyMemberDetailResponse>>(
+        `${this.memberUrl(companyPublicId, membershipPublicId)}/person`,
+        payload,
+      )
+      .pipe(map((response) => response.data));
+  }
+
   resendCredentials(
     companyPublicId: string,
     membershipPublicId: string,
@@ -95,6 +118,10 @@ export class CompanyUsersApiService {
         {},
       )
       .pipe(map((response) => response.data));
+  }
+
+  private memberUrl(companyPublicId: string, membershipPublicId: string): string {
+    return `${this.usersUrl(companyPublicId)}/${encodeURIComponent(membershipPublicId)}`;
   }
 
   private companyUrl(companyPublicId: string): string {

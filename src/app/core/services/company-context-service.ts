@@ -167,12 +167,21 @@ export class CompanyContextService {
    * sin volver a pedir /my-access: los privilegios no cambian por editarla.
    */
   replaceCompany(company: CompanyResponse): void {
+    // Cualquier empresa editada cambia la lista: nombre, logo o estado.
+    this.invalidateCompanies();
+
     if (this.companyState()?.publicId !== company.publicId) {
       return;
     }
 
     this.companyState.set(company);
-    // El nombre o el logo pudieron cambiar: la lista cacheada ya no sirve.
+  }
+
+  /**
+   * Olvida la lista cacheada de empresas. La llama quien crea o edita una:
+   * si no, el selector del encabezado seguiria mostrando la lista anterior.
+   */
+  invalidateCompanies(): void {
     this.companies$ = null;
   }
 

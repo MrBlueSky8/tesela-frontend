@@ -8,6 +8,7 @@ import {
 } from '../../../core/helpers/backend-error-message';
 import { controlErrorMessage } from '../../../core/helpers/form-error-message';
 import { CreateCompanyRequest } from '../../../core/models/company';
+import { CompanyContextService } from '../../../core/services/company-context-service';
 import { CompanyApiService } from '../company-api-service';
 import { COMPANY_FIELD_LIMITS, CompanyLimitedField } from '../company-field-limits';
 
@@ -27,6 +28,7 @@ type CompanyField = keyof CreateCompanyRequest;
 export class CompanyCreate {
   private readonly fb = inject(FormBuilder);
   private readonly companyApi = inject(CompanyApiService);
+  private readonly companyContext = inject(CompanyContextService);
   private readonly router = inject(Router);
 
   readonly isSubmitting = signal(false);
@@ -65,6 +67,8 @@ export class CompanyCreate {
     this.companyApi.create(this.buildPayload()).subscribe({
       next: (company) => {
         this.isSubmitting.set(false);
+        // El selector del encabezado debe ver la empresa recien creada.
+        this.companyContext.invalidateCompanies();
         // Solo Fundades da de alta empresas: vuelve a su directorio.
         void this.router.navigate(['/plataforma/empresas'], {
           state: { createdCompany: company.nombre },
