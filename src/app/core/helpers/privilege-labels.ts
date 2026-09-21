@@ -67,15 +67,16 @@ export function samePrivileges(
 }
 
 /**
- * Puede asignarse a una sede: sin Admin. general (ya alcanza todas) y con
- * Admin. de sede o algun modulo. Espejo de SiteEvaluatorService.requireAssignable;
+ * Puede asignarse a una sede como responsable de evaluar: Admin. de sede,
+ * algun modulo o Admin. general (que incluye los modulos). La asignacion no da
+ * acceso; marca quien evalua. Espejo de SiteEvaluatorService.requireAssignable;
  * el estado activo de la membresia se valida aparte.
  */
 export function isSiteAssignable(privileges: readonly CompanyPrivilege[]): boolean {
-  return (
-    !privileges.includes('ADMIN_GENERAL') &&
-    privileges.some(
-      (privilege) => privilege === 'ADMIN_SEDE' || MODULE_PRIVILEGES.includes(privilege),
-    )
+  return privileges.some(
+    (privilege) =>
+      privilege === 'ADMIN_GENERAL' ||
+      privilege === 'ADMIN_SEDE' ||
+      MODULE_PRIVILEGES.includes(privilege),
   );
 }

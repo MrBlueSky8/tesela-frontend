@@ -150,8 +150,8 @@ export class SiteDetail {
   }
 
   /**
-   * Una asignacion activa puede quedar sin sentido si el miembro cambio: paso a
-   * Admin. general, perdio sus modulos o su membresia se desactivo.
+   * Una asignacion activa puede quedar sin sentido si el miembro cambio: perdio
+   * sus modulos o su membresia se desactivo.
    */
   isNoLongerEligible(evaluator: SiteEvaluatorResponse): boolean {
     const member = this.members().find((m) => m.publicId === evaluator.membershipPublicId);
