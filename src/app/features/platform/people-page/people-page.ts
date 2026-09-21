@@ -51,6 +51,10 @@ export class PeoplePage {
   /** Confirmacion en linea antes de cambiar el documento (identifica a la persona). */
   readonly confirmDocumentChange = signal(false);
 
+  /** publicId de la cuenta cuyo restablecimiento espera confirmacion. */
+  readonly confirmingReset = signal<string | null>(null);
+  readonly resettingId = signal<string | null>(null);
+
   readonly searchForm = this.fb.nonNullable.group({
     documentType: ['DNI' as DocumentType, [Validators.required]],
     documentNumber: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
@@ -146,6 +150,47 @@ export class PeoplePage {
 
   onCancelDocumentChange(): void {
     this.confirmDocumentChange.set(false);
+  }
+
+  /**
+   * Emite una contrasena temporal para una cuenta de la persona. Es el soporte
+   * de ultimo recurso cuando el usuario no puede recuperarla por si mismo.
+   */
+  onResetPassword(account: AdminPersonResponse['accounts'][number]): void {
+    const person = this.person();
+
+    if (!person || this.resettingId()) {
+      return;
+    }
+
+    if (this.confirmingReset() !== account.publicId) {
+      this.confirmingReset.set(account.publicId);
+      return;
+    }
+
+    this.resettingId.set(account.publicId);
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
+    this.api.resetAccountPassword(person.publicId, account.publicId).subscribe({
+      next: (updated) => {
+        this.resettingId.set(null);
+        this.confirmingReset.set(null);
+        this.setPerson(updated);
+        this.saveSuccess.set(
+          `Enviamos una contrasena temporal a ${account.email}. La anterior ya no funciona.`,
+        );
+      },
+      error: (error: unknown) => {
+        this.resettingId.set(null);
+        this.confirmingReset.set(null);
+        this.saveError.set(backendErrorMessage(error, 'No pudimos restablecer la contrasena.'));
+      },
+    });
+  }
+
+  cancelReset(): void {
+    this.confirmingReset.set(null);
   }
 
   onDiscard(): void {

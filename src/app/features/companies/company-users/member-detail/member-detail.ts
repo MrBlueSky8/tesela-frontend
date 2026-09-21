@@ -76,6 +76,10 @@ export class MemberDetail {
 
   readonly editOpen = signal(false);
 
+  /** Confirmacion en linea del restablecimiento: no abre otro dialogo. */
+  readonly confirmingReset = signal(false);
+  readonly isResetting = signal(false);
+
   readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
   readonly canManageAdmins = computed(() => this.companyScope.hasAnyPrivilege(['GESTIONAR_ADMINS']));
 
@@ -246,6 +250,45 @@ export class MemberDetail {
         );
       },
     });
+  }
+
+  /** Emite una contrasena temporal nueva y se la envia al usuario en el PDF. */
+  onResetPassword(): void {
+    const company = this.company();
+    const member = this.member();
+
+    if (!company || !member || this.isResetting()) {
+      return;
+    }
+
+    if (!this.confirmingReset()) {
+      this.confirmingReset.set(true);
+      return;
+    }
+
+    this.isResetting.set(true);
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
+    this.api.resendCredentials(company.publicId, member.publicId).subscribe({
+      next: () => {
+        this.isResetting.set(false);
+        this.confirmingReset.set(false);
+        this.saveSuccess.set(
+          `Enviamos una contrasena temporal a ${member.email}. La anterior ya no funciona.`,
+        );
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.isResetting.set(false);
+        this.confirmingReset.set(false);
+        this.saveError.set(backendErrorMessage(error, 'No pudimos restablecer la contrasena.'));
+      },
+    });
+  }
+
+  cancelReset(): void {
+    this.confirmingReset.set(false);
   }
 
   onDiscard(): void {

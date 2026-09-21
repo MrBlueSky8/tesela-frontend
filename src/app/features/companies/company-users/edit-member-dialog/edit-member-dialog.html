@@ -15,10 +15,11 @@
           <div class="confirm-ico confirm-ico--info">
             <i class="ti ti-mail-forward" aria-hidden="true"></i>
           </div>
-          <div class="confirm-t" id="emd-confirm-title">Reenviar credenciales</div>
+          <div class="confirm-t" id="emd-confirm-title">Restablecer contrasena</div>
           <div class="confirm-s">
-            Enviaremos una nueva contrasena temporal a {{ member().email }}. La anterior dejara de
-            funcionar.
+            Enviaremos una nueva contrasena temporal a {{ member().email }} en un PDF protegido con
+            su documento. La anterior dejara de funcionar y se cerraran sus sesiones, tambien en
+            otras empresas donde trabaje.
           </div>
         }
       </div>
@@ -36,7 +37,7 @@
         aria-describedby="emd-confirm-title"
         (click)="confirm()"
       >
-        {{ confirmation === 'deactivate' ? 'Desactivar' : 'Reenviar' }}
+        {{ confirmation === 'deactivate' ? 'Desactivar' : 'Restablecer' }}
       </button>
     </div>
   } @else {
@@ -134,9 +135,15 @@
       @if (canResend()) {
         <div class="emd__resend">
           <div>
-            <div class="cell-name">Aun no activa su cuenta</div>
+            <div class="cell-name">
+              @if (member().mustChangePassword) {
+                Aun no activa su cuenta
+              } @else {
+                Contrasena
+              }
+            </div>
             <div class="cell-sub">
-              Si no recibio el correo, envia una nueva contrasena temporal.
+              Si no puede entrar, envia una nueva contrasena temporal que debera cambiar al ingresar.
             </div>
           </div>
           <button
@@ -146,8 +153,8 @@
             [disabled]="isSaving()"
             (click)="onResend()"
           >
-            <i class="ti ti-mail-forward" aria-hidden="true"></i>
-            Reenviar credenciales
+            <i class="ti ti-key" aria-hidden="true"></i>
+            Restablecer contrasena
           </button>
         </div>
       }

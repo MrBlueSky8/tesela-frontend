@@ -44,7 +44,7 @@ export interface MemberSavedEvent {
 }
 
 /**
- * Editar privilegios y estado de un miembro, y reenviarle credenciales
+ * Editar privilegios y estado de un miembro, y restablecer su contrasena
  * mientras no haya activado su cuenta.
  *
  * <p>Las confirmaciones se muestran dentro del mismo dialogo en vez de apilar
@@ -121,9 +121,8 @@ export class EditMemberDialog implements OnInit {
     return this.adminLimitReached() && !wasActiveAdmin && this.status() === 'ACTIVE';
   });
 
-  readonly canResend = computed(
-    () => this.member().mustChangePassword && this.member().status === 'ACTIVE' && !this.locked(),
-  );
+  /** Restablecer exige miembro activo; el backend repite la comprobacion. */
+  readonly canResend = computed(() => this.member().status === 'ACTIVE' && !this.locked());
 
   ngOnInit(): void {
     this.resetFrom(this.membership());
@@ -203,13 +202,13 @@ export class EditMemberDialog implements OnInit {
         this.isSaving.set(false);
         this.latest.set(updated);
         this.notice.set(
-          `Enviamos una nueva contrasena temporal a ${updated.email}. La anterior ya no funciona.`,
+          `Enviamos una nueva contrasena temporal a ${updated.email}. La anterior ya no funciona y sus sesiones se cerraron.`,
         );
         this.saved.emit({ membership: updated, notice: null });
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
-        this.error.set(backendErrorMessage(error, 'No pudimos reenviar las credenciales.'));
+        this.error.set(backendErrorMessage(error, 'No pudimos restablecer la contrasena.'));
       },
     });
   }

@@ -54,4 +54,20 @@ export class PeopleApiService {
       .patch<ApiResponse<AdminPersonResponse>>(`${this.apiUrl}/${encodeURIComponent(personPublicId)}`, payload)
       .pipe(map((response) => response.data));
   }
+
+  /**
+   * Soporte de ultimo recurso: emite una contrasena temporal para una cuenta y
+   * se la envia por correo en el PDF protegido.
+   */
+  resetAccountPassword(
+    personPublicId: string,
+    userPublicId: string,
+  ): Observable<AdminPersonResponse> {
+    return this.http
+      .post<ApiResponse<AdminPersonResponse>>(
+        `${this.apiUrl}/${encodeURIComponent(personPublicId)}/accounts/${encodeURIComponent(userPublicId)}/reset-password`,
+        {},
+      )
+      .pipe(map((response) => response.data));
+  }
 }

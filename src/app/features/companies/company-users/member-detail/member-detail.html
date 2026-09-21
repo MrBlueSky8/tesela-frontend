@@ -214,16 +214,59 @@
         </p>
       }
 
+      @if (confirmingReset()) {
+        <div class="alert alert-amber md__alert" role="alert">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <span>
+            Enviaremos una contrasena temporal a {{ current.email }}, en un PDF protegido con su
+            documento. La contrasena actual dejara de funcionar y se cerraran sus sesiones, tambien
+            en otras empresas donde trabaje.
+          </span>
+        </div>
+      }
+
       <div class="md__actions">
         @if (isSelf()) {
           <span class="cell-meta">No puedes modificar tu propia membresia.</span>
         } @else {
-          <button class="btn btn-outline" type="button" (click)="editOpen.set(true)">
-            <i class="ti ti-shield-cog" aria-hidden="true"></i>
-            <span>Editar acceso</span>
+          @if (confirmingReset()) {
+            <button class="btn btn-ghost" type="button" (click)="cancelReset()" [disabled]="isResetting()">
+              Cancelar
+            </button>
+          } @else {
+            <button class="btn btn-outline" type="button" (click)="editOpen.set(true)">
+              <i class="ti ti-shield-cog" aria-hidden="true"></i>
+              <span>Editar acceso</span>
+            </button>
+          }
+
+          <button
+            class="btn"
+            type="button"
+            [class.btn-outline]="!confirmingReset()"
+            [class.btn-primary]="confirmingReset()"
+            [disabled]="isResetting() || current.status !== 'ACTIVE' || !canEditPerson()"
+            (click)="onResetPassword()"
+          >
+            @if (isResetting()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Enviando...</span>
+            } @else if (confirmingReset()) {
+              <span>Si, restablecer</span>
+            } @else {
+              <i class="ti ti-key" aria-hidden="true"></i>
+              <span>Restablecer contrasena</span>
+            }
           </button>
         }
       </div>
+
+      @if (!isSelf() && !canEditPerson()) {
+        <p class="cell-sub md__note">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          Restablecer la contrasena de un administrador exige el privilegio Gestionar admins.
+        </p>
+      }
     </section>
   </div>
 
