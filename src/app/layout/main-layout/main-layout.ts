@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { CompanyContextService } from '../../core/services/company-context-service';
@@ -19,6 +19,15 @@ import { Topbar } from '../components/topbar/topbar';
 })
 export class MainLayout {
   private readonly companyContext = inject(CompanyContextService);
+
+  /**
+   * Confirmacion del cambio de empresa. Vive en el layout porque tras el
+   * cambio el usuario puede quedarse en la seccion donde estaba.
+   */
+  readonly switchedCompany = this.companyContext.justSwitchedTo;
+
+  /** Quien administra la empresa la "gestiona"; un evaluador "trabaja" en ella. */
+  readonly isManager = computed(() => this.companyContext.hasAnyPrivilege(['ADMIN_GENERAL']));
 
   constructor() {
     // Carga la empresa guardada (o la unica del usuario) para que el sidebar

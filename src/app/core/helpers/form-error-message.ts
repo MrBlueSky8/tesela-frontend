@@ -7,6 +7,8 @@ const VALIDATION_MESSAGES: Record<string, string> = {
   maxlength: 'Supera la longitud permitida.',
   pattern: 'El formato no es válido.',
   min: 'El valor es menor al permitido.',
+  max: 'El valor supera el máximo permitido.',
+  integer: 'Ingresa un número entero.',
 };
 
 /**

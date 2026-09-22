@@ -27,10 +27,11 @@ export class Home {
 
   readonly username = computed(() => this.tokenService.username() ?? 'Usuario');
 
-  /** Confirmacion del cambio de empresa hecho desde el encabezado. */
-  readonly switchedCompany = this.companyContext.justSwitchedTo;
   readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
   readonly company = this.companyContext.company;
+
+  /** Quien administra la empresa la "gestiona"; un evaluador "trabaja" en ella. */
+  readonly isManager = computed(() => this.companyContext.hasAnyPrivilege(['ADMIN_GENERAL']));
 
   readonly sections = computed(() =>
     this.sidebarAccess

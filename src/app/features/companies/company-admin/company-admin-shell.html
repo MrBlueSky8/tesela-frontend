@@ -36,11 +36,14 @@
         class="btn btn-outline btn-sm"
         type="button"
         (click)="enterCompany()"
-        [disabled]="isEntering()"
+        [disabled]="isEntering() || isActiveCompany()"
       >
         @if (isEntering()) {
           <span class="ts-spinner" aria-hidden="true"></span>
           <span>Entrando...</span>
+        } @else if (isActiveCompany()) {
+          <i class="ti ti-check" aria-hidden="true"></i>
+          <span>Ya estás en esta empresa</span>
         } @else {
           <i class="ti ti-login-2" aria-hidden="true"></i>
           <span>Entrar a esta empresa</span>
@@ -51,14 +54,33 @@
     <p class="alert alert-amber cas__notice" role="status">
       <i class="ti ti-info-circle" aria-hidden="true"></i>
       <span>
-        Estás administrando {{ current.nombre }}.
-        @if (activeCompany(); as active) {
-          Tu empresa de trabajo sigue siendo {{ active.nombre }}.
+        @if (isActiveCompany()) {
+          {{ current.nombre }} es tu empresa de trabajo.
         } @else {
-          No tienes ninguna empresa de trabajo seleccionada.
+          Estás administrando {{ current.nombre }}.
+          @if (activeCompany(); as active) {
+            Tu empresa de trabajo sigue siendo {{ active.nombre }}.
+          } @else {
+            No tienes ninguna empresa de trabajo seleccionada.
+          }
         }
       </span>
     </p>
+
+    @if (enterSuccess(); as message) {
+      <p class="alert alert-success cas__alert" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button
+          class="alert-close"
+          type="button"
+          (click)="enterSuccess.set(null)"
+          aria-label="Cerrar aviso"
+        >
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </p>
+    }
 
     @if (enterError(); as error) {
       <p class="alert alert-error cas__alert" role="alert">

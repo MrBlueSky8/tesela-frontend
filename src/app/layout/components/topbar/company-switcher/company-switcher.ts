@@ -122,7 +122,7 @@ export class CompanySwitcher {
         this.close();
         // El aviso lo muestra Inicio; asi el cambio se confirma en pantalla.
         this.companyContext.justSwitchedTo.set(company.nombre);
-        void this.router.navigate(['/home']);
+        this.navigateAfterSwitch();
       },
       error: (error: unknown) => {
         this.selectingId.set(null);
@@ -131,6 +131,29 @@ export class CompanySwitcher {
         );
       },
     });
+  }
+
+  /**
+   * Tras el cambio, deja al usuario donde estaba en la medida de lo posible:
+   * en una seccion de la empresa vuelve al inicio de esa seccion (un detalle
+   * pertenece a la empresa anterior) y fuera de ellas no navega. Si la nueva
+   * empresa no da acceso a la seccion, el guard de la ruta lo lleva a Inicio.
+   */
+  private navigateAfterSwitch(): void {
+    const segments = this.router.url.split(/[?#]/)[0].split('/').filter(Boolean);
+
+    if (segments[0] !== 'empresa' && segments[0] !== 'modulos') {
+      // Inicio, perfil o plataforma no dependen de la empresa o ya se recalculan solos.
+      return;
+    }
+
+    const target = '/' + segments.slice(0, 2).join('/');
+
+    // Las paginas cargan sus datos al crearse: se pasa por Inicio sin cambiar la URL
+    // visible para que la seccion se vuelva a crear con la nueva empresa.
+    void this.router
+      .navigateByUrl('/home', { skipLocationChange: true })
+      .then(() => this.router.navigateByUrl(target));
   }
 
   initial(company: CompanyResponse): string {

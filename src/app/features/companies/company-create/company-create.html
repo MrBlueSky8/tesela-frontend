@@ -194,13 +194,19 @@
           id="numeroEmpleados"
           type="number"
           min="0"
+          [max]="numberLimits.numeroEmpleados"
+          step="1"
           formControlName="numeroEmpleados"
           [class.invalid]="fieldError('numeroEmpleados')"
           [attr.aria-invalid]="!!fieldError('numeroEmpleados')"
-          [attr.aria-describedby]="fieldError('numeroEmpleados') ? 'numeroEmpleados-error' : null"
+          [attr.aria-describedby]="
+            fieldError('numeroEmpleados') ? 'numeroEmpleados-error' : 'numeroEmpleados-hint'
+          "
         />
         @if (fieldError('numeroEmpleados'); as message) {
           <span class="fi-err" id="numeroEmpleados-error">{{ message }}</span>
+        } @else {
+          <span class="fi-hint" id="numeroEmpleados-hint">Hasta 1.000.000.</span>
         }
       </div>
 
@@ -213,6 +219,8 @@
           id="adminLimit"
           type="number"
           min="1"
+          [max]="numberLimits.adminLimit"
+          step="1"
           formControlName="adminLimit"
           [class.invalid]="fieldError('adminLimit')"
           [attr.aria-invalid]="!!fieldError('adminLimit')"
@@ -224,7 +232,7 @@
           <span class="fi-err" id="adminLimit-error">{{ message }}</span>
         } @else {
           <span class="fi-hint" id="adminLimit-hint"
-            >Si lo dejas vacío se aplica el límite por defecto.</span
+            >Entre 1 y 100. Si lo dejas vacío se aplica el límite por defecto.</span
           >
         }
       </div>

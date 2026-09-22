@@ -5,6 +5,27 @@
     <app-topbar />
 
     <main class="content ts-scroll">
+      @if (switchedCompany(); as nombre) {
+        <p class="alert alert-success layout__notice" role="status">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span>
+            @if (isManager()) {
+              Ahora estás gestionando {{ nombre }}.
+            } @else {
+              Ahora trabajas en {{ nombre }}.
+            }
+          </span>
+          <button
+            class="alert-close"
+            type="button"
+            (click)="switchedCompany.set(null)"
+            aria-label="Cerrar aviso"
+          >
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </p>
+      }
+
       <router-outlet />
     </main>
   </div>

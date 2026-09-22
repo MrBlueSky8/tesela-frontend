@@ -1,10 +1,10 @@
 <div class="ph">
   <div class="ph-t">Inicio</div>
   <div class="ph-s">
-    @if (isPlatformAdmin()) {
+    @if (company(); as current) {
+      {{ isManager() ? 'Gestionando' : 'Trabajando en' }} {{ current.nombre }}.
+    } @else if (isPlatformAdmin()) {
       Administración de la plataforma ADAPTIA.
-    } @else if (company(); as current) {
-      Trabajando en {{ current.nombre }}.
     } @else {
       Bienvenido, {{ username() }}.
     }
@@ -12,21 +12,6 @@
 </div>
 
 <div class="home">
-  @if (switchedCompany(); as nombre) {
-    <p class="alert alert-success home__alert" role="status">
-      <i class="ti ti-circle-check" aria-hidden="true"></i>
-      <span>Ahora trabajas en {{ nombre }}.</span>
-      <button
-        class="alert-close"
-        type="button"
-        (click)="switchedCompany.set(null)"
-        aria-label="Cerrar aviso"
-      >
-        <i class="ti ti-x" aria-hidden="true"></i>
-      </button>
-    </p>
-  }
-
   @if (!isPlatformAdmin() && !company()) {
     <div class="fc home__empty">
       <div class="fc-hdr">Elige una empresa</div>

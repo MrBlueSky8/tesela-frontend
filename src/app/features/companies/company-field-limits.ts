@@ -10,3 +10,9 @@ export const COMPANY_FIELD_LIMITS = {
 } as const;
 
 export type CompanyLimitedField = keyof typeof COMPANY_FIELD_LIMITS;
+
+/** Topes numericos, iguales a los @Max del backend. */
+export const COMPANY_NUMBER_LIMITS = {
+  numeroEmpleados: 1_000_000,
+  adminLimit: 100,
+} as const;

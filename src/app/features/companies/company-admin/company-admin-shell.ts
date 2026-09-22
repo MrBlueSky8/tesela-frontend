@@ -1,9 +1,10 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { distinctUntilChanged, map } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
+import { transientMessage } from '../../../core/helpers/transient-message';
 import { CompanyContextService } from '../../../core/services/company-context-service';
 import { CompanyScopeService } from '../../../core/services/company-scope-service';
 
@@ -22,7 +23,6 @@ import { CompanyScopeService } from '../../../core/services/company-scope-servic
 })
 export class CompanyAdminShell {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly companyContext = inject(CompanyContextService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -35,6 +35,12 @@ export class CompanyAdminShell {
 
   readonly isEntering = signal(false);
   readonly enterError = signal<string | null>(null);
+  readonly enterSuccess = transientMessage();
+
+  /** La empresa administrada ya es la empresa de trabajo del usuario. */
+  readonly isActiveCompany = computed(
+    () => !!this.company() && this.activeCompany()?.publicId === this.company()?.publicId,
+  );
 
   constructor() {
     // Ir de una empresa a otra reutiliza el componente: hay que recargar.
@@ -51,11 +57,14 @@ export class CompanyAdminShell {
       });
   }
 
-  /** Cambia la empresa de trabajo del usuario a la que esta administrando. */
+  /**
+   * Hace de la empresa administrada la empresa de trabajo del usuario, sin salir
+   * de la ficha: el encabezado y el menu cambian solos y se confirma aqui mismo.
+   */
   enterCompany(): void {
     const company = this.company();
 
-    if (!company || this.isEntering()) {
+    if (!company || this.isEntering() || this.isActiveCompany()) {
       return;
     }
 
@@ -65,8 +74,7 @@ export class CompanyAdminShell {
     this.companyContext.select(company).subscribe({
       next: () => {
         this.isEntering.set(false);
-        this.companyContext.justSwitchedTo.set(company.nombre);
-        void this.router.navigate(['/home']);
+        this.enterSuccess.set(`Ahora estás gestionando ${company.nombre} como tu empresa de trabajo.`);
       },
       error: (error: unknown) => {
         this.isEntering.set(false);

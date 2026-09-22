@@ -22,7 +22,8 @@ import { CompanyScopeService } from '../../../core/services/company-scope-servic
 import { TokenService } from '../../../core/services/token-service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyApiService } from '../company-api-service';
-import { COMPANY_FIELD_LIMITS, CompanyLimitedField } from '../company-field-limits';
+import { COMPANY_FIELD_LIMITS, COMPANY_NUMBER_LIMITS, CompanyLimitedField } from '../company-field-limits';
+import { integerValidator } from '../../../core/helpers/number-validators';
 
 type ProfileField = keyof Required<UpdateCompanyRequest>;
 
@@ -91,7 +92,10 @@ export class CompanyProfile {
     telefonoContacto: ['', [Validators.pattern(/^$|^[0-9+() -]{6,15}$/)]],
     emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(COMPANY_FIELD_LIMITS.emailContacto)]],
     urlWeb: ['', [Validators.maxLength(COMPANY_FIELD_LIMITS.urlWeb)]],
-    numeroEmpleados: [null as number | null, [Validators.min(0)]],
+    numeroEmpleados: [
+      null as number | null,
+      [Validators.min(0), Validators.max(COMPANY_NUMBER_LIMITS.numeroEmpleados), integerValidator],
+    ],
   });
 
   private readonly formValue = toSignal(this.form.valueChanges, {
@@ -115,6 +119,8 @@ export class CompanyProfile {
   readonly adminLimitControl = this.fb.control<number | null>(null, [
     Validators.required,
     Validators.min(1),
+    Validators.max(COMPANY_NUMBER_LIMITS.adminLimit),
+    integerValidator,
   ]);
   readonly adminLimitBusy = signal(false);
   readonly adminLimitError = signal<string | null>(null);
@@ -184,6 +190,7 @@ export class CompanyProfile {
   // ---------------------------------------------------------------- Datos
 
   readonly limits = COMPANY_FIELD_LIMITS;
+  readonly numberLimits = COMPANY_NUMBER_LIMITS;
 
   /** "123/500" bajo un campo con maximo, para no descubrirlo al guardar. */
   counter(field: CompanyLimitedField): string {

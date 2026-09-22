@@ -10,7 +10,8 @@ import { controlErrorMessage } from '../../../core/helpers/form-error-message';
 import { CreateCompanyRequest } from '../../../core/models/company';
 import { CompanyContextService } from '../../../core/services/company-context-service';
 import { CompanyApiService } from '../company-api-service';
-import { COMPANY_FIELD_LIMITS, CompanyLimitedField } from '../company-field-limits';
+import { COMPANY_FIELD_LIMITS, COMPANY_NUMBER_LIMITS, CompanyLimitedField } from '../company-field-limits';
+import { integerValidator } from '../../../core/helpers/number-validators';
 
 type CompanyField = keyof CreateCompanyRequest;
 
@@ -45,8 +46,14 @@ export class CompanyCreate {
     telefonoContacto: ['', [Validators.pattern(/^$|^[0-9+() -]{6,15}$/)]],
     emailContacto: ['', [Validators.required, Validators.email, Validators.maxLength(COMPANY_FIELD_LIMITS.emailContacto)]],
     urlWeb: ['', [Validators.maxLength(COMPANY_FIELD_LIMITS.urlWeb)]],
-    numeroEmpleados: [null as number | null, [Validators.min(0)]],
-    adminLimit: [null as number | null, [Validators.min(1)]],
+    numeroEmpleados: [
+      null as number | null,
+      [Validators.min(0), Validators.max(COMPANY_NUMBER_LIMITS.numeroEmpleados), integerValidator],
+    ],
+    adminLimit: [
+      null as number | null,
+      [Validators.min(1), Validators.max(COMPANY_NUMBER_LIMITS.adminLimit), integerValidator],
+    ],
   });
 
   onSubmit(): void {
@@ -83,6 +90,7 @@ export class CompanyCreate {
   }
 
   readonly limits = COMPANY_FIELD_LIMITS;
+  readonly numberLimits = COMPANY_NUMBER_LIMITS;
 
   /** "123/500" bajo un campo con maximo, para no descubrirlo al guardar. */
   counter(field: CompanyLimitedField): string {
