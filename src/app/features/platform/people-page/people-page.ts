@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -6,7 +7,13 @@ import { backendErrorMessage } from '../../../core/helpers/backend-error-message
 import { GENDER_OPTIONS } from '../../../core/helpers/person-labels';
 import { transientMessage } from '../../../core/helpers/transient-message';
 import { DocumentType, Gender } from '../../../core/models/user-profile-response';
-import { AdminPersonResponse, PeopleApiService, UpdatePersonRequest } from '../people-api-service';
+import { TokenService } from '../../../core/services/token-service';
+import {
+  AdminPersonResponse,
+  PeopleApiService,
+  PersonAccount,
+  UpdatePersonRequest,
+} from '../people-api-service';
 
 const DOCUMENT_OPTIONS: { value: DocumentType; label: string }[] = [
   { value: 'DNI', label: 'DNI' },
@@ -27,13 +34,14 @@ const ACCOUNT_STATUS: Record<string, string> = {
  */
 @Component({
   selector: 'app-people-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DatePipe],
   templateUrl: './people-page.html',
   styleUrl: './people-page.scss',
 })
 export class PeoplePage {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(PeopleApiService);
+  private readonly tokenService = inject(TokenService);
 
   private readonly resultHeading = viewChild<ElementRef<HTMLElement>>('resultHeading');
 
@@ -54,6 +62,14 @@ export class PeoplePage {
   /** publicId de la cuenta cuyo restablecimiento espera confirmacion. */
   readonly confirmingReset = signal<string | null>(null);
   readonly resettingId = signal<string | null>(null);
+
+  /** publicId de la cuenta cuya eliminacion espera confirmacion (irreversible). */
+  readonly confirmingDelete = signal<string | null>(null);
+  readonly deleteAcknowledged = signal(false);
+  readonly deletingId = signal<string | null>(null);
+
+  /** Cuenta con la que opera Fundades: no puede eliminarse a si mismo. */
+  readonly ownUserId = this.tokenService.userPublicId;
 
   readonly searchForm = this.fb.nonNullable.group({
     documentType: ['DNI' as DocumentType, [Validators.required]],
@@ -156,7 +172,7 @@ export class PeoplePage {
    * Emite una contrasena temporal para una cuenta de la persona. Es el soporte
    * de ultimo recurso cuando el usuario no puede recuperarla por si mismo.
    */
-  onResetPassword(account: AdminPersonResponse['accounts'][number]): void {
+  onResetPassword(account: PersonAccount): void {
     const person = this.person();
 
     if (!person || this.resettingId()) {
@@ -164,6 +180,7 @@ export class PeoplePage {
     }
 
     if (this.confirmingReset() !== account.publicId) {
+      this.cancelDelete();
       this.confirmingReset.set(account.publicId);
       return;
     }
@@ -191,6 +208,48 @@ export class PeoplePage {
 
   cancelReset(): void {
     this.confirmingReset.set(null);
+  }
+
+  /** Elimina la cuenta; queda en la ficha de la persona como historial. */
+  onDeleteAccount(account: PersonAccount): void {
+    const person = this.person();
+
+    if (!person || this.deletingId()) {
+      return;
+    }
+
+    if (this.confirmingDelete() !== account.publicId) {
+      this.confirmingReset.set(null);
+      this.confirmingDelete.set(account.publicId);
+      this.deleteAcknowledged.set(false);
+      return;
+    }
+    if (!this.deleteAcknowledged()) {
+      return;
+    }
+
+    this.deletingId.set(account.publicId);
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
+    this.api.deleteAccount(person.publicId, account.publicId).subscribe({
+      next: (updated) => {
+        this.deletingId.set(null);
+        this.cancelDelete();
+        this.setPerson(updated);
+        this.saveSuccess.set(`Eliminamos la cuenta ${account.email}. El correo quedó libre.`);
+      },
+      error: (error: unknown) => {
+        this.deletingId.set(null);
+        this.cancelDelete();
+        this.saveError.set(backendErrorMessage(error, 'No pudimos eliminar la cuenta.'));
+      },
+    });
+  }
+
+  cancelDelete(): void {
+    this.confirmingDelete.set(null);
+    this.deleteAcknowledged.set(false);
   }
 
   onDiscard(): void {

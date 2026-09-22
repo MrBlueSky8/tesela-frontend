@@ -49,8 +49,18 @@
       <div class="people__accounts">
         <div class="det-lbl">Cuentas de esta persona</div>
         @for (account of current.accounts; track account.publicId) {
-          <div class="people__account">
-            <span class="cell-name">{{ account.email }}</span>
+          <div class="people__account" [class.people__account--deleted]="account.status === 'DELETED'">
+            <span class="people__account-id">
+              <span class="cell-name">{{ account.email }}</span>
+              @if (account.status === 'DELETED' && account.deletedAt) {
+                <span class="cell-sub">
+                  Eliminada el {{ account.deletedAt | date: 'dd/MM/yyyy HH:mm' }}
+                  @if (account.deletedByName) {
+                    por {{ account.deletedByName }}
+                  }
+                </span>
+              }
+            </span>
             <span class="bdg" [class.bdg-green]="account.status === 'ACTIVE'" [class.bdg-gray]="account.status !== 'ACTIVE'">
               {{ accountStatus(account.status) }}
             </span>
@@ -81,8 +91,59 @@
                   Cancelar
                 </button>
               }
+
+              @if (account.publicId !== ownUserId() && confirmingDelete() !== account.publicId) {
+                <button
+                  class="btn btn-ghost-red btn-sm"
+                  type="button"
+                  [disabled]="!!deletingId() || !!resettingId()"
+                  [attr.aria-label]="'Eliminar la cuenta ' + account.email"
+                  (click)="onDeleteAccount(account)"
+                >
+                  <i class="ti ti-trash" aria-hidden="true"></i>
+                  <span>Eliminar cuenta</span>
+                </button>
+              }
             }
           </div>
+
+          @if (confirmingDelete() === account.publicId) {
+            <div class="alert alert-error people__alert" role="alert">
+              <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+              <span>
+                La cuenta {{ account.email }} dejará de existir y no se puede deshacer: se cerrarán sus
+                sesiones y perderá el acceso a todas sus empresas y sedes. El correo quedará libre para
+                una cuenta nueva. La persona y el historial se conservan.
+              </span>
+            </div>
+            <div class="people__delete-confirm">
+              <label class="people__ack">
+                <input
+                  type="checkbox"
+                  [checked]="deleteAcknowledged()"
+                  (change)="deleteAcknowledged.set($any($event.target).checked)"
+                  [disabled]="!!deletingId()"
+                />
+                <span>Entiendo que la eliminación es irreversible.</span>
+              </label>
+              <button class="btn btn-ghost btn-sm" type="button" (click)="cancelDelete()" [disabled]="!!deletingId()">
+                Cancelar
+              </button>
+              <button
+                class="btn btn-sm people__delete-btn"
+                type="button"
+                [disabled]="!!deletingId() || !deleteAcknowledged()"
+                (click)="onDeleteAccount(account)"
+              >
+                @if (deletingId() === account.publicId) {
+                  <span class="ts-spinner" aria-hidden="true"></span>
+                  <span>Eliminando...</span>
+                } @else {
+                  <span>Sí, eliminar cuenta</span>
+                }
+              </button>
+            </div>
+          }
 
           @if (confirmingReset() === account.publicId) {
             <div class="alert alert-amber people__alert" role="alert">

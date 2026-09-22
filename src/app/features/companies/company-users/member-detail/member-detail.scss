@@ -63,3 +63,21 @@
   gap: 8px;
   margin-top: 12px;
 }
+
+.md__danger {
+  border-color: rgba(216, 64, 64, 0.25);
+}
+
+.md__ack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.md__delete-confirm {
+  background: var(--ts-red);
+  border-color: var(--ts-red);
+  color: #fff;
+}

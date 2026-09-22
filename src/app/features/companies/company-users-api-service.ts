@@ -120,6 +120,13 @@ export class CompanyUsersApiService {
       .pipe(map((response) => response.data));
   }
 
+  /** Eliminacion irreversible de la cuenta: el correo queda libre para una cuenta nueva. */
+  deleteMember(companyPublicId: string, membershipPublicId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<null>>(this.memberUrl(companyPublicId, membershipPublicId))
+      .pipe(map(() => undefined));
+  }
+
   private memberUrl(companyPublicId: string, membershipPublicId: string): string {
     return `${this.usersUrl(companyPublicId)}/${encodeURIComponent(membershipPublicId)}`;
   }

@@ -104,6 +104,13 @@ export class CompanyUsersPage {
   ];
 
   constructor() {
+    // Aviso de eliminacion, llega por `history.state` desde la ficha; solo una vez.
+    const deletedUser = (history.state as { deletedUser?: string } | null)?.deletedUser;
+    if (deletedUser) {
+      this.notice.set(`Eliminamos la cuenta de ${deletedUser}. Su correo quedó libre.`);
+      history.replaceState({ ...history.state, deletedUser: undefined }, '');
+    }
+
     this.load();
   }
 

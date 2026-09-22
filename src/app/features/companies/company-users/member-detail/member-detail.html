@@ -268,6 +268,82 @@
         </p>
       }
     </section>
+
+    <!-- ================= Eliminar ================= -->
+    @if (!isSelf()) {
+      <section class="fc md__danger" aria-labelledby="delete-heading">
+        <div class="fc-hdr" id="delete-heading">Eliminar usuario</div>
+
+        @if (current.deletable) {
+          <p class="cell-sub md__note md__note--lead">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>
+            La cuenta dejará de existir y no se puede deshacer. Su correo quedará libre para crear una
+            cuenta nueva desde cero. Los datos de la persona y el historial se conservan.
+          </p>
+
+          @if (confirmingDelete()) {
+            <div class="alert alert-error md__alert" role="alert">
+              <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+              <span>
+                Vas a eliminar la cuenta {{ current.email }}. Se cerrarán sus sesiones
+                @if (current.otherActiveCompanies > 0) {
+                  y perderá el acceso a esta y a otras {{ current.otherActiveCompanies }} empresas
+                } @else {
+                  y perderá el acceso a esta empresa
+                }
+                y a sus sedes.
+              </span>
+            </div>
+            <label class="md__ack">
+              <input
+                type="checkbox"
+                [checked]="deleteAcknowledged()"
+                (change)="deleteAcknowledged.set($any($event.target).checked)"
+                [disabled]="isDeleting()"
+              />
+              <span>Entiendo que la eliminación es irreversible.</span>
+            </label>
+          }
+
+          <div class="md__actions">
+            @if (confirmingDelete()) {
+              <button class="btn btn-ghost" type="button" (click)="cancelDelete()" [disabled]="isDeleting()">
+                Cancelar
+              </button>
+            }
+            <button
+              class="btn"
+              type="button"
+              [class.btn-ghost-red]="!confirmingDelete()"
+              [class.md__delete-confirm]="confirmingDelete()"
+              [disabled]="isDeleting() || (confirmingDelete() && !deleteAcknowledged())"
+              (click)="onDelete()"
+            >
+              @if (isDeleting()) {
+                <span class="ts-spinner" aria-hidden="true"></span>
+                <span>Eliminando...</span>
+              } @else if (confirmingDelete()) {
+                <span>Sí, eliminar usuario</span>
+              } @else {
+                <i class="ti ti-trash" aria-hidden="true"></i>
+                <span>Eliminar usuario</span>
+              }
+            </button>
+          </div>
+        } @else if (current.otherActiveCompanies > 0) {
+          <p class="cell-sub md__note md__note--lead">
+            <i class="ti ti-lock" aria-hidden="true"></i>
+            Este usuario también trabaja en otras empresas, así que solo el soporte de Fundades puede
+            eliminar su cuenta. Si ya no debe trabajar aquí, inactiva su membresía desde Editar acceso.
+          </p>
+        } @else {
+          <p class="cell-sub md__note md__note--lead">
+            <i class="ti ti-lock" aria-hidden="true"></i>
+            Eliminar a un usuario con privilegios de administración exige el privilegio Gestionar admins.
+          </p>
+        }
+      </section>
+    }
   </div>
 
   @if (editOpen() && membershipForDialog(); as membership) {

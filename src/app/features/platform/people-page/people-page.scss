@@ -54,3 +54,40 @@
   gap: 8px;
   margin-top: 4px;
 }
+
+.people__account-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  margin-right: auto;
+}
+
+.people__account--deleted .cell-name {
+  color: var(--ts-text-3);
+  text-decoration: line-through;
+}
+
+.people__delete-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.people__ack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.people__delete-btn {
+  background: var(--ts-red);
+  border-color: var(--ts-red);
+  color: #fff;
+}

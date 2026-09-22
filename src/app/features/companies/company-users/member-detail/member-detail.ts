@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { distinctUntilChanged, forkJoin, map, switchMap } from 'rxjs';
 
 import { backendErrorMessage } from '../../../../core/helpers/backend-error-message';
@@ -56,6 +56,7 @@ export class MemberDetail {
   private readonly companyScope = inject(CompanyScopeService);
   private readonly tokenService = inject(TokenService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly company = this.companyScope.company;
@@ -80,6 +81,11 @@ export class MemberDetail {
   /** Confirmacion en linea del restablecimiento: no abre otro dialogo. */
   readonly confirmingReset = signal(false);
   readonly isResetting = signal(false);
+
+  /** Eliminar es irreversible: confirmacion en linea con casilla explicita. */
+  readonly confirmingDelete = signal(false);
+  readonly deleteAcknowledged = signal(false);
+  readonly isDeleting = signal(false);
 
   readonly isPlatformAdmin = computed(() => this.tokenService.role() === 'ADMIN_PLATAFORMA');
   readonly canManageAdmins = computed(() => this.companyScope.hasAnyPrivilege(['GESTIONAR_ADMINS']));
@@ -290,6 +296,49 @@ export class MemberDetail {
 
   cancelReset(): void {
     this.confirmingReset.set(false);
+  }
+
+  /** Elimina la cuenta y vuelve al listado, donde ya no aparece. */
+  onDelete(): void {
+    const company = this.company();
+    const member = this.member();
+
+    if (!company || !member || this.isDeleting()) {
+      return;
+    }
+
+    if (!this.confirmingDelete()) {
+      this.confirmingDelete.set(true);
+      this.deleteAcknowledged.set(false);
+      return;
+    }
+    if (!this.deleteAcknowledged()) {
+      return;
+    }
+
+    this.isDeleting.set(true);
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
+    this.api.deleteMember(company.publicId, member.publicId).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        void this.router.navigate(['..'], {
+          relativeTo: this.route,
+          state: { deletedUser: this.fullName() },
+        });
+      },
+      error: (error: unknown) => {
+        this.isDeleting.set(false);
+        this.confirmingDelete.set(false);
+        this.saveError.set(backendErrorMessage(error, 'No pudimos eliminar al usuario.'));
+      },
+    });
+  }
+
+  cancelDelete(): void {
+    this.confirmingDelete.set(false);
+    this.deleteAcknowledged.set(false);
   }
 
   onDiscard(): void {

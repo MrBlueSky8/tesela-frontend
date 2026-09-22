@@ -20,8 +20,20 @@ export interface AdminPersonResponse {
   address: string | null;
   phone: string | null;
   status: PersonStatus;
-  accounts: { publicId: string; email: string; status: UserStatus }[];
+  accounts: PersonAccount[];
   updatedAt: string;
+}
+
+/**
+ * Cuenta de la persona. Las eliminadas traen su correo original, cuando y
+ * quien: son historial de solo lectura.
+ */
+export interface PersonAccount {
+  publicId: string;
+  email: string;
+  status: UserStatus;
+  deletedAt: string | null;
+  deletedByName: string | null;
 }
 
 /** PATCH parcial (UpdatePersonRequest). Texto vacio borra direccion o telefono. */
@@ -67,6 +79,15 @@ export class PeopleApiService {
       .post<ApiResponse<AdminPersonResponse>>(
         `${this.apiUrl}/${encodeURIComponent(personPublicId)}/accounts/${encodeURIComponent(userPublicId)}/reset-password`,
         {},
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  /** Eliminacion irreversible: la cuenta queda en el historial de la persona. */
+  deleteAccount(personPublicId: string, userPublicId: string): Observable<AdminPersonResponse> {
+    return this.http
+      .delete<ApiResponse<AdminPersonResponse>>(
+        `${this.apiUrl}/${encodeURIComponent(personPublicId)}/accounts/${encodeURIComponent(userPublicId)}`,
       )
       .pipe(map((response) => response.data));
   }

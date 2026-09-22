@@ -42,6 +42,10 @@ export interface CompanyMemberDetailResponse {
   phone: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Empresas distintas de esta donde la cuenta sigue activa. */
+  otherActiveCompanies: number;
+  /** Si quien consulta puede eliminar la cuenta desde esta empresa. */
+  deletable: boolean;
 }
 
 /**
