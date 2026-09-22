@@ -63,7 +63,8 @@ export interface PositionResponse {
   nombre: string;
   descripcion: string | null;
   tareasPrincipales: string | null;
-  createdByMembershipPublicId: string;
+  /** Nulo si el puesto lo registró Fundades, que no pertenece a la empresa. */
+  createdByMembershipPublicId: string | null;
   createdByName: string;
   status: RecordStatus;
   condiciones: JobConditionCode[];

@@ -9,7 +9,6 @@ import {
   PositionResponse,
 } from '../../../core/models/organization';
 import { CompanyScopeService } from '../../../core/services/company-scope-service';
-import { TokenService } from '../../../core/services/token-service';
 import { DepartmentsDialog } from '../departments-dialog/departments-dialog';
 import { OrganizationApiService } from '../organization-api-service';
 import { PositionFormDialog } from '../position-form-dialog/position-form-dialog';
@@ -29,7 +28,6 @@ type StatusFilter = 'ACTIVE' | 'INACTIVE' | 'ALL';
 export class PositionsPage {
   private readonly api = inject(OrganizationApiService);
   private readonly companyScope = inject(CompanyScopeService);
-  private readonly tokenService = inject(TokenService);
 
   readonly company = this.companyScope.company;
 
@@ -47,12 +45,6 @@ export class PositionsPage {
   readonly formOpen = signal(false);
   readonly departmentsOpen = signal(false);
 
-  /**
-   * Regla provisional (pendiente de Fundades): el autor de un puesto debe ser
-   * miembro de la empresa, asi que el administrador de plataforma no registra
-   * puestos. Si cambia, cambia aqui y en PositionService.requireAuthor.
-   */
-  readonly canCreatePositions = computed(() => this.tokenService.role() !== 'ADMIN_PLATAFORMA');
 
   readonly activePositions = computed(() =>
     this.positions().filter((position) => position.status === 'ACTIVE'),
