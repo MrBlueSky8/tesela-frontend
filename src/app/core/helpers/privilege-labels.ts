@@ -40,20 +40,29 @@ export function isImpliedByAdminGeneral(privilege: CompanyPrivilege): boolean {
   return privilege !== 'ADMIN_GENERAL' && privilege !== 'GESTIONAR_ADMINS';
 }
 
+/** Lo que ADMIN_SEDE ya concede, acotado a sus sedes (CompanyPrivilege.IMPLICITOS_ADMIN_SEDE). */
+export function isImpliedByAdminSede(privilege: CompanyPrivilege): boolean {
+  return MODULE_PRIVILEGES.includes(privilege);
+}
+
 export function touchesAdministration(privileges: readonly CompanyPrivilege[]): boolean {
   return privileges.some((privilege) => ADMIN_MANAGEMENT_PRIVILEGES.includes(privilege));
 }
 
 /**
  * Lo que se envia al backend: sin duplicados, en orden y sin lo que ya
- * incluye ADMIN_GENERAL, que seria redundante.
+ * incluyen ADMIN_GENERAL o ADMIN_SEDE, que seria redundante.
  */
 export function explicitPrivileges(selected: readonly CompanyPrivilege[]): CompanyPrivilege[] {
   const unique = new Set(selected);
   const adminGeneral = unique.has('ADMIN_GENERAL');
+  const adminSede = unique.has('ADMIN_SEDE');
 
   return ORDER.filter(
-    (privilege) => unique.has(privilege) && !(adminGeneral && isImpliedByAdminGeneral(privilege)),
+    (privilege) =>
+      unique.has(privilege) &&
+      !(adminGeneral && isImpliedByAdminGeneral(privilege)) &&
+      !(adminSede && isImpliedByAdminSede(privilege)),
   );
 }
 

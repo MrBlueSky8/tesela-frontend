@@ -7,6 +7,7 @@ import {
   MODULE_PRIVILEGES,
   PRIVILEGE_LABELS,
   isImpliedByAdminGeneral,
+  isImpliedByAdminSede,
 } from '../../../../core/helpers/privilege-labels';
 import { CompanyPrivilege, CompanyPrivilegeResponse } from '../../../../core/models/company';
 
@@ -51,8 +52,24 @@ export class PrivilegePicker {
 
   readonly adminGeneral = computed(() => this.selected().includes('ADMIN_GENERAL'));
 
+  /** Admin. general ya incluye Admin. de sede, asi que este tambien cuenta. */
+  readonly adminSede = computed(
+    () => this.adminGeneral() || this.selected().includes('ADMIN_SEDE'),
+  );
+
   isImplied(name: CompanyPrivilege): boolean {
-    return this.adminGeneral() && isImpliedByAdminGeneral(name);
+    return (
+      (this.adminGeneral() && isImpliedByAdminGeneral(name)) ||
+      (this.adminSede() && isImpliedByAdminSede(name))
+    );
+  }
+
+  /** Quien lo incluye, para decirlo en la casilla bloqueada. */
+  impliedBy(name: CompanyPrivilege): string | null {
+    if (this.adminGeneral() && isImpliedByAdminGeneral(name)) {
+      return 'Admin. general';
+    }
+    return this.adminSede() && isImpliedByAdminSede(name) ? 'Admin. de sede' : null;
   }
 
   isChecked(name: CompanyPrivilege): boolean {

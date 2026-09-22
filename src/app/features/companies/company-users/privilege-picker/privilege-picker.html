@@ -2,6 +2,17 @@
   <fieldset class="pp__group">
     <legend class="pp__legend">Módulos</legend>
 
+    @if (adminSede() && !disabled()) {
+      <p class="pp__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        @if (adminGeneral()) {
+          Admin. general incluye todos los módulos en toda la empresa.
+        } @else {
+          Admin. de sede incluye todos los módulos, dentro de las sedes que tenga asignadas.
+        }
+      </p>
+    }
+
     @for (privilege of modules(); track privilege.publicId) {
       <ng-container *ngTemplateOutlet="item; context: { $implicit: privilege }"></ng-container>
     }
@@ -58,8 +69,8 @@
       </span>
       <span class="pp__desc" [id]="inputId(privilege.name) + '-desc'">
         {{ privilege.description }}
-        @if (isImplied(privilege.name)) {
-          (incluido en Admin. general)
+        @if (impliedBy(privilege.name); as source) {
+          (incluido en {{ source }})
         }
       </span>
     </span>
