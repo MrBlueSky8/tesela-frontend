@@ -72,7 +72,7 @@ export class ChangePassword {
     const { currentPassword, newPassword } = this.form.getRawValue();
 
     if (currentPassword === newPassword) {
-      this.submitError.set('La nueva contrasena debe ser distinta de la temporal.');
+      this.submitError.set('La nueva contraseña debe ser distinta de la temporal.');
       return;
     }
 
@@ -119,10 +119,10 @@ export class ChangePassword {
       return `Usa al menos ${MIN_LENGTH} caracteres.`;
     }
     if (control.hasError('maxlength')) {
-      return `Usa como maximo ${MAX_LENGTH} caracteres.`;
+      return `Usa como máximo ${MAX_LENGTH} caracteres.`;
     }
     if (name === 'confirmPassword' && this.form.hasError('mismatch')) {
-      return 'Las contrasenas no coinciden.';
+      return 'Las contraseñas no coinciden.';
     }
 
     return null;
@@ -131,9 +131,9 @@ export class ChangePassword {
   private resolveError(error: unknown): string {
     // 401 aqui significa que la contrasena temporal escrita no es la correcta.
     if (error instanceof HttpErrorResponse && error.status === 401) {
-      return backendErrorMessage(error, 'La contrasena temporal no es correcta.');
+      return backendErrorMessage(error, 'La contraseña temporal no es correcta.');
     }
 
-    return backendErrorMessage(error, 'No pudimos cambiar la contrasena. Intenta nuevamente.');
+    return backendErrorMessage(error, 'No pudimos cambiar la contraseña. Intenta nuevamente.');
   }
 }

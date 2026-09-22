@@ -25,7 +25,7 @@ import { EditMemberDialog, MemberSavedEvent } from '../edit-member-dialog/edit-m
 
 const DOCUMENT_LABELS: Record<string, string> = {
   DNI: 'DNI',
-  CE: 'Carne de extranjeria',
+  CE: 'Carné de extranjería',
   PASSPORT: 'Pasaporte',
 };
 
@@ -59,6 +59,7 @@ export class MemberDetail {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly company = this.companyScope.company;
+  readonly sectionLink = this.companyScope.sectionLink.bind(this.companyScope);
   readonly labels = PRIVILEGE_LABELS;
   readonly genderOptions = GENDER_OPTIONS;
 
@@ -275,14 +276,14 @@ export class MemberDetail {
         this.isResetting.set(false);
         this.confirmingReset.set(false);
         this.saveSuccess.set(
-          `Enviamos una contrasena temporal a ${member.email}. La anterior ya no funciona.`,
+          `Enviamos una contraseña temporal a ${member.email}. La anterior ya no funciona.`,
         );
         this.load();
       },
       error: (error: unknown) => {
         this.isResetting.set(false);
         this.confirmingReset.set(false);
-        this.saveError.set(backendErrorMessage(error, 'No pudimos restablecer la contrasena.'));
+        this.saveError.set(backendErrorMessage(error, 'No pudimos restablecer la contraseña.'));
       },
     });
   }
@@ -317,10 +318,10 @@ export class MemberDetail {
       return null;
     }
     if (control.hasError('pattern')) {
-      return 'Usa entre 6 y 15 digitos; se permiten + ( ) - y espacios.';
+      return 'Usa entre 6 y 15 dígitos; se permiten + ( ) - y espacios.';
     }
     if (control.hasError('maxlength')) {
-      return 'Usa como maximo 120 caracteres.';
+      return 'Usa como máximo 120 caracteres.';
     }
     return null;
   }

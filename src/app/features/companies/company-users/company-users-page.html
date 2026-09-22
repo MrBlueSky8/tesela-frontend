@@ -48,7 +48,7 @@
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-lbl">Pendientes de activacion</div>
+      <div class="stat-lbl">Pendientes de activación</div>
       <div class="stat-val">{{ pendingActivation() }}</div>
     </div>
   </div>
@@ -87,8 +87,8 @@
       <p>
         {{
           members().length
-            ? 'Ningun usuario coincide con el filtro.'
-            : 'La empresa todavia no tiene usuarios.'
+            ? 'Ningún usuario coincide con el filtro.'
+            : 'La empresa todavía no tiene usuarios.'
         }}
       </p>
     </div>
@@ -135,12 +135,12 @@
                 <span class="bdg bdg-gray">Inactiva</span>
               }
               @if (member.mustChangePassword) {
-                <span class="bdg bdg-amber">Pendiente de activacion</span>
+                <span class="bdg bdg-amber">Pendiente de activación</span>
               }
               @if (siteOf(member); as assignment) {
                 <a
                   class="bdg bdg-blue cu__site"
-                  [routerLink]="['/empresa/sedes', assignment.sitePublicId]"
+                  [routerLink]="sectionLink('sedes', assignment.sitePublicId)"
                 >
                   <i class="ti ti-map-pin" aria-hidden="true"></i>
                   {{ assignment.siteName }}
@@ -161,7 +161,7 @@
               @if (isSelf(member)) {
                 <span class="cell-meta">
                   Tu cuenta
-                  <span class="cu__sr">(no puedes modificar tu propia membresia)</span>
+                  <span class="cu__sr">(no puedes modificar tu propia membresía)</span>
                 </span>
               } @else {
                 <button

@@ -32,6 +32,7 @@ import {
   UpdateCompanyMembershipRequest,
 } from '../../../../core/models/company-membership';
 import { ModalShell } from '../../../../shared/components/modal-shell/modal-shell';
+import { CompanyScopeService } from '../../../../core/services/company-scope-service';
 import { CompanyUsersApiService } from '../../company-users-api-service';
 import { PrivilegePicker } from '../privilege-picker/privilege-picker';
 
@@ -58,6 +59,8 @@ export interface MemberSavedEvent {
 })
 export class EditMemberDialog implements OnInit {
   private readonly api = inject(CompanyUsersApiService);
+  /** Lo provee la rama de rutas de la pagina que abre el dialogo. */
+  readonly scope = inject(CompanyScopeService);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -181,7 +184,7 @@ export class EditMemberDialog implements OnInit {
         this.isSaving.set(false);
         this.saved.emit({
           membership: updated,
-          notice: `Se actualizo la membresia de ${updated.firstNames} ${updated.lastNames}.`,
+          notice: `Se actualizó la membresía de ${updated.firstNames} ${updated.lastNames}.`,
         });
         this.closed.emit();
       },
@@ -202,13 +205,13 @@ export class EditMemberDialog implements OnInit {
         this.isSaving.set(false);
         this.latest.set(updated);
         this.notice.set(
-          `Enviamos una nueva contrasena temporal a ${updated.email}. La anterior ya no funciona y sus sesiones se cerraron.`,
+          `Enviamos una nueva contraseña temporal a ${updated.email}. La anterior ya no funciona y sus sesiones se cerraron.`,
         );
         this.saved.emit({ membership: updated, notice: null });
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
-        this.error.set(backendErrorMessage(error, 'No pudimos restablecer la contrasena.'));
+        this.error.set(backendErrorMessage(error, 'No pudimos restablecer la contraseña.'));
       },
     });
   }

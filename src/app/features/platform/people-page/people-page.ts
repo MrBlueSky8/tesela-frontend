@@ -10,7 +10,7 @@ import { AdminPersonResponse, PeopleApiService, UpdatePersonRequest } from '../p
 
 const DOCUMENT_OPTIONS: { value: DocumentType; label: string }[] = [
   { value: 'DNI', label: 'DNI' },
-  { value: 'CE', label: 'Carne de extranjeria' },
+  { value: 'CE', label: 'Carné de extranjería' },
   { value: 'PASSPORT', label: 'Pasaporte' },
 ];
 
@@ -77,7 +77,7 @@ export class PeoplePage {
     }
     if (this.searchForm.invalid) {
       this.searchForm.markAllAsTouched();
-      this.searchError.set('Indica el tipo y el numero de documento.');
+      this.searchError.set('Indica el tipo y el número de documento.');
       return;
     }
 
@@ -178,13 +178,13 @@ export class PeoplePage {
         this.confirmingReset.set(null);
         this.setPerson(updated);
         this.saveSuccess.set(
-          `Enviamos una contrasena temporal a ${account.email}. La anterior ya no funciona.`,
+          `Enviamos una contraseña temporal a ${account.email}. La anterior ya no funciona.`,
         );
       },
       error: (error: unknown) => {
         this.resettingId.set(null);
         this.confirmingReset.set(null);
-        this.saveError.set(backendErrorMessage(error, 'No pudimos restablecer la contrasena.'));
+        this.saveError.set(backendErrorMessage(error, 'No pudimos restablecer la contraseña.'));
       },
     });
   }
@@ -222,7 +222,7 @@ export class PeoplePage {
       return 'El texto es demasiado largo.';
     }
     if (control.hasError('pattern')) {
-      return 'Usa entre 6 y 15 digitos; se permiten + ( ) - y espacios.';
+      return 'Usa entre 6 y 15 dígitos; se permiten + ( ) - y espacios.';
     }
     return null;
   }

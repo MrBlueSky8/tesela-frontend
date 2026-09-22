@@ -156,7 +156,7 @@ export const routes: Routes = [
       {
         // Gestion de la empresa seleccionada.
         path: 'empresa',
-        data: { breadcrumb: 'Gestion' },
+        data: { breadcrumb: 'Gestión' },
         canActivateChild: [companyContextGuard],
         // El alcance de esta rama es la empresa seleccionada.
         providers: [CompanyScopeService],
@@ -194,7 +194,7 @@ export const routes: Routes = [
             // Sin componente: los hijos heredan breadcrumb y privilegios.
             path: 'puestos',
             data: {
-              breadcrumb: 'Catalogo de puestos',
+              breadcrumb: 'Catálogo de puestos',
               privileges: ['ADMIN_GENERAL'],
             },
             children: [
@@ -236,7 +236,7 @@ export const routes: Routes = [
       },
       {
         path: 'modulos',
-        data: { breadcrumb: 'Modulos' },
+        data: { breadcrumb: 'Módulos' },
         canActivateChild: [companyContextGuard],
         children: [
           {
@@ -245,7 +245,7 @@ export const routes: Routes = [
             data: {
               breadcrumb: 'Compatibilidad laboral',
               title: 'Compatibilidad laboral',
-              description: 'Modulo 1: evaluacion de compatibilidad entre puesto y persona.',
+              description: 'Módulo 1: evaluación de compatibilidad entre puesto y persona.',
               privileges: ['CRUCE_PERFILES'],
             },
           },
@@ -255,7 +255,7 @@ export const routes: Routes = [
             data: {
               breadcrumb: 'Accesibilidad',
               title: 'Accesibilidad',
-              description: 'Modulo 2: diagnostico de accesibilidad de las instalaciones.',
+              description: 'Módulo 2: diagnóstico de accesibilidad de las instalaciones.',
               privileges: ['PLANES_ACCESIBILIDAD'],
             },
           },
@@ -263,9 +263,9 @@ export const routes: Routes = [
             path: 'inclusion',
             component: PlaceholderPage,
             data: {
-              breadcrumb: 'Inclusion',
-              title: 'Inclusion',
-              description: 'Modulo 3: cultura inclusiva de la organizacion.',
+              breadcrumb: 'Inclusión',
+              title: 'Inclusión',
+              description: 'Módulo 3: cultura inclusiva de la organización.',
               privileges: ['AJUSTES_RAZONABLES'],
             },
           },

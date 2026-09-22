@@ -25,7 +25,7 @@ import { AccountApiService, UpdateMyProfileRequest } from '../account-api-servic
 const PASSWORD_MIN = 8;
 const PASSWORD_MAX = 72;
 
-const DOCUMENT_LABELS: Record<string, string> = { DNI: 'DNI', CE: 'Carne de extranjeria', PASSPORT: 'Pasaporte' };
+const DOCUMENT_LABELS: Record<string, string> = { DNI: 'DNI', CE: 'Carné de extranjería', PASSPORT: 'Pasaporte' };
 
 interface CompanyAccess {
   company: CompanyResponse;
@@ -237,7 +237,7 @@ export class ProfilePage {
 
     const { currentPassword, newPassword } = this.passwordForm.getRawValue();
     if (currentPassword === newPassword) {
-      this.passwordError.set('La nueva contrasena debe ser distinta de la actual.');
+      this.passwordError.set('La nueva contraseña debe ser distinta de la actual.');
       return;
     }
 
@@ -256,8 +256,8 @@ export class ProfilePage {
         this.isChangingPassword.set(false);
         this.passwordError.set(
           error instanceof HttpErrorResponse && error.status === 401
-            ? backendErrorMessage(error, 'La contrasena actual es incorrecta.')
-            : backendErrorMessage(error, 'No pudimos cambiar la contrasena.'),
+            ? backendErrorMessage(error, 'La contraseña actual es incorrecta.')
+            : backendErrorMessage(error, 'No pudimos cambiar la contraseña.'),
         );
       },
     });
@@ -277,10 +277,10 @@ export class ProfilePage {
       return null;
     }
     if (control.hasError('pattern')) {
-      return 'Usa entre 6 y 15 digitos; se permiten + ( ) - y espacios.';
+      return 'Usa entre 6 y 15 dígitos; se permiten + ( ) - y espacios.';
     }
     if (control.hasError('maxlength')) {
-      return 'Usa como maximo 120 caracteres.';
+      return 'Usa como máximo 120 caracteres.';
     }
     return null;
   }
@@ -297,10 +297,10 @@ export class ProfilePage {
       return `Usa al menos ${PASSWORD_MIN} caracteres.`;
     }
     if (control.hasError('maxlength')) {
-      return `Usa como maximo ${PASSWORD_MAX} caracteres.`;
+      return `Usa como máximo ${PASSWORD_MAX} caracteres.`;
     }
     if (name === 'confirmPassword' && this.passwordForm.hasError('mismatch')) {
-      return 'Las contrasenas no coinciden.';
+      return 'Las contraseñas no coinciden.';
     }
     return null;
   }

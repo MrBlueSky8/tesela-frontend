@@ -16,7 +16,7 @@
         </div>
         <div class="fg">
           <label class="fl" for="dd-new-description">
-            Descripcion <span class="opt">opcional</span>
+            Descripción <span class="opt">opcional</span>
           </label>
           <input
             class="fi"
@@ -55,7 +55,7 @@
     @if (sorted().length === 0) {
       <div class="empty-state">
         <i class="ti ti-sitemap" aria-hidden="true"></i>
-        <p>Aun no hay departamentos. Crea el primero para registrar puestos.</p>
+        <p>Aún no hay departamentos. Crea el primero para registrar puestos.</p>
       </div>
     } @else {
       <ul class="dd__list">
@@ -80,9 +80,9 @@
                   class="fi"
                   type="text"
                   maxlength="500"
-                  placeholder="Descripcion (opcional)"
+                  placeholder="Descripción (opcional)"
                   formControlName="descripcion"
-                  [attr.aria-label]="'Descripcion de ' + department.nombre"
+                  [attr.aria-label]="'Descripción de ' + department.nombre"
                 />
                 <div class="dd__actions">
                   <button
@@ -108,9 +108,9 @@
                   @if (countFor(department) > 0) {
                     Tiene {{ countFor(department) }}
                     {{ countFor(department) === 1 ? 'puesto activo' : 'puestos activos' }}: se
-                    conservan, pero no se le podran asignar puestos nuevos.
+                    conservan, pero no se le podrán asignar puestos nuevos.
                   } @else {
-                    No se le podran asignar puestos nuevos hasta reactivarlo.
+                    No se le podrán asignar puestos nuevos hasta reactivarlo.
                   }
                 </p>
                 <div class="dd__actions">
@@ -142,7 +142,7 @@
                   }
                 </div>
                 <div class="cell-sub">
-                  {{ department.descripcion || 'Sin descripcion' }} ·
+                  {{ department.descripcion || 'Sin descripción' }} ·
                   {{ countFor(department) }}
                   {{ countFor(department) === 1 ? 'puesto activo' : 'puestos activos' }}
                 </div>

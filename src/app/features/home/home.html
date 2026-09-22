@@ -2,7 +2,7 @@
   <div class="ph-t">Inicio</div>
   <div class="ph-s">
     @if (isPlatformAdmin()) {
-      Administracion de la plataforma ADAPTIA.
+      Administración de la plataforma ADAPTIA.
     } @else if (company(); as current) {
       Trabajando en {{ current.nombre }}.
     } @else {
@@ -31,7 +31,7 @@
     <div class="fc home__empty">
       <div class="fc-hdr">Elige una empresa</div>
       <p class="cell-sub">
-        Selecciona la empresa con la que vas a trabajar para ver sus modulos y opciones de gestion.
+        Selecciona la empresa con la que vas a trabajar para ver sus módulos y opciones de gestión.
       </p>
       <a class="btn btn-primary" routerLink="/companies">
         <i class="ti ti-building-community" aria-hidden="true"></i>
@@ -44,8 +44,8 @@
     <div class="alert alert-amber home__alert" role="status">
       <i class="ti ti-info-circle" aria-hidden="true"></i>
       <span>
-        Aun no tienes privilegios asignados en esta empresa. Pide a su administrador que te habilite
-        un modulo.
+        Aún no tienes privilegios asignados en esta empresa. Pide a su administrador que te habilite
+        un módulo.
       </span>
     </div>
   }

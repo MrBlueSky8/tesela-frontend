@@ -121,7 +121,7 @@ export class DepartmentsDialog {
         next: (department) => {
           this.createBusy.set(false);
           this.createForm.reset({ nombre: '', descripcion: '' });
-          this.notice.set(`Se creo el departamento ${department.nombre}.`);
+          this.notice.set(`Se creó el departamento ${department.nombre}.`);
           this.changed.emit(department);
         },
         error: (error: unknown) => {

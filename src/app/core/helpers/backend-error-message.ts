@@ -9,14 +9,14 @@ import { ApiError } from '../models/api-error';
  */
 export function backendErrorMessage(
   error: unknown,
-  fallback = 'Ocurrio un error inesperado. Intenta nuevamente.',
+  fallback = 'Ocurrió un error inesperado. Intenta nuevamente.',
 ): string {
   if (!(error instanceof HttpErrorResponse)) {
     return fallback;
   }
 
   if (error.status === 0) {
-    return 'No pudimos conectar con el servidor. Verifica tu conexion o intenta nuevamente en unos minutos.';
+    return 'No pudimos conectar con el servidor. Verifica tu conexión o intenta nuevamente en unos minutos.';
   }
 
   const body = error.error as Partial<ApiError> | null | undefined;

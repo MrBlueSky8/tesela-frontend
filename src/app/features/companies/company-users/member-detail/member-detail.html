@@ -27,12 +27,12 @@
 
       <div class="md__badges">
         @if (current.status === 'ACTIVE') {
-          <span class="bdg bdg-green">Membresia activa</span>
+          <span class="bdg bdg-green">Membresía activa</span>
         } @else {
-          <span class="bdg bdg-gray">Membresia inactiva</span>
+          <span class="bdg bdg-gray">Membresía inactiva</span>
         }
         @if (current.mustChangePassword) {
-          <span class="bdg bdg-amber">Pendiente de activacion</span>
+          <span class="bdg bdg-amber">Pendiente de activación</span>
         }
       </div>
     </div>
@@ -92,7 +92,7 @@
           Nombres, apellidos y documento se corrigen desde
           <a routerLink="/plataforma/personas">Plataforma → Personas</a>.
         } @else {
-          Si el nombre o el documento tienen un error, solicita la correccion al soporte de Fundades.
+          Si el nombre o el documento tienen un error, solicita la corrección al soporte de Fundades.
         }
       </p>
     </section>
@@ -103,7 +103,7 @@
 
       <p class="cell-sub md__note md__note--lead">
         <i class="ti ti-users" aria-hidden="true"></i>
-        Pertenecen a la persona, no a esta cuenta: el cambio se vera tambien en sus otras cuentas y
+        Pertenecen a la persona, no a esta cuenta: el cambio se verá también en sus otras cuentas y
         empresas.
       </p>
 
@@ -111,7 +111,7 @@
         <p class="alert alert-amber md__alert" role="status">
           <i class="ti ti-lock" aria-hidden="true"></i>
           <span>
-            Este usuario tiene privilegios de administracion. Para editar sus datos necesitas el
+            Este usuario tiene privilegios de administración. Para editar sus datos necesitas el
             privilegio Gestionar admins.
           </span>
         </p>
@@ -120,7 +120,7 @@
       <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
         <div class="frow">
           <div class="fg">
-            <label class="fl" for="md-phone">Telefono</label>
+            <label class="fl" for="md-phone">Teléfono</label>
             <input
               class="fi"
               id="md-phone"
@@ -136,7 +136,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="md-address">Direccion</label>
+            <label class="fl" for="md-address">Dirección</label>
             <input
               class="fi"
               id="md-address"
@@ -160,7 +160,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="md-gender">Genero</label>
+            <label class="fl" for="md-gender">Género</label>
             <select class="fsel" id="md-gender" formControlName="genero">
               <option value="" disabled>Sin registrar</option>
               @for (option of genderOptions; track option.value) {
@@ -210,7 +210,7 @@
         <p class="cell-sub md__note">
           <i class="ti ti-map-pin" aria-hidden="true"></i>
           Sede asignada:
-          <a [routerLink]="['../..', 'sedes', assignment.sitePublicId]">{{ assignment.siteName }}</a>
+          <a [routerLink]="sectionLink('sedes', assignment.sitePublicId)">{{ assignment.siteName }}</a>
         </p>
       }
 
@@ -218,8 +218,8 @@
         <div class="alert alert-amber md__alert" role="alert">
           <i class="ti ti-alert-triangle" aria-hidden="true"></i>
           <span>
-            Enviaremos una contrasena temporal a {{ current.email }}, en un PDF protegido con su
-            documento. La contrasena actual dejara de funcionar y se cerraran sus sesiones, tambien
+            Enviaremos una contraseña temporal a {{ current.email }}, en un PDF protegido con su
+            documento. La contraseña actual dejará de funcionar y se cerrarán sus sesiones, también
             en otras empresas donde trabaje.
           </span>
         </div>
@@ -227,7 +227,7 @@
 
       <div class="md__actions">
         @if (isSelf()) {
-          <span class="cell-meta">No puedes modificar tu propia membresia.</span>
+          <span class="cell-meta">No puedes modificar tu propia membresía.</span>
         } @else {
           @if (confirmingReset()) {
             <button class="btn btn-ghost" type="button" (click)="cancelReset()" [disabled]="isResetting()">
@@ -252,10 +252,10 @@
               <span class="ts-spinner" aria-hidden="true"></span>
               <span>Enviando...</span>
             } @else if (confirmingReset()) {
-              <span>Si, restablecer</span>
+              <span>Sí, restablecer</span>
             } @else {
               <i class="ti ti-key" aria-hidden="true"></i>
-              <span>Restablecer contrasena</span>
+              <span>Restablecer contraseña</span>
             }
           </button>
         }
@@ -264,7 +264,7 @@
       @if (!isSelf() && !canEditPerson()) {
         <p class="cell-sub md__note">
           <i class="ti ti-lock" aria-hidden="true"></i>
-          Restablecer la contrasena de un administrador exige el privilegio Gestionar admins.
+          Restablecer la contraseña de un administrador exige el privilegio Gestionar admins.
         </p>
       }
     </section>

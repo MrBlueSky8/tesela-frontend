@@ -91,7 +91,7 @@ export class AddMemberDialog {
   // ---- Crear nueva
   readonly documentTypes: { value: DocumentType; label: string }[] = [
     { value: 'DNI', label: 'DNI' },
-    { value: 'CE', label: 'Carne de extranjeria' },
+    { value: 'CE', label: 'Carné de extranjería' },
     { value: 'PASSPORT', label: 'Pasaporte' },
   ];
 

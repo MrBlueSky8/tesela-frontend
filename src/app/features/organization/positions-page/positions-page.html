@@ -1,9 +1,9 @@
 <div class="ph-row">
   <div>
-    <div class="ph-t">Catalogo de puestos</div>
+    <div class="ph-t">Catálogo de puestos</div>
     <div class="ph-s">
-      Define los puestos de tu empresa. Solo los puestos registrados aqui podran evaluarse en el
-      Modulo 1.
+      Define los puestos de tu empresa. Solo los puestos registrados aquí podrán evaluarse en el
+      Módulo 1.
     </div>
   </div>
 
@@ -51,7 +51,7 @@
 @if (isLoading()) {
   <div class="ts-loading" role="status">
     <span class="ts-spinner" aria-hidden="true"></span>
-    Cargando catalogo...
+    Cargando catálogo...
   </div>
 } @else if (loadError(); as error) {
   <div class="alert alert-error pp__alert" role="alert">
@@ -69,7 +69,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-val">{{ stats().complete }}</div>
-      <div class="stat-lbl">Con descripcion y tareas</div>
+      <div class="stat-lbl">Con descripción y tareas</div>
     </div>
     <div class="stat-card">
       <div class="stat-val">{{ stats().evaluated }}</div>
@@ -90,8 +90,8 @@
     <div class="empty-state">
       <i class="ti ti-briefcase" aria-hidden="true"></i>
       <p>
-        Aun no hay puestos registrados.<br />
-        Agrega el primero para que los evaluadores puedan comenzar en el Modulo 1.
+        Aún no hay puestos registrados.<br />
+        Agrega el primero para que los evaluadores puedan comenzar en el Módulo 1.
       </p>
       @if (canCreatePositions()) {
         <button class="btn btn-teal" type="button" (click)="openNewPosition()">
@@ -147,7 +147,7 @@
     @if (filtered().length === 0) {
       <div class="empty-state">
         <i class="ti ti-search" aria-hidden="true"></i>
-        <p>Ningun puesto coincide con los filtros.</p>
+        <p>Ningún puesto coincide con los filtros.</p>
         <button class="btn btn-outline btn-sm" type="button" (click)="clearFilters()">
           Limpiar filtros
         </button>
@@ -156,7 +156,7 @@
       <div class="list-tbl">
         <div class="list-hdr pp__grid" aria-hidden="true">
           <span>Nombre del puesto</span>
-          <span>Descripcion</span>
+          <span>Descripción</span>
           <span>Estado en M1</span>
           <span></span>
         </div>
@@ -176,7 +176,7 @@
                 </span>
 
                 <span class="cell-meta pp__summary" [class.empty]="!position.descripcion">
-                  {{ position.descripcion || 'Sin descripcion' }}
+                  {{ position.descripcion || 'Sin descripción' }}
                 </span>
 
                 <span>

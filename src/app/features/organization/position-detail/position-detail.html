@@ -7,7 +7,7 @@
   <div class="alert alert-error pd__alert" role="alert">
     <i class="ti ti-alert-circle" aria-hidden="true"></i>
     <span>{{ error }}</span>
-    <a class="btn btn-outline btn-sm pd__back-error" routerLink="..">Volver al catalogo</a>
+    <a class="btn btn-outline btn-sm pd__back-error" routerLink="..">Volver al catálogo</a>
   </div>
 } @else if (position(); as current) {
   <div class="ph-row">
@@ -67,7 +67,7 @@
         <div class="det-val">{{ current.departmentName }}</div>
       </div>
       <div>
-        <div class="det-lbl">Estado en Modulo 1</div>
+        <div class="det-lbl">Estado en Módulo 1</div>
         <div>
           @if (current.evaluado) {
             <span class="bdg bdg-green">
@@ -84,14 +84,14 @@
         <div class="det-val">{{ current.createdByName }}</div>
       </div>
       <div>
-        <div class="det-lbl">Fecha de creacion</div>
+        <div class="det-lbl">Fecha de creación</div>
         <div class="det-val">{{ createdAtLabel() }}</div>
       </div>
     </div>
   </section>
 
   <section class="det-card" aria-labelledby="pd-description">
-    <div class="det-lbl pd__section-lbl" id="pd-description">Descripcion del puesto</div>
+    <div class="det-lbl pd__section-lbl" id="pd-description">Descripción del puesto</div>
     <div
       class="det-val pd__text"
       [class.empty]="!current.descripcion"
@@ -134,13 +134,13 @@
     <i class="ti ti-sparkles" aria-hidden="true"></i>
     @if (current.evaluado) {
       <span>
-        Este puesto ya tiene una evaluacion vigente en el Modulo 1. Editar sus datos no cambia esa
-        evaluacion: para actualizarla hay que crear una nueva version.
+        Este puesto ya tiene una evaluación vigente en el Módulo 1. Editar sus datos no cambia esa
+        evaluación: para actualizarla hay que crear una nueva versión.
       </span>
     } @else {
       <span>
-        La descripcion, las tareas y las condiciones se enviaran al asistente de IA cuando se inicie
-        la evaluacion de este puesto en el Modulo 1.
+        La descripción, las tareas y las condiciones se enviarán al asistente de IA cuando se inicie
+        la evaluación de este puesto en el Módulo 1.
       </span>
     }
   </p>
@@ -162,8 +162,8 @@
       [title]="current.status === 'ACTIVE' ? 'Desactivar este puesto' : 'Reactivar este puesto'"
       [message]="
         current.status === 'ACTIVE'
-          ? 'Dejara de ofrecerse para nuevas evaluaciones. Su historial y sus evaluaciones se conservan.'
-          : 'Volvera a estar disponible para evaluarse en el Modulo 1.'
+          ? 'Dejará de ofrecerse para nuevas evaluaciones. Su historial y sus evaluaciones se conservan.'
+          : 'Volverá a estar disponible para evaluarse en el Módulo 1.'
       "
       [tone]="current.status === 'ACTIVE' ? 'warning' : 'info'"
       [confirmLabel]="current.status === 'ACTIVE' ? 'Desactivar' : 'Reactivar'"

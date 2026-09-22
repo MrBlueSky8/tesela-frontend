@@ -53,7 +53,7 @@ export class TokenService {
 
   setTokens(accessToken: string, refreshToken: string, rememberMe = true): void {
     if (!accessToken || !refreshToken) {
-      throw new Error('Access token o refresh token invalidos.');
+      throw new Error('Access token o refresh token inválidos.');
     }
 
     this.clearTokens();

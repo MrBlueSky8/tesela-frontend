@@ -1,4 +1,4 @@
-<nav class="bn" aria-label="Navegacion movil principal">
+<nav class="bn" aria-label="Navegación móvil principal">
   @for (item of primaryItems(); track item.id) {
     <button
       class="bn-item"
@@ -26,19 +26,19 @@
       (click)="onOverflowClick()"
     >
       <i class="ti ti-dots bn-ico" aria-hidden="true"></i>
-      <span class="bn-label">Mas</span>
+      <span class="bn-label">Más</span>
     </button>
   }
 </nav>
 
 @if (isMenuOpen()) {
-  <button class="bn-backdrop" type="button" aria-label="Cerrar menu" (click)="closeMenu()"></button>
+  <button class="bn-backdrop" type="button" aria-label="Cerrar menú" (click)="closeMenu()"></button>
 
   <section
     class="bn-sheet"
     [class.bn-sheet--dragging]="isSheetDragging()"
     [style.transform]="sheetTransform()"
-    aria-label="Menu movil secundario"
+    aria-label="Menú móvil secundario"
   >
     <div
       class="bn-sheet-grip"

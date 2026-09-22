@@ -24,7 +24,7 @@
         </select>
       </div>
       <div class="fg people__search-number">
-        <label class="fl" for="pp-search-number">Numero de documento</label>
+        <label class="fl" for="pp-search-number">Número de documento</label>
         <input class="fi" id="pp-search-number" type="text" formControlName="documentNumber" autocomplete="off" />
       </div>
       <button class="btn btn-primary people__search-btn" type="submit" [disabled]="isSearching()">
@@ -37,7 +37,7 @@
         }
       </button>
     </form>
-    <p class="cell-sub people__hint">La busqueda es exacta: no se listan personas ni se muestran coincidencias parciales.</p>
+    <p class="cell-sub people__hint">La búsqueda es exacta: no se listan personas ni se muestran coincidencias parciales.</p>
   </section>
 
   @if (person(); as current) {
@@ -62,17 +62,17 @@
                 [class.btn-outline]="confirmingReset() !== account.publicId"
                 [class.btn-primary]="confirmingReset() === account.publicId"
                 [disabled]="!!resettingId()"
-                [attr.aria-label]="'Restablecer la contrasena de ' + account.email"
+                [attr.aria-label]="'Restablecer la contraseña de ' + account.email"
                 (click)="onResetPassword(account)"
               >
                 @if (resettingId() === account.publicId) {
                   <span class="ts-spinner" aria-hidden="true"></span>
                   <span>Enviando...</span>
                 } @else if (confirmingReset() === account.publicId) {
-                  <span>Si, restablecer</span>
+                  <span>Sí, restablecer</span>
                 } @else {
                   <i class="ti ti-key" aria-hidden="true"></i>
-                  <span>Restablecer contrasena</span>
+                  <span>Restablecer contraseña</span>
                 }
               </button>
 
@@ -88,8 +88,8 @@
             <div class="alert alert-amber people__alert" role="alert">
               <i class="ti ti-alert-triangle" aria-hidden="true"></i>
               <span>
-                Enviaremos una contrasena temporal a {{ account.email }}, en un PDF protegido con su
-                documento. La contrasena actual dejara de funcionar y se cerraran sus sesiones.
+                Enviaremos una contraseña temporal a {{ account.email }}, en un PDF protegido con su
+                documento. La contraseña actual dejará de funcionar y se cerrarán sus sesiones.
               </span>
             </div>
           }
@@ -127,7 +127,7 @@
             </select>
           </div>
           <div class="fg">
-            <label class="fl" for="pp-number">Numero de documento</label>
+            <label class="fl" for="pp-number">Número de documento</label>
             <input class="fi" id="pp-number" type="text" formControlName="documentNumber"
                    [class.invalid]="fieldError('documentNumber')"
                    [attr.aria-invalid]="!!fieldError('documentNumber')"
@@ -167,7 +167,7 @@
             <input class="fi" id="pp-birth" type="date" formControlName="birthDate" />
           </div>
           <div class="fg">
-            <label class="fl" for="pp-gender">Genero</label>
+            <label class="fl" for="pp-gender">Género</label>
             <select class="fsel" id="pp-gender" formControlName="gender">
               <option value="" disabled>Sin registrar</option>
               @for (option of genderOptions; track option.value) {
@@ -179,7 +179,7 @@
 
         <div class="frow">
           <div class="fg">
-            <label class="fl" for="pp-phone">Telefono</label>
+            <label class="fl" for="pp-phone">Teléfono</label>
             <input class="fi" id="pp-phone" type="tel" formControlName="phone"
                    [class.invalid]="fieldError('phone')"
                    [attr.aria-invalid]="!!fieldError('phone')"
@@ -189,7 +189,7 @@
             }
           </div>
           <div class="fg">
-            <label class="fl" for="pp-address">Direccion</label>
+            <label class="fl" for="pp-address">Dirección</label>
             <input class="fi" id="pp-address" type="text" formControlName="address" maxlength="120"
                    [class.invalid]="fieldError('address')"
                    [attr.aria-invalid]="!!fieldError('address')"
@@ -225,7 +225,7 @@
               <span class="ts-spinner" aria-hidden="true"></span>
               <span>Guardando...</span>
             } @else if (confirmDocumentChange()) {
-              <span>Si, guardar</span>
+              <span>Sí, guardar</span>
             } @else {
               <i class="ti ti-device-floppy" aria-hidden="true"></i>
               <span>Guardar cambios</span>

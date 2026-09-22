@@ -119,7 +119,7 @@ export class SitesPage {
 
   onSaved(site: SiteResponse): void {
     this.sites.update((sites) => [...sites, site].sort((a, b) => a.nombre.localeCompare(b.nombre)));
-    this.notice.set(`Se registro la sede ${site.nombre}.`);
+    this.notice.set(`Se registró la sede ${site.nombre}.`);
   }
 }
 

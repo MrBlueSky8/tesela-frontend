@@ -2,11 +2,11 @@
   <section class="auth__card">
     <header class="auth__header">
       <div class="auth__brand">ADAPTIA</div>
-      <div class="auth__tagline">Accesibilidad e Inclusion</div>
+      <div class="auth__tagline">Accesibilidad e Inclusión</div>
     </header>
 
     <div class="fc auth__panel">
-      <div class="fc-hdr">Iniciar sesion</div>
+      <div class="fc-hdr">Iniciar sesión</div>
 
       @if (loginSuccess(); as success) {
         <p class="alert alert-success auth__alert" role="status">
@@ -24,7 +24,7 @@
 
       <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
         <div class="fg">
-          <label class="fl" for="email">Correo electronico</label>
+          <label class="fl" for="email">Correo electrónico</label>
           <input
             class="fi"
             id="email"
@@ -38,12 +38,12 @@
           @if (hasFieldError('email', 'required')) {
             <span class="fi-err">El correo es obligatorio.</span>
           } @else if (hasFieldError('email', 'email')) {
-            <span class="fi-err">Ingresa un correo valido.</span>
+            <span class="fi-err">Ingresa un correo válido.</span>
           }
         </div>
 
         <div class="fg">
-          <label class="fl" for="password">Contrasena</label>
+          <label class="fl" for="password">Contraseña</label>
 
           <div class="fi-group">
             <input
@@ -52,7 +52,7 @@
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               autocomplete="current-password"
-              placeholder="Tu contrasena"
+              placeholder="Tu contraseña"
               [class.invalid]="hasFieldError('password')"
             />
 
@@ -60,7 +60,7 @@
               class="fi-affix"
               type="button"
               (click)="onTogglePasswordVisibility()"
-              [attr.aria-label]="showPassword() ? 'Ocultar contrasena' : 'Mostrar contrasena'"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             >
               <i
                 class="ti"
@@ -72,21 +72,21 @@
           </div>
 
           @if (hasFieldError('password', 'required')) {
-            <span class="fi-err">La contrasena es obligatoria.</span>
+            <span class="fi-err">La contraseña es obligatoria.</span>
           }
         </div>
 
         <div class="auth__row">
           <label class="chk-lbl auth__remember">
             <input class="chk-inp" type="checkbox" formControlName="rememberMe" />
-            <span>Mantener la sesion iniciada</span>
+            <span>Mantener la sesión iniciada</span>
           </label>
           <a
             class="auth__forgot"
             routerLink="/recuperar-contrasena"
             [queryParams]="form.controls.email.valid ? { email: form.controls.email.value } : {}"
           >
-            ¿Olvidaste tu contrasena?
+            ¿Olvidaste tu contraseña?
           </a>
         </div>
 

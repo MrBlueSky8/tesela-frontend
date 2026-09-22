@@ -156,7 +156,7 @@ export class PositionDetail {
         this.statusBusy.set(false);
         this.position.set(updated);
         this.notice.set(
-          updated.status === 'ACTIVE' ? 'El puesto se reactivo.' : 'El puesto se desactivo.',
+          updated.status === 'ACTIVE' ? 'El puesto se reactivó.' : 'El puesto se desactivó.',
         );
       },
       error: (error: unknown) => {

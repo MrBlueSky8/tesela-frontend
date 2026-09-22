@@ -45,7 +45,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
   },
   {
     id: 'gestion',
-    label: 'Gestion',
+    label: 'Gestión',
     items: [
       {
         id: 'company-profile',
@@ -64,7 +64,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
       },
       {
         id: 'company-positions',
-        label: 'Catalogo de puestos',
+        label: 'Catálogo de puestos',
         icon: { type: 'tabler', name: 'briefcase' },
         route: '/empresa/puestos',
         allowedPrivileges: ['ADMIN_GENERAL'],
@@ -80,7 +80,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
   },
   {
     id: 'modulos',
-    label: 'Modulos',
+    label: 'Módulos',
     items: [
       {
         id: 'modulo-compatibilidad',
@@ -98,7 +98,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
       },
       {
         id: 'modulo-inclusion',
-        label: 'Inclusion',
+        label: 'Inclusión',
         icon: { type: 'dot', color: 'var(--ts-purple)' },
         route: '/modulos/inclusion',
         allowedPrivileges: ['AJUSTES_RAZONABLES'],
@@ -119,7 +119,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
       },
       {
         id: 'logout',
-        label: 'Cerrar sesion',
+        label: 'Cerrar sesión',
         icon: { type: 'tabler', name: 'logout' },
         action: 'logout',
       },

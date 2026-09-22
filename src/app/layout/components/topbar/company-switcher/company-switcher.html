@@ -43,7 +43,7 @@
         <input
           class="cs__search-inp"
           type="search"
-          placeholder="Buscar por nombre, razon social o RUC"
+          placeholder="Buscar por nombre, razón social o RUC"
           aria-label="Buscar empresa"
           [value]="search()"
           (input)="onSearch($event)"
@@ -70,9 +70,9 @@
       } @else if (matches().length === 0) {
         <div class="cs__state">
           @if (search().trim()) {
-            Ninguna empresa coincide con la busqueda.
+            Ninguna empresa coincide con la búsqueda.
           } @else {
-            Aun no perteneces a ninguna empresa.
+            Aún no perteneces a ninguna empresa.
           }
         </div>
       } @else {

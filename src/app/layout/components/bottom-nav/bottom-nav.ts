@@ -10,7 +10,7 @@ interface BottomNavMenuState {
   items: SidebarItemModel[];
 }
 
-const OVERFLOW_MENU_TITLE = 'Mas';
+const OVERFLOW_MENU_TITLE = 'Más';
 
 @Component({
   selector: 'app-bottom-nav',

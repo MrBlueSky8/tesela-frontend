@@ -2,7 +2,7 @@
   <div class="modal-body">
     <p class="aed__intro">
       Asigna a <strong>{{ site().nombre }}</strong> a un miembro con Admin. de sede o un privilegio
-      de modulo. Cada evaluador tiene una sede operativa.
+      de módulo. Cada evaluador tiene una sede operativa.
     </p>
 
     @if (error(); as message) {
@@ -17,9 +17,9 @@
         <i class="ti ti-user-question" aria-hidden="true"></i>
         <p>
           No hay miembros que puedas asignar. Para ser evaluador de una sede, un miembro activo
-          necesita Admin. de sede o un privilegio de modulo, y no ser administrador general.
+          necesita Admin. de sede, Admin. general o un privilegio de módulo.
         </p>
-        <a class="btn btn-outline btn-sm" routerLink="/empresa/usuarios" (click)="closed.emit()">
+        <a class="btn btn-outline btn-sm" [routerLink]="scope.sectionLink('usuarios')" (click)="closed.emit()">
           Ir a Usuarios
         </a>
       </div>
@@ -37,7 +37,7 @@
       </div>
 
       @if (filtered().length === 0) {
-        <p class="aed__state" role="status">Ningun miembro coincide con la busqueda.</p>
+        <p class="aed__state" role="status">Ningún miembro coincide con la búsqueda.</p>
       } @else {
         <fieldset class="aed__list">
           <legend class="aed__sr">Miembros elegibles</legend>
@@ -73,9 +73,9 @@
         <p class="alert alert-amber aed__alert" role="status">
           <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
           <span>
-            Se trasladara desde
+            Se trasladará desde
             <strong>{{ candidate.currentAssignment?.siteName ?? 'su sede actual' }}</strong
-            >: esa asignacion quedara inactiva y se conservara en el historial.
+            >: esa asignación quedará inactiva y se conservará en el historial.
           </span>
         </p>
       }

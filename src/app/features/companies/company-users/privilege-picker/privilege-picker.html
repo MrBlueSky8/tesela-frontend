@@ -1,6 +1,6 @@
 <div class="pp">
   <fieldset class="pp__group">
-    <legend class="pp__legend">Modulos</legend>
+    <legend class="pp__legend">Módulos</legend>
 
     @for (privilege of modules(); track privilege.publicId) {
       <ng-container *ngTemplateOutlet="item; context: { $implicit: privilege }"></ng-container>
@@ -8,7 +8,7 @@
   </fieldset>
 
   <fieldset class="pp__group">
-    <legend class="pp__legend">Administracion</legend>
+    <legend class="pp__legend">Administración</legend>
 
     @if (!canManageAdmins() && !disabled()) {
       <p class="pp__note" [id]="idPrefix() + '-admins-note'">
@@ -26,7 +26,7 @@
     <p class="alert alert-amber pp__alert" role="status">
       <i class="ti ti-alert-triangle" aria-hidden="true"></i>
       <span>
-        La empresa ya alcanzo su limite de administradores generales. Pide a Fundades que lo amplie
+        La empresa ya alcanzó su límite de administradores generales. Pide a Fundades que lo amplíe
         antes de concederlo.
       </span>
     </p>

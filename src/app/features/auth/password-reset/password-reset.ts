@@ -91,7 +91,7 @@ export class PasswordReset {
     }
     if (this.emailForm.invalid) {
       this.emailForm.markAllAsTouched();
-      this.error.set('Ingresa un correo valido.');
+      this.error.set('Ingresa un correo válido.');
       return;
     }
     this.requestCode(false);
@@ -110,7 +110,7 @@ export class PasswordReset {
     }
     if (this.codeForm.invalid) {
       this.codeForm.markAllAsTouched();
-      this.error.set('El codigo tiene 6 digitos.');
+      this.error.set('El código tiene 6 dígitos.');
       return;
     }
 
@@ -124,7 +124,7 @@ export class PasswordReset {
       error: (error: unknown) => {
         this.isSubmitting.set(false);
         this.codeForm.controls.code.reset('');
-        this.error.set(backendErrorMessage(error, 'Codigo invalido o expirado.'));
+        this.error.set(backendErrorMessage(error, 'Código inválido o expirado.'));
       },
     });
   }
@@ -154,7 +154,7 @@ export class PasswordReset {
         error: (error: unknown) => {
           this.isSubmitting.set(false);
           this.error.set(
-            backendErrorMessage(error, 'No pudimos cambiar la contrasena. Solicita un nuevo codigo.'),
+            backendErrorMessage(error, 'No pudimos cambiar la contraseña. Solicita un nuevo código.'),
           );
         },
       });
@@ -192,19 +192,19 @@ export class PasswordReset {
       return 'Este campo es obligatorio.';
     }
     if (control.hasError('email')) {
-      return 'Ingresa un correo valido.';
+      return 'Ingresa un correo válido.';
     }
     if (control.hasError('pattern')) {
-      return 'Ingresa los 6 digitos del codigo.';
+      return 'Ingresa los 6 dígitos del código.';
     }
     if (control.hasError('minlength')) {
       return `Usa al menos ${MIN_LENGTH} caracteres.`;
     }
     if (control.hasError('maxlength')) {
-      return `Usa como maximo ${MAX_LENGTH} caracteres.`;
+      return `Usa como máximo ${MAX_LENGTH} caracteres.`;
     }
     if (name === 'confirmPassword' && this.passwordForm.hasError('mismatch')) {
-      return 'Las contrasenas no coinciden.';
+      return 'Las contraseñas no coinciden.';
     }
     return null;
   }
@@ -215,7 +215,7 @@ export class PasswordReset {
       next: (message) => {
         this.isSubmitting.set(false);
         this.startTimer();
-        this.info.set(resend ? 'Si corresponde, te enviamos un nuevo codigo.' : message);
+        this.info.set(resend ? 'Si corresponde, te enviamos un nuevo código.' : message);
         if (!resend) {
           this.goTo('code', false);
         }

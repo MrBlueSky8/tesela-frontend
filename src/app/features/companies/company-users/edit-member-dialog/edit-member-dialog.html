@@ -1,4 +1,4 @@
-<app-modal-shell title="Editar membresia" icon="user-edit" size="wide" (closed)="closed.emit()">
+<app-modal-shell title="Editar membresía" icon="user-edit" size="wide" (closed)="closed.emit()">
   @if (confirming(); as confirmation) {
     <div class="modal-body">
       <div class="confirm-body">
@@ -8,17 +8,17 @@
           </div>
           <div class="confirm-t" id="emd-confirm-title">Desactivar a {{ fullName() }}</div>
           <div class="confirm-s">
-            Perdera el acceso a esta empresa hasta que la vuelvas a activar. Su cuenta y sus otras
+            Perderá el acceso a esta empresa hasta que la vuelvas a activar. Su cuenta y sus otras
             empresas no cambian.
           </div>
         } @else {
           <div class="confirm-ico confirm-ico--info">
             <i class="ti ti-mail-forward" aria-hidden="true"></i>
           </div>
-          <div class="confirm-t" id="emd-confirm-title">Restablecer contrasena</div>
+          <div class="confirm-t" id="emd-confirm-title">Restablecer contraseña</div>
           <div class="confirm-s">
-            Enviaremos una nueva contrasena temporal a {{ member().email }} en un PDF protegido con
-            su documento. La anterior dejara de funcionar y se cerraran sus sesiones, tambien en
+            Enviaremos una nueva contraseña temporal a {{ member().email }} en un PDF protegido con
+            su documento. La anterior dejará de funcionar y se cerrarán sus sesiones, también en
             otras empresas donde trabaje.
           </div>
         }
@@ -51,7 +51,7 @@
           <div class="cell-sub">{{ member().email }}</div>
         </div>
         @if (member().mustChangePassword) {
-          <span class="bdg bdg-amber">Pendiente de activacion</span>
+          <span class="bdg bdg-amber">Pendiente de activación</span>
         }
       </div>
 
@@ -117,7 +117,7 @@
           <i class="ti ti-map-pin" aria-hidden="true"></i>
           <span>
             Sede asignada:
-            <a [routerLink]="['/empresa/sedes', assignment.sitePublicId]" (click)="closed.emit()">
+            <a [routerLink]="scope.sectionLink('sedes', assignment.sitePublicId)" (click)="closed.emit()">
               {{ assignment.siteName }}
             </a>
           </span>
@@ -126,8 +126,8 @@
         <div class="emd__site emd__site--none">
           <i class="ti ti-map-pin-off" aria-hidden="true"></i>
           <span>
-            Sin sede asignada. Asignala desde
-            <a routerLink="/empresa/sedes" (click)="closed.emit()">Sedes</a>.
+            Sin sede asignada. Asígnala desde
+            <a [routerLink]="scope.sectionLink('sedes')" (click)="closed.emit()">Sedes</a>.
           </span>
         </div>
       }
@@ -137,13 +137,13 @@
           <div>
             <div class="cell-name">
               @if (member().mustChangePassword) {
-                Aun no activa su cuenta
+                Aún no activa su cuenta
               } @else {
-                Contrasena
+                Contraseña
               }
             </div>
             <div class="cell-sub">
-              Si no puede entrar, envia una nueva contrasena temporal que debera cambiar al ingresar.
+              Si no puede entrar, envía una nueva contraseña temporal que deberá cambiar al ingresar.
             </div>
           </div>
           <button
@@ -154,7 +154,7 @@
             (click)="onResend()"
           >
             <i class="ti ti-key" aria-hidden="true"></i>
-            Restablecer contrasena
+            Restablecer contraseña
           </button>
         </div>
       }

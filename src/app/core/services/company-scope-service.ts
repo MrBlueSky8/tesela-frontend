@@ -7,6 +7,9 @@ import { backendErrorMessage } from '../helpers/backend-error-message';
 import { CompanyPrivilege, CompanyResponse } from '../models/company';
 import { CompanyContextService } from './company-context-service';
 
+/** Secciones de la empresa que existen en las dos ramas de rutas. */
+export type CompanySection = 'usuarios' | 'puestos' | 'sedes';
+
 /** Parametro de ruta que marca el modo administracion. */
 const COMPANY_PARAM = 'companyPublicId';
 
@@ -89,6 +92,19 @@ export class CompanyScopeService {
         this.loadError.set(backendErrorMessage(error, 'No pudimos cargar la empresa.'));
       },
     });
+  }
+
+  /**
+   * Enlace a una seccion de la empresa en la rama actual. Asi un enlace a Sedes
+   * o Usuarios no saca a Fundades de la empresa que esta administrando.
+   */
+  sectionLink(section: CompanySection, id?: string): string[] {
+    const tail = id ? [section, id] : [section];
+    const companyPublicId = this.adminCompanyId();
+
+    return this.isAdminScope() && companyPublicId
+      ? ['/plataforma/empresas', companyPublicId, ...tail]
+      : ['/empresa', ...tail];
   }
 
   hasAnyPrivilege(privileges: readonly CompanyPrivilege[]): boolean {

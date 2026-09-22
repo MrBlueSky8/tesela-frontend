@@ -3,7 +3,7 @@
     class="ib topbar__toggle"
     type="button"
     (click)="toggleSidebar()"
-    [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Contraer menu'"
+    [attr.aria-label]="collapsed() ? 'Expandir menú' : 'Contraer menú'"
   >
     <i
       class="ti"
@@ -15,7 +15,7 @@
 
   <app-company-switcher />
 
-  <nav class="bc" aria-label="Ruta de navegacion">
+  <nav class="bc" aria-label="Ruta de navegación">
     @for (crumb of crumbs(); track crumb.label; let i = $index) {
       @if (i > 0) {
         <span class="bc-sep" aria-hidden="true">&rsaquo;</span>

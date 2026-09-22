@@ -124,7 +124,7 @@ export class AuthService {
       return this.refreshToken().pipe(
         map(() => void 0),
         catchError((error) => {
-          console.error('Error renovando la sesion durante el arranque', error);
+          console.error('Error renovando la sesión durante el arranque', error);
           this.logout();
           return of(void 0);
         }),

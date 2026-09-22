@@ -1,7 +1,7 @@
 <div class="ph-row">
   <div>
     <div class="ph-t">Sedes</div>
-    <div class="ph-s">Sedes fisicas de la empresa y los evaluadores asignados a cada una.</div>
+    <div class="ph-s">Sedes físicas de la empresa y los evaluadores asignados a cada una.</div>
   </div>
 
   <button
@@ -54,7 +54,7 @@
   @if (sites().length === 0) {
     <div class="empty-state">
       <i class="ti ti-map-pin" aria-hidden="true"></i>
-      <p>Aun no hay sedes registradas. Registra la primera para asignarle evaluadores.</p>
+      <p>Aún no hay sedes registradas. Registra la primera para asignarle evaluadores.</p>
       <button class="btn btn-teal" type="button" (click)="openNew()">
         <i class="ti ti-plus" aria-hidden="true"></i>
         Nueva sede
@@ -101,7 +101,7 @@
       <div class="list-tbl">
         <div class="list-hdr sp__grid" aria-hidden="true">
           <span>Sede</span>
-          <span>Direccion</span>
+          <span>Dirección</span>
           <span>Evaluadores</span>
           <span></span>
         </div>
@@ -119,7 +119,7 @@
                   <span class="cell-sub">{{ site.ciudad || 'Sin ciudad' }}</span>
                 </span>
                 <span class="cell-meta sp__address" [class.empty]="!site.direccion">
-                  {{ site.direccion || 'Sin direccion' }}
+                  {{ site.direccion || 'Sin dirección' }}
                 </span>
                 <span>
                   @if (countFor(site) > 0) {

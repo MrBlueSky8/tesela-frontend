@@ -74,15 +74,15 @@ export class SiteDetail {
   /** Mensaje de la confirmacion de estado, sin "Sus 0 evaluadores". */
   readonly statusMessage = computed(() => {
     if (this.site()?.status !== 'ACTIVE') {
-      return 'Sus evaluadores con asignacion activa volveran a operar en ella.';
+      return 'Sus evaluadores con asignación activa volverán a operar en ella.';
     }
     const count = this.activeEvaluators();
     if (count === 0) {
-      return 'No se podran asignar evaluadores mientras este inactiva.';
+      return 'No se podrán asignar evaluadores mientras esté inactiva.';
     }
     return count === 1
-      ? 'Su evaluador conserva la asignacion, pero no podra operar en ella mientras este inactiva.'
-      : `Sus ${count} evaluadores conservan la asignacion, pero no podran operar en ella mientras este inactiva.`;
+      ? 'Su evaluador conserva la asignación, pero no podrá operar en ella mientras esté inactiva.'
+      : `Sus ${count} evaluadores conservan la asignación, pero no podrán operar en ella mientras esté inactiva.`;
   });
 
   /** Activos primero. */
@@ -200,7 +200,7 @@ export class SiteDetail {
         this.statusBusy.set(false);
         this.site.set(updated);
         this.notice.set(
-          updated.status === 'ACTIVE' ? 'La sede se reactivo.' : 'La sede se desactivo.',
+          updated.status === 'ACTIVE' ? 'La sede se reactivó.' : 'La sede se desactivó.',
         );
       },
       error: (error: unknown) => {
@@ -221,7 +221,7 @@ export class SiteDetail {
 
   onAssigned(assignment: SiteEvaluatorResponse): void {
     this.notice.set(
-      `Se asigno a ${assignment.firstNames} ${assignment.lastNames} a ${assignment.siteName}.`,
+      `Se asignó a ${assignment.firstNames} ${assignment.lastNames} a ${assignment.siteName}.`,
     );
     this.refreshAssignments();
   }
@@ -255,8 +255,8 @@ export class SiteDetail {
           this.confirmingId.set(null);
           this.notice.set(
             status === 'ACTIVE'
-              ? `Se reactivo la asignacion de ${evaluator.firstNames} ${evaluator.lastNames}.`
-              : `Se desactivo la asignacion de ${evaluator.firstNames} ${evaluator.lastNames}.`,
+              ? `Se reactivó la asignación de ${evaluator.firstNames} ${evaluator.lastNames}.`
+              : `Se desactivó la asignación de ${evaluator.firstNames} ${evaluator.lastNames}.`,
           );
           this.refreshAssignments(() => this.focusRow(evaluator, 'status'));
         },
@@ -264,7 +264,7 @@ export class SiteDetail {
           this.rowBusyId.set(null);
           this.rowError.set({
             id: evaluator.publicId,
-            message: backendErrorMessage(error, 'No pudimos actualizar la asignacion.'),
+            message: backendErrorMessage(error, 'No pudimos actualizar la asignación.'),
             // 409 de regla: ya tiene otra sede activa. Se puede resolver trasladandolo aqui.
             offerTransfer:
               error instanceof HttpErrorResponse &&

@@ -14,7 +14,7 @@
 } @else if (profile(); as current) {
   <div class="ph">
     <div class="ph-t">Mi perfil</div>
-    <div class="ph-s">Tus datos, tu contrasena y las empresas a las que tienes acceso.</div>
+    <div class="ph-s">Tus datos, tu contraseña y las empresas a las que tienes acceso.</div>
   </div>
 
   <div class="account">
@@ -39,7 +39,7 @@
 
       <p class="cell-sub account__note">
         <i class="ti ti-info-circle" aria-hidden="true"></i>
-        Si tu nombre o documento tienen un error, solicita la correccion al soporte de Fundades.
+        Si tu nombre o documento tienen un error, solicita la corrección al soporte de Fundades.
       </p>
     </section>
 
@@ -66,7 +66,7 @@
       <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
         <div class="frow">
           <div class="fg">
-            <label class="fl" for="acc-phone">Telefono</label>
+            <label class="fl" for="acc-phone">Teléfono</label>
             <input
               class="fi"
               id="acc-phone"
@@ -83,7 +83,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="acc-address">Direccion</label>
+            <label class="fl" for="acc-address">Dirección</label>
             <input
               class="fi"
               id="acc-address"
@@ -115,7 +115,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="acc-gender">Genero</label>
+            <label class="fl" for="acc-gender">Género</label>
             <select class="fsel" id="acc-gender" formControlName="genero">
               <option value="" disabled>Selecciona</option>
               @for (option of genderOptions; track option.value) {
@@ -144,10 +144,10 @@
 
     <!-- ================= Contrasena ================= -->
     <section class="fc" aria-labelledby="password-heading">
-      <div class="fc-hdr" id="password-heading">Contrasena</div>
+      <div class="fc-hdr" id="password-heading">Contraseña</div>
 
       <p class="cell-sub account__note account__note--lead">
-        Al cambiarla se cerraran todas tus sesiones y tendras que volver a ingresar.
+        Al cambiarla se cerrarán todas tus sesiones y tendrás que volver a ingresar.
       </p>
 
       @if (passwordError(); as message) {
@@ -159,7 +159,7 @@
 
       <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" novalidate>
         <div class="fg">
-          <label class="fl" for="acc-current">Contrasena actual</label>
+          <label class="fl" for="acc-current">Contraseña actual</label>
           <input
             class="fi"
             id="acc-current"
@@ -177,7 +177,7 @@
 
         <div class="frow">
           <div class="fg">
-            <label class="fl" for="acc-new">Nueva contrasena</label>
+            <label class="fl" for="acc-new">Nueva contraseña</label>
             <input
               class="fi"
               id="acc-new"
@@ -191,12 +191,12 @@
             @if (passwordFieldError('newPassword'); as message) {
               <span class="fi-err" id="acc-new-error">{{ message }}</span>
             } @else {
-              <span class="fi-hint" id="acc-new-hint">Minimo {{ passwordMin }} caracteres.</span>
+              <span class="fi-hint" id="acc-new-hint">Mínimo {{ passwordMin }} caracteres.</span>
             }
           </div>
 
           <div class="fg">
-            <label class="fl" for="acc-confirm">Confirma la nueva contrasena</label>
+            <label class="fl" for="acc-confirm">Confirma la nueva contraseña</label>
             <input
               class="fi"
               id="acc-confirm"
@@ -216,7 +216,7 @@
         <div class="account__actions account__actions--split">
           <label class="chk-lbl">
             <input class="chk-inp" type="checkbox" [checked]="showPasswords()" (change)="togglePasswords()" />
-            <span>Mostrar contrasenas</span>
+            <span>Mostrar contraseñas</span>
           </label>
           <button class="btn btn-primary" type="submit" [disabled]="isChangingPassword()">
             @if (isChangingPassword()) {
@@ -224,7 +224,7 @@
               <span>Cambiando...</span>
             } @else {
               <i class="ti ti-lock" aria-hidden="true"></i>
-              <span>Cambiar contrasena</span>
+              <span>Cambiar contraseña</span>
             }
           </button>
         </div>
@@ -257,7 +257,7 @@
           </button>
         </div>
       } @else if (accesses().length === 0) {
-        <p class="cell-sub">Aun no perteneces a ninguna empresa activa.</p>
+        <p class="cell-sub">Aún no perteneces a ninguna empresa activa.</p>
       } @else {
         <ul class="account__access-list">
           @for (item of accesses(); track item.company.publicId) {

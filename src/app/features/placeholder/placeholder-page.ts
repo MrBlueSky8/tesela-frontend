@@ -20,12 +20,12 @@ export class PlaceholderPage {
   });
 
   readonly title = computed(
-    () => (this.data()['title'] as string | undefined) ?? 'En construccion',
+    () => (this.data()['title'] as string | undefined) ?? 'En construcción',
   );
 
   readonly description = computed(
     () =>
       (this.data()['description'] as string | undefined) ??
-      'Esta seccion todavia no esta implementada.',
+      'Esta sección todavía no está implementada.',
   );
 }

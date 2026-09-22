@@ -108,7 +108,7 @@ export class PositionsPage {
         this.isLoading.set(false);
       },
       error: (error: unknown) => {
-        this.loadError.set(backendErrorMessage(error, 'No pudimos cargar el catalogo de puestos.'));
+        this.loadError.set(backendErrorMessage(error, 'No pudimos cargar el catálogo de puestos.'));
         this.isLoading.set(false);
       },
     });
@@ -146,7 +146,7 @@ export class PositionsPage {
     this.positions.update((positions) =>
       [...positions, position].sort((a, b) => a.nombre.localeCompare(b.nombre)),
     );
-    this.notice.set(`Se registro el puesto ${position.nombre}.`);
+    this.notice.set(`Se registró el puesto ${position.nombre}.`);
   }
 
   /** Crear o editar un departamento, desde el dialogo o desde el alta de puesto. */

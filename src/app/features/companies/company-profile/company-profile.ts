@@ -352,12 +352,12 @@ export class CompanyProfile {
       next: (updated) => {
         this.adminLimitBusy.set(false);
         this.applyCompany(updated);
-        this.platformSuccess.set('Limite de administradores actualizado.');
+        this.platformSuccess.set('Límite de administradores actualizado.');
       },
       error: (error: unknown) => {
         this.adminLimitBusy.set(false);
         // 409 cuando ya hay mas administradores activos que el limite pedido.
-        this.adminLimitError.set(backendErrorMessage(error, 'No pudimos actualizar el limite.'));
+        this.adminLimitError.set(backendErrorMessage(error, 'No pudimos actualizar el límite.'));
       },
     });
   }
@@ -381,7 +381,7 @@ export class CompanyProfile {
         this.statusBusy.set(false);
         this.applyCompany(updated);
         this.platformSuccess.set(
-          updated.status === 'ACTIVE' ? 'La empresa se activo.' : 'La empresa se desactivo.',
+          updated.status === 'ACTIVE' ? 'La empresa se activó.' : 'La empresa se desactivó.',
         );
       },
       error: (error: unknown) => {
@@ -444,7 +444,7 @@ export class CompanyProfile {
     }
 
     if (file.size > LOGO_MAX_BYTES) {
-      return 'El archivo supera el maximo de 5 MB.';
+      return 'El archivo supera el máximo de 5 MB.';
     }
 
     return null;

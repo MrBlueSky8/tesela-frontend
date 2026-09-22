@@ -30,6 +30,9 @@ export class CompanyUsersPage {
   private readonly api = inject(CompanyUsersApiService);
   private readonly sitesApi = inject(SitesApiService);
   private readonly companyScope = inject(CompanyScopeService);
+
+  /** Enlaces a otras secciones, dentro de la rama actual. */
+  readonly sectionLink = this.companyScope.sectionLink.bind(this.companyScope);
   private readonly tokenService = inject(TokenService);
 
   readonly company = this.companyScope.company;
@@ -193,7 +196,7 @@ export class CompanyUsersPage {
     // Si se creo la cuenta, el propio dialogo confirma a donde se enviaron las credenciales.
     if (!event.created) {
       this.notice.set(
-        `${event.membership.firstNames} ${event.membership.lastNames} se agrego a la empresa.`,
+        `${event.membership.firstNames} ${event.membership.lastNames} se agregó a la empresa.`,
       );
     }
   }

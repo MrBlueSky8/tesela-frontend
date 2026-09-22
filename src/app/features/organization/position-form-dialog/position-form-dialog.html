@@ -17,8 +17,8 @@
         <p class="alert alert-amber pfd__alert">
           <i class="ti ti-info-circle" aria-hidden="true"></i>
           <span>
-            Este puesto ya tiene una evaluacion vigente en el Modulo 1. Editarlo no cambia esa
-            evaluacion: para actualizarla hay que crear una nueva version.
+            Este puesto ya tiene una evaluación vigente en el Módulo 1. Editarlo no cambia esa
+            evaluación: para actualizarla hay que crear una nueva versión.
           </span>
         </p>
       }
@@ -104,7 +104,7 @@
             <span class="fi-err" id="pfd-department-error">{{ message }}</span>
           } @else if (selectedDepartmentInactive()) {
             <span class="fi-hint pfd__warn">
-              Este departamento esta inactivo. Puedes conservarlo, pero no mover aqui otros puestos.
+              Este departamento está inactivo. Puedes conservarlo, pero no mover aquí otros puestos.
             </span>
           }
           <button class="pfd__link" type="button" (click)="startNewDepartment()">
@@ -115,20 +115,20 @@
       </div>
 
       <div class="pfd__section">
-        <span>Informacion opcional</span>
+        <span>Información opcional</span>
       </div>
 
       <p class="ia-hint pfd__hint">
         <i class="ti ti-sparkles" aria-hidden="true"></i>
         <span>
-          Si completas estos campos, la IA los usara como punto de partida al evaluar el puesto en
-          el Modulo 1.
+          Si completas estos campos, la IA los usará como punto de partida al evaluar el puesto en
+          el Módulo 1.
         </span>
       </p>
 
       <div class="fg">
         <label class="fl" for="pfd-descripcion"
-          >Descripcion <span class="opt">opcional</span></label
+          >Descripción <span class="opt">opcional</span></label
         >
         <textarea
           class="fta"

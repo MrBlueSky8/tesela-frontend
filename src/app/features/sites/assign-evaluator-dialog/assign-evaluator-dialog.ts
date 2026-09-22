@@ -7,6 +7,7 @@ import { PRIVILEGE_LABELS, isSiteAssignable } from '../../../core/helpers/privil
 import { CompanyMembershipResponse } from '../../../core/models/company-membership';
 import { SiteEvaluatorResponse, SiteResponse } from '../../../core/models/site';
 import { ModalShell } from '../../../shared/components/modal-shell/modal-shell';
+import { CompanyScopeService } from '../../../core/services/company-scope-service';
 import { SitesApiService } from '../sites-api-service';
 
 interface Candidate {
@@ -27,6 +28,8 @@ interface Candidate {
 })
 export class AssignEvaluatorDialog {
   private readonly api = inject(SitesApiService);
+  /** Lo provee la rama de rutas de la pagina que abre el dialogo. */
+  readonly scope = inject(CompanyScopeService);
 
   readonly companyPublicId = input.required<string>();
   readonly site = input.required<SiteResponse>();

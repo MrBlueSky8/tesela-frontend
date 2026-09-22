@@ -5,7 +5,7 @@
       {{
         isPlatformAdmin()
           ? 'Directorio de empresas registradas. Abre una para ver su ficha y gestionarla.'
-          : 'Entra en la empresa con la que quieres trabajar. Tambien puedes cambiarla desde el encabezado.'
+          : 'Entra en la empresa con la que quieres trabajar. También puedes cambiarla desde el encabezado.'
       }}
     </div>
   </div>
@@ -21,7 +21,7 @@
 @if (createdName(); as name) {
   <p class="alert alert-success companies__alert" role="status">
     <i class="ti ti-circle-check" aria-hidden="true"></i>
-    <span>La empresa {{ name }} se creo correctamente.</span>
+    <span>La empresa {{ name }} se creó correctamente.</span>
   </p>
 }
 
@@ -49,10 +49,10 @@
   <div class="empty-state">
     <i class="ti ti-building" aria-hidden="true"></i>
     @if (isPlatformAdmin()) {
-      <p>Todavia no hay empresas registradas.</p>
+      <p>Todavía no hay empresas registradas.</p>
       <a class="btn btn-primary btn-sm" routerLink="/companies/new">Registrar la primera</a>
     } @else {
-      <p>Aun no perteneces a ninguna empresa. Pide a su administrador que te agregue.</p>
+      <p>Aún no perteneces a ninguna empresa. Pide a su administrador que te agregue.</p>
     }
   </div>
 } @else {
@@ -62,7 +62,7 @@
       <input
         class="search-inp"
         type="search"
-        placeholder="Buscar por nombre, razon social o RUC"
+        placeholder="Buscar por nombre, razón social o RUC"
         aria-label="Buscar empresas"
         [value]="search()"
         (input)="onSearch($event)"
@@ -73,7 +73,7 @@
   @if (filteredCompanies().length === 0) {
     <div class="empty-state">
       <i class="ti ti-search" aria-hidden="true"></i>
-      <p>Ninguna empresa coincide con la busqueda.</p>
+      <p>Ninguna empresa coincide con la búsqueda.</p>
     </div>
   } @else {
     <div class="list-tbl">

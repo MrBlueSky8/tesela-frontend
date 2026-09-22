@@ -43,7 +43,7 @@
 
         <div class="profile__logo-copy">
           <div class="cell-name">{{ current.urlLogo ? 'Logo actual' : 'Sin logo' }}</div>
-          <div class="cell-sub">JPG, PNG o WEBP. Maximo 5 MB.</div>
+          <div class="cell-sub">JPG, PNG o WEBP. Máximo 5 MB.</div>
 
           <div class="profile__logo-actions">
             <input
@@ -115,7 +115,7 @@
       }
 
       <section class="fc" aria-labelledby="identity-heading">
-        <div class="fc-hdr" id="identity-heading">Identificacion</div>
+        <div class="fc-hdr" id="identity-heading">Identificación</div>
 
         <div class="frow">
           <div class="fg">
@@ -143,7 +143,7 @@
           </div>
 
           <div class="fg fg-full">
-            <label class="fl" for="razonSocial">Razon social</label>
+            <label class="fl" for="razonSocial">Razón social</label>
             <input
               class="fi"
               id="razonSocial"
@@ -161,7 +161,7 @@
           </div>
 
           <div class="fg fg-full">
-            <label class="fl" for="descripcion">Descripcion</label>
+            <label class="fl" for="descripcion">Descripción</label>
             <textarea
               class="fta"
               id="descripcion"
@@ -179,7 +179,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="numeroEmpleados">Numero de empleados (opcional)</label>
+            <label class="fl" for="numeroEmpleados">Número de empleados (opcional)</label>
             <input
               class="fi"
               id="numeroEmpleados"
@@ -204,7 +204,7 @@
 
         <div class="frow">
           <div class="fg fg-full">
-            <label class="fl" for="direccion">Direccion</label>
+            <label class="fl" for="direccion">Dirección</label>
             <input
               class="fi"
               id="direccion"
@@ -223,7 +223,7 @@
           </div>
 
           <div class="fg">
-            <label class="fl" for="telefonoContacto">Telefono (opcional)</label>
+            <label class="fl" for="telefonoContacto">Teléfono (opcional)</label>
             <input
               class="fi"
               id="telefonoContacto"
@@ -310,7 +310,7 @@
     <section class="det-card" aria-label="Resumen">
       <div class="det-grid">
         <div>
-          <div class="det-lbl">Limite de administradores generales</div>
+          <div class="det-lbl">Límite de administradores generales</div>
           <div class="det-val">{{ current.adminLimit }}</div>
         </div>
 
@@ -345,7 +345,7 @@
 
         <div class="frow">
           <div class="fg">
-            <label class="fl" for="adminLimit">Limite de administradores generales</label>
+            <label class="fl" for="adminLimit">Límite de administradores generales</label>
             <div class="profile__inline-field">
               <input
                 class="fi"
@@ -410,7 +410,7 @@
     @case ('remove-logo') {
       <app-confirm-dialog
         title="Quitar el logo"
-        message="La empresa se mostrara con su inicial hasta que subas otro logo."
+        message="La empresa se mostrará con su inicial hasta que subas otro logo."
         confirmLabel="Quitar logo"
         (confirmed)="removeLogo()"
         (cancelled)="pendingConfirm.set(null)"
@@ -422,7 +422,7 @@
         [message]="
           current.status === 'ACTIVE'
             ? 'Sus usuarios perderan el acceso hasta que la vuelvas a activar.'
-            : 'Sus usuarios con membresia activa recuperaran el acceso.'
+            : 'Sus usuarios con membresía activa recuperarán el acceso.'
         "
         [tone]="current.status === 'ACTIVE' ? 'warning' : 'info'"
         [confirmLabel]="current.status === 'ACTIVE' ? 'Desactivar' : 'Activar'"

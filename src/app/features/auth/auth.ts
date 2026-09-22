@@ -37,7 +37,7 @@ export class Auth {
     }
 
     if (this.route.snapshot.queryParamMap.get('passwordChanged') === '1') {
-      this.loginSuccess.set('Contrasena actualizada. Ingresa con tu nueva contrasena.');
+      this.loginSuccess.set('Contraseña actualizada. Ingresa con tu nueva contraseña.');
     }
   }
 
@@ -96,10 +96,10 @@ export class Auth {
     if (error instanceof HttpErrorResponse && error.status === 401) {
       return backendErrorMessage(
         error,
-        'Correo o contrasena incorrectos. Verifica tus datos e intenta nuevamente.',
+        'Correo o contraseña incorrectos. Verifica tus datos e intenta nuevamente.',
       );
     }
 
-    return backendErrorMessage(error, 'No se pudo iniciar sesion. Intenta nuevamente.');
+    return backendErrorMessage(error, 'No se pudo iniciar sesión. Intenta nuevamente.');
   }
 }
