@@ -19,28 +19,7 @@
     </div>
   } @else {
     <div class="modal-body">
-      <div class="amd__modes" role="group" aria-label="Tipo de alta">
-        <button
-          class="amd__mode"
-          type="button"
-          [class.amd__mode--on]="mode() === 'existing'"
-          [attr.aria-pressed]="mode() === 'existing'"
-          (click)="switchToExisting()"
-        >
-          <i class="ti ti-search" aria-hidden="true"></i>
-          Cuenta existente
-        </button>
-        <button
-          class="amd__mode"
-          type="button"
-          [class.amd__mode--on]="mode() === 'new'"
-          [attr.aria-pressed]="mode() === 'new'"
-          (click)="switchToNew()"
-        >
-          <i class="ti ti-user-plus" aria-hidden="true"></i>
-          Cuenta nueva
-        </button>
-      </div>
+      <p class="amd__step">{{ stepLabel() }}</p>
 
       @if (submitError(); as error) {
         <div class="alert alert-error amd__alert" role="alert">
@@ -48,13 +27,9 @@
           <div>
             <div>{{ error }}</div>
             @if (errorHint() === 'duplicate-email') {
-              <button
-                class="amd__link"
-                type="button"
-                (click)="switchToExisting(createForm.controls.email.value)"
-              >
-                Buscar esa cuenta y agregarla
-              </button>
+              <div class="amd__hint">
+                Ese correo ya pertenece a otra cuenta. Usa uno distinto para esta persona.
+              </div>
             } @else if (errorHint() === 'names-mismatch') {
               <div class="amd__hint">
                 Si el nombre registrado para ese documento tiene un error, solicita la corrección a
@@ -65,7 +40,200 @@
         </div>
       }
 
-      @if (mode() === 'existing') {
+      <!-- ================= Paso 1: documento ================= -->
+      @if (mode() === 'document') {
+        <p class="cell-sub amd__lead">
+          <i class="ti ti-id" aria-hidden="true"></i>
+          Empieza por el documento de la persona. Con él sabremos si ya tiene una cuenta en la
+          plataforma y completaremos sus datos.
+        </p>
+
+        <form class="frow amd__form" [formGroup]="documentForm" (ngSubmit)="onLookup()" novalidate id="amd-document">
+          <div class="fg">
+            <label class="fl" for="amd-lookup-type">Tipo de documento</label>
+            <select class="fsel" id="amd-lookup-type" formControlName="documentType">
+              @for (type of documentTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="amd-lookup-number">Número de documento</label>
+            <input
+              #documentInput
+              class="fi"
+              id="amd-lookup-number"
+              type="text"
+              autocomplete="off"
+              formControlName="documentNumber"
+            />
+          </div>
+        </form>
+
+        <button class="amd__link" type="button" (click)="switchToSearch()">
+          No tengo su documento: buscar por nombre o correo
+        </button>
+      }
+
+      <!-- ================= Paso 2: identidad ================= -->
+      @if (mode() === 'identity') {
+        @if (lookup(); as result) {
+          <div class="amd__person">
+            <div class="amd__person-doc">
+              {{ documentLabel(createForm.getRawValue().documentType) }}
+              {{ createForm.getRawValue().documentNumber }}
+            </div>
+
+            @switch (result.outcome) {
+              @case ('ALREADY_MEMBER') {
+                <div class="cell-name">{{ result.firstNames }} {{ result.lastNames }}</div>
+                <p class="alert alert-amber amd__notice" role="status">
+                  <i class="ti ti-user-check" aria-hidden="true"></i>
+                  <span>
+                    Esta persona ya pertenece a la empresa.
+                    @if (result.membershipStatus === 'ACTIVE') {
+                      Puedes ajustar sus privilegios desde su ficha.
+                    } @else {
+                      Su membresía está inactiva; reactívala desde su ficha, en Editar acceso.
+                    }
+                  </span>
+                </p>
+              }
+              @case ('NOT_FOUND') {
+                <p class="cell-sub">
+                  Nadie está registrado con este documento. Completa sus datos para crear su cuenta.
+                </p>
+              }
+              @case ('PERSON_WITHOUT_ACCOUNT') {
+                <div class="cell-name">{{ result.firstNames }} {{ result.lastNames }}</div>
+                <p class="cell-sub">
+                  Ya está registrada, pero no tiene ninguna cuenta activa. Solo falta un correo.
+                </p>
+              }
+              @default {
+                <div class="cell-name">{{ result.firstNames }} {{ result.lastNames }}</div>
+                <p class="cell-sub">Ya tiene cuenta en la plataforma.</p>
+              }
+            }
+          </div>
+
+          @if (result.outcome === 'ASSIGNABLE' && !forceNewAccount()) {
+            @if (result.accounts.length > 1) {
+              <fieldset class="amd__list">
+                <legend class="fl">Elige la cuenta que se agregará</legend>
+                @for (user of result.accounts; track user.publicId) {
+                  <label
+                    class="amd__option"
+                    [class.amd__option--on]="selectedUser()?.publicId === user.publicId"
+                  >
+                    <input
+                      type="radio"
+                      name="amd-account"
+                      class="chk-inp"
+                      [checked]="selectedUser()?.publicId === user.publicId"
+                      (change)="selectUser(user)"
+                    />
+                    <span class="amd__option-copy">
+                      <span class="cell-name">{{ user.email }}</span>
+                    </span>
+                  </label>
+                }
+              </fieldset>
+            } @else if (selectedUser(); as account) {
+              <p class="amd__account">
+                <i class="ti ti-mail" aria-hidden="true"></i>
+                <span>Se agregará su cuenta <strong>{{ account.email }}</strong>.</span>
+              </p>
+            }
+
+            <button class="amd__link" type="button" (click)="useAnotherEmail()">
+              Crear otra cuenta con un correo distinto
+            </button>
+          }
+
+          @if (willCreateAccount() && !alreadyMember()) {
+            @if (forceNewAccount()) {
+              <button class="amd__link" type="button" (click)="useExistingAccount()">
+                Usar su cuenta existente
+              </button>
+            }
+
+            <p class="alert alert-amber amd__notice">
+              <i class="ti ti-file-lock" aria-hidden="true"></i>
+              <span>
+                La persona recibirá sus credenciales por correo en un PDF protegido con su número de
+                documento.
+              </span>
+            </p>
+
+            <form class="frow amd__form" [formGroup]="createForm" (ngSubmit)="onConfirm()" novalidate id="amd-create">
+              <div class="fg fg-full">
+                <label class="fl" for="amd-email">Correo</label>
+                <input
+                  #emailInput
+                  class="fi"
+                  id="amd-email"
+                  type="email"
+                  autocomplete="off"
+                  formControlName="email"
+                  [class.invalid]="fieldError('email')"
+                  [attr.aria-invalid]="!!fieldError('email')"
+                  [attr.aria-describedby]="fieldError('email') ? 'amd-email-error' : null"
+                />
+                @if (fieldError('email'); as message) {
+                  <span class="fi-err" id="amd-email-error">{{ message }}</span>
+                }
+              </div>
+
+              <div class="fg">
+                <label class="fl" for="amd-first-names">Nombres</label>
+                <input
+                  class="fi"
+                  id="amd-first-names"
+                  type="text"
+                  autocomplete="off"
+                  formControlName="firstNames"
+                  [class.invalid]="fieldError('firstNames')"
+                  [attr.aria-invalid]="!!fieldError('firstNames')"
+                  [attr.aria-describedby]="fieldError('firstNames') ? 'amd-first-names-error' : null"
+                />
+                @if (fieldError('firstNames'); as message) {
+                  <span class="fi-err" id="amd-first-names-error">{{ message }}</span>
+                }
+              </div>
+
+              <div class="fg">
+                <label class="fl" for="amd-last-names">Apellidos</label>
+                <input
+                  class="fi"
+                  id="amd-last-names"
+                  type="text"
+                  autocomplete="off"
+                  formControlName="lastNames"
+                  [class.invalid]="fieldError('lastNames')"
+                  [attr.aria-invalid]="!!fieldError('lastNames')"
+                  [attr.aria-describedby]="fieldError('lastNames') ? 'amd-last-names-error' : null"
+                />
+                @if (fieldError('lastNames'); as message) {
+                  <span class="fi-err" id="amd-last-names-error">{{ message }}</span>
+                }
+              </div>
+
+              @if (knownPerson()) {
+                <p class="cell-sub fg-full amd__hint">
+                  <i class="ti ti-lock" aria-hidden="true"></i>
+                  Nombres, apellidos y documento vienen del registro de la persona. Si tienen un
+                  error, solicita la corrección a Fundades.
+                </p>
+              }
+            </form>
+          }
+        }
+      }
+
+      <!-- ================= Respaldo: buscar ================= -->
+      @if (mode() === 'search') {
         <div class="fg">
           <label class="fl" for="amd-search">Buscar por correo, documento o nombre</label>
           <div class="search-wrap">
@@ -85,9 +253,7 @@
         <div class="amd__results" id="amd-search-status" role="status">
           @switch (searchState()) {
             @case ('idle') {
-              <p class="amd__state">
-                Escribe al menos {{ minSearchLength }} caracteres para buscar.
-              </p>
+              <p class="amd__state">Escribe al menos {{ minSearchLength }} caracteres para buscar.</p>
             }
             @case ('short') {
               <p class="amd__state">Escribe al menos {{ minSearchLength }} caracteres.</p>
@@ -104,8 +270,8 @@
             @case ('empty') {
               <p class="amd__state">
                 No encontramos cuentas que puedas agregar.
-                <button class="amd__link" type="button" (click)="switchToNew()">
-                  Crear una cuenta nueva
+                <button class="amd__link" type="button" (click)="backToDocument()">
+                  Volver al documento
                 </button>
               </p>
             }
@@ -140,103 +306,9 @@
             }
           </fieldset>
         }
-      } @else {
-        <p class="alert alert-amber amd__notice">
-          <i class="ti ti-file-lock" aria-hidden="true"></i>
-          <span>
-            La persona recibirá sus credenciales por correo en un PDF protegido con su número de
-            documento.
-          </span>
-        </p>
-
-        <form
-          class="frow amd__form"
-          [formGroup]="createForm"
-          (ngSubmit)="onCreate()"
-          novalidate
-          id="amd-create"
-        >
-          <div class="fg fg-full">
-            <label class="fl" for="amd-email">Correo</label>
-            <input
-              #emailInput
-              class="fi"
-              id="amd-email"
-              type="email"
-              autocomplete="off"
-              formControlName="email"
-              [class.invalid]="fieldError('email')"
-              [attr.aria-invalid]="!!fieldError('email')"
-              [attr.aria-describedby]="fieldError('email') ? 'amd-email-error' : null"
-            />
-            @if (fieldError('email'); as message) {
-              <span class="fi-err" id="amd-email-error">{{ message }}</span>
-            }
-          </div>
-
-          <div class="fg">
-            <label class="fl" for="amd-doc-type">Tipo de documento</label>
-            <select class="fsel" id="amd-doc-type" formControlName="documentType">
-              @for (type of documentTypes; track type.value) {
-                <option [value]="type.value">{{ type.label }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="fg">
-            <label class="fl" for="amd-doc-number">Número de documento</label>
-            <input
-              class="fi"
-              id="amd-doc-number"
-              type="text"
-              autocomplete="off"
-              formControlName="documentNumber"
-              [class.invalid]="fieldError('documentNumber')"
-              [attr.aria-invalid]="!!fieldError('documentNumber')"
-              [attr.aria-describedby]="fieldError('documentNumber') ? 'amd-doc-number-error' : null"
-            />
-            @if (fieldError('documentNumber'); as message) {
-              <span class="fi-err" id="amd-doc-number-error">{{ message }}</span>
-            }
-          </div>
-
-          <div class="fg">
-            <label class="fl" for="amd-first-names">Nombres</label>
-            <input
-              class="fi"
-              id="amd-first-names"
-              type="text"
-              autocomplete="off"
-              formControlName="firstNames"
-              [class.invalid]="fieldError('firstNames')"
-              [attr.aria-invalid]="!!fieldError('firstNames')"
-              [attr.aria-describedby]="fieldError('firstNames') ? 'amd-first-names-error' : null"
-            />
-            @if (fieldError('firstNames'); as message) {
-              <span class="fi-err" id="amd-first-names-error">{{ message }}</span>
-            }
-          </div>
-
-          <div class="fg">
-            <label class="fl" for="amd-last-names">Apellidos</label>
-            <input
-              class="fi"
-              id="amd-last-names"
-              type="text"
-              autocomplete="off"
-              formControlName="lastNames"
-              [class.invalid]="fieldError('lastNames')"
-              [attr.aria-invalid]="!!fieldError('lastNames')"
-              [attr.aria-describedby]="fieldError('lastNames') ? 'amd-last-names-error' : null"
-            />
-            @if (fieldError('lastNames'); as message) {
-              <span class="fi-err" id="amd-last-names-error">{{ message }}</span>
-            }
-          </div>
-        </form>
       }
 
-      @if (mode() === 'new' || selectedUser()) {
+      @if ((mode() === 'identity' && !alreadyMember()) || (mode() === 'search' && selectedUser())) {
         <div class="amd__privileges">
           <div class="fc-hdr">Privilegios en la empresa</div>
           <app-privilege-picker
@@ -251,32 +323,46 @@
     </div>
 
     <div class="modal-foot">
-      <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
-
-      @if (mode() === 'existing') {
-        <button
-          class="btn btn-primary btn-sm"
-          type="button"
-          [disabled]="!selectedUser() || isSubmitting()"
-          (click)="onAddExisting()"
-        >
-          @if (isSubmitting()) {
+      @if (mode() === 'document') {
+        <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" type="submit" form="amd-document" [disabled]="isLookingUp()">
+          @if (isLookingUp()) {
             <span class="ts-spinner" aria-hidden="true"></span>
           }
-          Agregar a la empresa
+          Continuar
         </button>
       } @else {
-        <button
-          class="btn btn-primary btn-sm"
-          type="submit"
-          form="amd-create"
-          [disabled]="isSubmitting()"
-        >
-          @if (isSubmitting()) {
-            <span class="ts-spinner" aria-hidden="true"></span>
-          }
-          Crear y enviar credenciales
+        <button class="btn btn-outline btn-sm" type="button" (click)="backToDocument()">
+          <i class="ti ti-arrow-left" aria-hidden="true"></i>
+          Volver
         </button>
+
+        @if (alreadyMember()) {
+          @if (memberLink(); as link) {
+            <a class="btn btn-primary btn-sm" [routerLink]="link" (click)="closed.emit()">
+              <i class="ti ti-user" aria-hidden="true"></i>
+              Ver su ficha
+            </a>
+          } @else {
+            <button class="btn btn-primary btn-sm" type="button" (click)="closed.emit()">Entendido</button>
+          }
+        } @else {
+          <button
+            class="btn btn-primary btn-sm"
+            type="button"
+            [disabled]="isSubmitting() || (mode() === 'search' && !selectedUser())"
+            (click)="onConfirm()"
+          >
+            @if (isSubmitting()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+            }
+            @if (willCreateAccount()) {
+              Crear y enviar credenciales
+            } @else {
+              Agregar a la empresa
+            }
+          </button>
+        }
       }
     </div>
   }

@@ -5,10 +5,12 @@ import { Observable, map, shareReplay } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../core/models/api-response';
 import { CompanyPrivilegeResponse } from '../../core/models/company';
+import { DocumentType } from '../../core/models/user-profile-response';
 import {
   AddCompanyUserRequest,
   AssignableUserResponse,
   CompanyMemberDetailResponse,
+  CompanyUserLookupResponse,
   CompanyMembershipResponse,
   CreateCompanyUserRequest,
   UpdateCompanyMembershipRequest,
@@ -84,6 +86,22 @@ export class CompanyUsersApiService {
         `${this.usersUrl(companyPublicId)}/${encodeURIComponent(membershipPublicId)}`,
         payload,
       )
+      .pipe(map((response) => response.data));
+  }
+
+  /** Primer paso del alta: que hay registrado con ese documento. */
+  lookup(
+    companyPublicId: string,
+    documentType: DocumentType,
+    documentNumber: string,
+  ): Observable<CompanyUserLookupResponse> {
+    const params = new HttpParams()
+      .set('documentType', documentType)
+      .set('documentNumber', documentNumber);
+    return this.http
+      .get<ApiResponse<CompanyUserLookupResponse>>(`${this.companyUrl(companyPublicId)}/user-lookup`, {
+        params,
+      })
       .pipe(map((response) => response.data));
   }
 

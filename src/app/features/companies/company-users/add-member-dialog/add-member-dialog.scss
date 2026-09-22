@@ -1,40 +1,3 @@
-.amd__modes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 14px;
-  padding: 4px;
-  border-radius: var(--ts-radius-sm);
-  background: var(--ts-surface-alt);
-}
-
-.amd__mode {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--ts-text-2);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.amd__mode--on {
-  background: var(--ts-card);
-  color: var(--ts-text);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-.amd__mode:focus-visible {
-  outline: 2px solid var(--ts-green);
-  outline-offset: 1px;
-}
-
 .amd__alert,
 .amd__notice {
   margin-bottom: 14px;
@@ -136,4 +99,41 @@
   .amd__form {
     grid-template-columns: 1fr;
   }
+}
+
+.amd__step {
+  margin: 0 0 12px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.amd__lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+
+.amd__person {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-surface-alt);
+}
+
+.amd__person-doc {
+  margin-bottom: 2px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+}
+
+.amd__account {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 13px;
 }

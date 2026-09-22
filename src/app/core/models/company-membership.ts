@@ -59,6 +59,20 @@ export interface UpdateMemberPersonRequest {
   genero?: Gender;
 }
 
+/**
+ * Espejo de company/dto/CompanyUserLookupResponse: que hay registrado con un
+ * documento. Es el primer paso del alta y decide si la identidad se
+ * autocompleta o se pide.
+ */
+export interface CompanyUserLookupResponse {
+  outcome: 'NOT_FOUND' | 'ASSIGNABLE' | 'PERSON_WITHOUT_ACCOUNT' | 'ALREADY_MEMBER';
+  firstNames: string | null;
+  lastNames: string | null;
+  accounts: AssignableUserResponse[];
+  membershipPublicId: string | null;
+  membershipStatus: MembershipStatus | null;
+}
+
 /** Resultado de la busqueda de usuarios que aun no pertenecen a la empresa. */
 export interface AssignableUserResponse {
   publicId: string;
