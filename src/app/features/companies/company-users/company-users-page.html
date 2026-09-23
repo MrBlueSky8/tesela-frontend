@@ -137,7 +137,7 @@
               @if (member.mustChangePassword) {
                 <span class="bdg bdg-amber">Pendiente de activación</span>
               }
-              @if (siteOf(member); as assignment) {
+              @for (assignment of sitesOf(member); track assignment.publicId) {
                 <a
                   class="bdg bdg-blue cu__site"
                   [routerLink]="sectionLink('sedes', assignment.sitePublicId)"
@@ -208,7 +208,7 @@
     <app-edit-member-dialog
       [companyPublicId]="current.publicId"
       [membership]="member"
-      [siteAssignment]="siteOf(member)"
+      [siteAssignments]="sitesOf(member)"
       [catalog]="catalog()"
       [canManageAdmins]="canManageAdmins()"
       [adminLimitReached]="adminLimitReached()"

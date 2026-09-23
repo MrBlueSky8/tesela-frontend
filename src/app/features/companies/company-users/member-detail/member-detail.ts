@@ -112,14 +112,12 @@ export class MemberDetail {
     return status ? (ACCOUNT_STATUS[status] ?? status) : '';
   });
 
-  /** Sede activa del miembro; se gestiona desde Sedes. */
-  readonly siteAssignment = computed(
-    () =>
-      this.assignments().find(
-        (assignment) =>
-          assignment.membershipPublicId === this.member()?.publicId &&
-          assignment.status === 'ACTIVE',
-      ) ?? null,
+  /** Sedes activas del miembro; se gestionan desde Sedes. Pueden ser varias. */
+  readonly siteAssignments = computed(() =>
+    this.assignments().filter(
+      (assignment) =>
+        assignment.membershipPublicId === this.member()?.publicId && assignment.status === 'ACTIVE',
+    ),
   );
 
   /** La membresía en formato de listado, que es lo que espera el diálogo de acceso. */

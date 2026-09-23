@@ -144,13 +144,11 @@ export class CompanyUsersPage {
     });
   }
 
-  /** Asignacion activa del miembro, si tiene. */
-  siteOf(member: CompanyMembershipResponse): SiteEvaluatorResponse | null {
-    return (
-      this.assignments().find(
-        (assignment) =>
-          assignment.membershipPublicId === member.publicId && assignment.status === 'ACTIVE',
-      ) ?? null
+  /** Sedes activas del miembro; puede evaluar en varias a la vez. */
+  sitesOf(member: CompanyMembershipResponse): SiteEvaluatorResponse[] {
+    return this.assignments().filter(
+      (assignment) =>
+        assignment.membershipPublicId === member.publicId && assignment.status === 'ACTIVE',
     );
   }
 

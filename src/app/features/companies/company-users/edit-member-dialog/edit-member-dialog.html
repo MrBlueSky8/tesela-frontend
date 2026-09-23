@@ -112,14 +112,18 @@
         [adminLimitReached]="warnAdminLimit()"
       />
 
-      @if (siteAssignment(); as assignment) {
+      @if (siteAssignments().length) {
         <div class="emd__site">
           <i class="ti ti-map-pin" aria-hidden="true"></i>
           <span>
-            Sede asignada:
-            <a [routerLink]="scope.sectionLink('sedes', assignment.sitePublicId)" (click)="closed.emit()">
-              {{ assignment.siteName }}
-            </a>
+            {{ siteAssignments().length === 1 ? 'Sede asignada:' : 'Sedes asignadas:' }}
+            @for (assignment of siteAssignments(); track assignment.publicId; let last = $last) {
+              <a
+                [routerLink]="scope.sectionLink('sedes', assignment.sitePublicId)"
+                (click)="closed.emit()"
+              >{{ assignment.siteName }}</a
+              >{{ last ? '' : ', ' }}
+            }
           </span>
         </div>
       } @else if (siteAssignable()) {

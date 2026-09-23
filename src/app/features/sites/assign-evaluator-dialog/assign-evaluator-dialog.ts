@@ -13,7 +13,8 @@ import { SitesApiService } from '../sites-api-service';
 interface Candidate {
   member: CompanyMembershipResponse;
   /** Asignacion activa en otra sede, si tiene: asignarlo aqui es un traslado. */
-  currentAssignment: SiteEvaluatorResponse | null;
+  /** Otras sedes donde ya evalua. Informativo: puede sumar esta sin dejarlas. */
+  otherAssignments: SiteEvaluatorResponse[];
 }
 
 /**
@@ -44,7 +45,10 @@ export class AssignEvaluatorDialog {
   readonly selectedId = signal<string | null>(null);
   readonly isSaving = signal(false);
   readonly error = signal<string | null>(null);
-  /** El backend detecto un traslado que la pantalla no conocia (datos desactualizados). */
+/**
+   * Solo con la regla opcional de sede unica encendida: el backend pide
+   * confirmar el traslado. En multisede, que es lo normal, nunca se activa.
+   */
   readonly transferRequiredByServer = signal(false);
 
   readonly candidates = computed<Candidate[]>(() => {
@@ -62,10 +66,10 @@ export class AssignEvaluatorDialog {
       )
       .map((member) => ({
         member,
-        currentAssignment:
-          active.find(
-            (a) => a.membershipPublicId === member.publicId && a.sitePublicId !== siteId,
-          ) ?? null,
+        // Informativo: en que otras sedes evalua ya. No impide asignarlo aqui.
+        otherAssignments: active.filter(
+          (a) => a.membershipPublicId === member.publicId && a.sitePublicId !== siteId,
+        ),
       }));
   });
 
@@ -82,9 +86,7 @@ export class AssignEvaluatorDialog {
     () => this.candidates().find((c) => c.member.publicId === this.selectedId()) ?? null,
   );
 
-  readonly isTransfer = computed(
-    () => !!this.selected()?.currentAssignment || this.transferRequiredByServer(),
-  );
+  readonly isTransfer = computed(() => this.transferRequiredByServer());
 
   onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);

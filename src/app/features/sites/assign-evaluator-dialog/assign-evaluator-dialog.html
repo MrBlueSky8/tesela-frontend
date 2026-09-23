@@ -2,7 +2,7 @@
   <div class="modal-body">
     <p class="aed__intro">
       Asigna a <strong>{{ site().nombre }}</strong> a un miembro con Admin. de sede o un privilegio
-      de módulo. Cada evaluador tiene una sede operativa.
+      de módulo. Un evaluador puede estar asignado a varias sedes a la vez.
     </p>
 
     @if (error(); as message) {
@@ -61,21 +61,20 @@
                   {{ candidate.member.email }} · {{ privilegeLabels(candidate.member) }}
                 </span>
               </span>
-              @if (candidate.currentAssignment; as current) {
-                <span class="bdg bdg-amber">En {{ current.siteName }}</span>
+              @for (current of candidate.otherAssignments; track current.publicId) {
+                <span class="bdg bdg-blue">En {{ current.siteName }}</span>
               }
             </label>
           }
         </fieldset>
       }
 
-      @if (isTransfer() && selected(); as candidate) {
+      @if (isTransfer()) {
         <p class="alert alert-amber aed__alert" role="status">
           <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
           <span>
-            Se trasladará desde
-            <strong>{{ candidate.currentAssignment?.siteName ?? 'su sede actual' }}</strong
-            >: esa asignación quedará inactiva y se conservará en el historial.
+            Esta empresa trabaja con una sola sede por evaluador: al confirmar, su asignación
+            anterior quedará inactiva y se conservará en el historial.
           </span>
         </p>
       }

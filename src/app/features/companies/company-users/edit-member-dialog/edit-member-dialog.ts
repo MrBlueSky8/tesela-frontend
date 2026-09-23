@@ -73,8 +73,8 @@ export class EditMemberDialog implements OnInit {
   readonly catalog = input.required<CompanyPrivilegeResponse[]>();
   readonly canManageAdmins = input(false);
   readonly adminLimitReached = input(false);
-  /** Sede activa del miembro; se gestiona desde Sedes. */
-  readonly siteAssignment = input<SiteEvaluatorResponse | null>(null);
+  /** Sedes activas del miembro; se gestionan desde Sedes. Pueden ser varias. */
+  readonly siteAssignments = input<SiteEvaluatorResponse[]>([]);
 
   readonly saved = output<MemberSavedEvent>();
   readonly closed = output<void>();

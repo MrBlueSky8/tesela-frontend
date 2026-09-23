@@ -206,11 +206,17 @@
         }
       </div>
 
-      @if (siteAssignment(); as assignment) {
+      @if (siteAssignments().length) {
         <p class="cell-sub md__note">
           <i class="ti ti-map-pin" aria-hidden="true"></i>
-          Sede asignada:
-          <a [routerLink]="sectionLink('sedes', assignment.sitePublicId)">{{ assignment.siteName }}</a>
+          <span>
+            {{ siteAssignments().length === 1 ? 'Sede asignada:' : 'Sedes asignadas:' }}
+            @for (assignment of siteAssignments(); track assignment.publicId; let last = $last) {
+              <a [routerLink]="sectionLink('sedes', assignment.sitePublicId)">{{
+                assignment.siteName
+              }}</a>{{ last ? '' : ', ' }}
+            }
+          </span>
         </p>
       }
 
@@ -354,7 +360,7 @@
         [catalog]="catalog()"
         [canManageAdmins]="canManageAdmins()"
         [adminLimitReached]="adminLimitReached()"
-        [siteAssignment]="siteAssignment()"
+        [siteAssignments]="siteAssignments()"
         (saved)="onAccessSaved($event)"
         (closed)="editOpen.set(false)"
       />
