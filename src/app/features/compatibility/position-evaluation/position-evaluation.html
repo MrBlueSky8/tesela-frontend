@@ -1,0 +1,310 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando evaluación...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error pe__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm pe__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="../..">Volver a puestos</a>
+} @else {
+  <div class="pe">
+    <a class="pe__back" routerLink="../..">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Puestos
+    </a>
+
+    @if (notice(); as message) {
+      <p class="alert alert-success pe__alert" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </p>
+    }
+
+    @if (actionError(); as message) {
+      <p class="alert alert-error pe__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    @if (evaluation(); as current) {
+      <div class="ph-row">
+        <div>
+          <div class="ph-t">{{ current.positionNombre }}</div>
+          <div class="ph-s">Evaluación del puesto · {{ current.evaluadorNombre }}</div>
+        </div>
+
+        <div class="pe__badges">
+          @if (publicada()) {
+            <span class="bdg bdg-green">Evaluación vigente</span>
+          } @else {
+            <span class="bdg bdg-amber">Borrador</span>
+          }
+          <span class="bdg bdg-blue">{{ completas() }} de {{ areas().length }} áreas</span>
+        </div>
+      </div>
+
+      @if (publicada()) {
+        <div class="pe__actions pe__actions--top">
+          <a class="btn btn-teal btn-sm" routerLink="../resultados">
+            <i class="ti ti-chart-bar" aria-hidden="true"></i>
+            <span>Ver resultados de compatibilidad</span>
+          </a>
+        </div>
+      }
+
+      @if (!editable()) {
+        <p class="alert alert-amber pe__alert" role="status">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          <span>
+            @if (publicada()) {
+              Esta evaluación está publicada, así que es de solo lectura. Para cambiarla, abre una
+              evaluación nueva del puesto: la vigente quedará reemplazada y se conservará.
+            } @else {
+              Este borrador lo abrió {{ current.evaluadorNombre }}. Solo su autor o un
+              administrador general pueden modificarlo.
+            }
+          </span>
+        </p>
+      }
+
+      <!-- ================= Contexto del puesto ================= -->
+      <section class="fc" aria-labelledby="contexto-heading">
+        <div class="fc-hdr" id="contexto-heading">Contexto del puesto</div>
+
+        <p class="cell-sub pe__note">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          Estos datos no modifican el porcentaje de compatibilidad: dan contexto al informe y
+          activan las alertas de seguridad.
+        </p>
+
+        <form [formGroup]="contextForm" novalidate>
+          <div class="fg">
+            <label class="fl" for="pe-descripcion">Descripción del puesto de trabajo</label>
+            <textarea
+              class="fi pe__textarea"
+              id="pe-descripcion"
+              rows="4"
+              formControlName="descripcionLibre"
+              placeholder="Describe las tareas con el mayor detalle posible. Puedes pegar el perfil del cargo, la descripción de funciones o el contenido de una IPERC."
+            ></textarea>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="pe-curva">Curva de aprendizaje</label>
+            <select class="fsel" id="pe-curva" formControlName="curvaAprendizaje">
+              <option value="">Sin especificar</option>
+              @for (curva of fields()?.curvaAprendizaje ?? []; track curva) {
+                <option [value]="curva">{{ learningCurveLabels[curva] }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="fg">
+            <span class="fl">Modalidad y condiciones de jornada</span>
+            <div class="pe__chips">
+              @for (valor of fields()?.jornada ?? []; track valor) {
+                <label class="pe__chip" [class.pe__chip--on]="isJornada(valor)">
+                  <input
+                    class="chk-inp"
+                    type="checkbox"
+                    [checked]="isJornada(valor)"
+                    [disabled]="!editable()"
+                    (change)="toggleJornada(valor, $event)"
+                  />
+                  <span>{{ modalityLabels[valor] }}</span>
+                </label>
+              }
+            </div>
+            <span class="fi-hint">Sin marcas se entiende jornada diurna presencial.</span>
+          </div>
+
+          <div class="fg">
+            <span class="fl">Entorno físico</span>
+            <div class="pe__chips">
+              @for (valor of fields()?.entorno ?? []; track valor) {
+                <label class="pe__chip" [class.pe__chip--on]="isEntorno(valor)">
+                  <input
+                    class="chk-inp"
+                    type="checkbox"
+                    [checked]="isEntorno(valor)"
+                    [disabled]="!editable()"
+                    (change)="toggleEntorno(valor, $event)"
+                  />
+                  <span>{{ environmentLabels[valor] }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="pe-notas">Notas del evaluador</label>
+            <textarea class="fi" id="pe-notas" rows="2" formControlName="notasEvaluador"></textarea>
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= Las 30 áreas ================= -->
+      @for (grupo of grupos(); track grupo.nombre) {
+        <section class="fc" [attr.aria-label]="grupo.nombre">
+          <div class="fc-hdr pe__group-hdr">
+            <span>{{ grupo.nombre }}</span>
+            <span class="pe__group-count">
+              {{ completasDe(grupo.areas) }} de {{ grupo.areas.length }}
+            </span>
+          </div>
+
+          @for (area of grupo.areas; track area.publicId) {
+            <div class="pe__area" [class.pe__area--done]="nivelDe(area.orden) && criticidadDe(area.orden)">
+              <div class="pe__area-hdr">
+                <span class="pe__area-name">
+                  <span class="pe__area-num">{{ area.orden }}</span>
+                  {{ area.nombre }}
+                </span>
+
+                <button
+                  class="pe__area-help"
+                  type="button"
+                  [attr.aria-expanded]="expanded() === area.orden"
+                  (click)="toggleExpanded(area.orden)"
+                >
+                  <i class="ti ti-help-circle" aria-hidden="true"></i>
+                  {{ expanded() === area.orden ? 'Ocultar detalle' : 'Qué mide' }}
+                </button>
+              </div>
+
+              @if (expanded() === area.orden) {
+                <p class="pe__area-def">{{ area.definicionExigencia }}</p>
+              }
+
+              <div class="pe__levels" role="group" [attr.aria-label]="'Nivel de exigencia de ' + area.nombre">
+                @for (nivel of area.niveles; track nivel.nivel) {
+                  <button
+                    class="pe__level"
+                    type="button"
+                    [class.pe__level--on]="nivelDe(area.orden) === nivel.nivel"
+                    [disabled]="!editable()"
+                    [attr.aria-pressed]="nivelDe(area.orden) === nivel.nivel"
+                    [title]="nivel.exigencia"
+                    (click)="setNivel(area.orden, nivel.nivel)"
+                  >
+                    <span class="pe__level-code">E{{ nivel.nivel }}</span>
+                    <span class="pe__level-text">{{ nivel.exigencia }}</span>
+                  </button>
+                }
+              </div>
+
+              <div class="pe__criticality">
+                <label class="fl" [attr.for]="'pe-crit-' + area.orden">Criticidad</label>
+                <select
+                  class="fsel pe__crit-select"
+                  [id]="'pe-crit-' + area.orden"
+                  [value]="criticidadDe(area.orden) ?? ''"
+                  [disabled]="!editable()"
+                  (change)="setCriticidad(area.orden, $event)"
+                >
+                  <option value="">Elegir...</option>
+                  @for (nivel of fields()?.criticidad ?? []; track nivel) {
+                    <option [value]="nivel">{{ criticalityLabels[nivel] }}</option>
+                  }
+                </select>
+                @if (criticidadDe(area.orden); as elegida) {
+                  <span class="cell-sub pe__crit-hint">{{ criticalityHints[elegida] }}</span>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ================= Acciones ================= -->
+      @if (editable()) {
+        @if (confirmingPublish()) {
+          <div class="alert alert-amber pe__alert" role="alert">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            <span>
+              Al publicar, esta evaluación pasa a ser la vigente del puesto y se usará para
+              calcular la compatibilidad. Si ya había una, quedará reemplazada y se conservará como
+              historia.
+            </span>
+          </div>
+        }
+
+        <div class="pe__actions">
+          @if (confirmingPublish()) {
+            <button class="btn btn-ghost" type="button" (click)="cancelPublish()" [disabled]="isPublishing()">
+              Cancelar
+            </button>
+          }
+
+          <button
+            class="btn btn-outline"
+            type="button"
+            [disabled]="isSaving() || isPublishing()"
+            (click)="onSave()"
+          >
+            @if (isSaving()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Guardando...</span>
+            } @else {
+              <i class="ti ti-device-floppy" aria-hidden="true"></i>
+              <span>Guardar borrador</span>
+            }
+          </button>
+
+          <button
+            class="btn btn-teal"
+            type="button"
+            [disabled]="!puedePublicar() || isSaving() || isPublishing()"
+            (click)="onPublish()"
+          >
+            @if (isPublishing()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Publicando...</span>
+            } @else if (confirmingPublish()) {
+              <span>Sí, publicar</span>
+            } @else {
+              <i class="ti ti-check" aria-hidden="true"></i>
+              <span>Publicar evaluación</span>
+            }
+          </button>
+        </div>
+
+        @if (!puedePublicar()) {
+          <p class="cell-sub pe__note pe__note--right">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>
+            Faltan {{ areas().length - completas() }} áreas por completar con nivel y criticidad
+            para poder publicar.
+          </p>
+        }
+      }
+    } @else {
+      <div class="empty-state">
+        <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+        <p>
+          Este puesto todavía no tiene evaluación.<br />
+          Al abrirla podrás calificar las {{ areas().length }} áreas y completarla en varias
+          sesiones.
+        </p>
+        <button class="btn btn-teal" type="button" [disabled]="isSaving()" (click)="onStart()">
+          @if (isSaving()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+            <span>Abriendo...</span>
+          } @else {
+            <i class="ti ti-plus" aria-hidden="true"></i>
+            <span>Abrir evaluación</span>
+          }
+        </button>
+      </div>
+    }
+  </div>
+}

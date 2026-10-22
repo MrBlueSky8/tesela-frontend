@@ -1,0 +1,286 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando evaluación...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error ae__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm ae__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="..">Volver al postulante</a>
+} @else {
+  <div class="ae">
+    <a class="ae__back" routerLink="..">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Ficha del postulante
+    </a>
+
+    @if (notice(); as message) {
+      <p class="alert alert-success ae__alert" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </p>
+    }
+
+    @if (actionError(); as message) {
+      <p class="alert alert-error ae__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    @if (evaluation(); as current) {
+      <div class="ph-row">
+        <div>
+          <div class="ph-t">{{ current.applicantNombre }}</div>
+          <div class="ph-s">Evaluación de capacidades · {{ current.evaluadorNombre }}</div>
+        </div>
+
+        <div class="ae__badges">
+          @if (publicada()) {
+            <span class="bdg bdg-green">Evaluación vigente</span>
+          } @else {
+            <span class="bdg bdg-amber">Borrador</span>
+          }
+          <span class="bdg bdg-blue">{{ completas() }} de {{ areas().length }} áreas</span>
+        </div>
+      </div>
+
+      @if (publicada()) {
+        <div class="ae__actions ae__actions--top">
+          <a class="btn btn-teal btn-sm" routerLink="../resultados">
+            <i class="ti ti-chart-bar" aria-hidden="true"></i>
+            <span>Ver resultados de compatibilidad</span>
+          </a>
+        </div>
+      }
+
+      @if (!editable()) {
+        <p class="alert alert-amber ae__alert" role="status">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          <span>
+            @if (publicada()) {
+              Esta evaluación está publicada, así que es de solo lectura. Para cambiarla, abre una
+              evaluación nueva: la vigente quedará reemplazada y se conservará.
+            } @else {
+              Este borrador lo abrió {{ current.evaluadorNombre }}. Solo su autor o un
+              administrador general pueden modificarlo.
+            }
+          </span>
+        </p>
+      }
+
+      <!-- ================= Campos complementarios A-D ================= -->
+      <section class="fc" aria-labelledby="complementarios-heading">
+        <div class="fc-hdr" id="complementarios-heading">Observación general de la persona</div>
+
+        <p class="cell-sub ae__note">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          Estos datos no modifican el porcentaje de compatibilidad: dan contexto al informe y
+          activan las alertas de acompañamiento.
+        </p>
+
+        <form [formGroup]="form" novalidate>
+          <div class="ae__grid">
+            <div class="fg">
+              <label class="fl" for="ae-autocontrol">Autocontrol y regulación conductual</label>
+              <select class="fsel" id="ae-autocontrol" formControlName="autocontrol">
+                <option value="">Sin especificar</option>
+                @for (nivel of escala; track nivel) {
+                  <option [value]="nivel">{{ scaleLabels[nivel] }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="fg">
+              <label class="fl" for="ae-adaptacion">Capacidad de adaptación</label>
+              <select class="fsel" id="ae-adaptacion" formControlName="adaptacion">
+                <option value="">Sin especificar</option>
+                @for (nivel of escala; track nivel) {
+                  <option [value]="nivel">{{ scaleLabels[nivel] }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="fg">
+              <label class="fl" for="ae-motivacion">Motivación e interés laboral</label>
+              <select class="fsel" id="ae-motivacion" formControlName="motivacion">
+                <option value="">Sin especificar</option>
+                @for (nivel of escala; track nivel) {
+                  <option [value]="nivel">{{ scaleLabels[nivel] }}</option>
+                }
+              </select>
+              <span class="fi-hint">Un nivel bajo activa una alerta de acompañamiento.</span>
+            </div>
+
+            <div class="fg">
+              <label class="fl" for="ae-salud">Estado de salud general</label>
+              <select class="fsel" id="ae-salud" formControlName="estadoSalud">
+                <option value="">Sin especificar</option>
+                @for (estado of healthValues; track estado) {
+                  <option [value]="estado">{{ healthLabels[estado] }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="ae-detalle-salud">Detalle del estado de salud</label>
+            <textarea
+              class="fi ae__textarea"
+              id="ae-detalle-salud"
+              rows="3"
+              formControlName="detalleSalud"
+              placeholder="Restricciones, pausas necesarias, tratamientos en curso u otra condición relevante para el puesto."
+            ></textarea>
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="ae-observaciones">Observaciones del evaluador</label>
+            <textarea class="fi" id="ae-observaciones" rows="2" formControlName="observacionesEvaluador"></textarea>
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= Las 30 áreas ================= -->
+      @for (grupo of grupos(); track grupo.nombre) {
+        <section class="fc" [attr.aria-label]="grupo.nombre">
+          <div class="fc-hdr ae__group-hdr">
+            <span>{{ grupo.nombre }}</span>
+            <span class="ae__group-count">
+              {{ completasDe(grupo.areas) }} de {{ grupo.areas.length }}
+            </span>
+          </div>
+
+          @for (area of grupo.areas; track area.publicId) {
+            <div class="ae__area" [class.ae__area--done]="nivelDe(area.orden)">
+              <div class="ae__area-hdr">
+                <span class="ae__area-name">
+                  <span class="ae__area-num">{{ area.orden }}</span>
+                  {{ area.nombre }}
+                </span>
+
+                <button
+                  class="ae__area-help"
+                  type="button"
+                  [attr.aria-expanded]="expanded() === area.orden"
+                  (click)="toggleExpanded(area.orden)"
+                >
+                  <i class="ti ti-help-circle" aria-hidden="true"></i>
+                  {{ expanded() === area.orden ? 'Ocultar detalle' : 'Qué mide' }}
+                </button>
+              </div>
+
+              @if (expanded() === area.orden) {
+                <p class="ae__area-def">{{ area.definicionCapacidad }}</p>
+              }
+
+              <div class="ae__levels" role="group" [attr.aria-label]="'Nivel de capacidad en ' + area.nombre">
+                @for (nivel of area.niveles; track nivel.nivel) {
+                  <button
+                    class="ae__level"
+                    type="button"
+                    [class.ae__level--on]="nivelDe(area.orden) === nivel.nivel"
+                    [disabled]="!editable()"
+                    [attr.aria-pressed]="nivelDe(area.orden) === nivel.nivel"
+                    [title]="nivel.capacidad"
+                    (click)="setNivel(area.orden, nivel.nivel)"
+                  >
+                    <span class="ae__level-code">C{{ nivel.nivel }}</span>
+                    <span class="ae__level-text">{{ nivel.capacidad }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ================= Acciones ================= -->
+      @if (editable()) {
+        @if (confirmingPublish()) {
+          <div class="alert alert-amber ae__alert" role="alert">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            <span>
+              Al publicar, esta evaluación pasa a ser la vigente de la persona y se usará para
+              calcular la compatibilidad. Si ya había una, quedará reemplazada y se conservará como
+              historia.
+            </span>
+          </div>
+        }
+
+        <div class="ae__actions">
+          @if (confirmingPublish()) {
+            <button class="btn btn-ghost" type="button" (click)="cancelPublish()" [disabled]="isPublishing()">
+              Cancelar
+            </button>
+          }
+
+          <button
+            class="btn btn-outline"
+            type="button"
+            [disabled]="isSaving() || isPublishing()"
+            (click)="onSave()"
+          >
+            @if (isSaving()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Guardando...</span>
+            } @else {
+              <i class="ti ti-device-floppy" aria-hidden="true"></i>
+              <span>Guardar borrador</span>
+            }
+          </button>
+
+          <button
+            class="btn btn-teal"
+            type="button"
+            [disabled]="!puedePublicar() || isSaving() || isPublishing()"
+            (click)="onPublish()"
+          >
+            @if (isPublishing()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Publicando...</span>
+            } @else if (confirmingPublish()) {
+              <span>Sí, publicar</span>
+            } @else {
+              <i class="ti ti-check" aria-hidden="true"></i>
+              <span>Publicar evaluación</span>
+            }
+          </button>
+        </div>
+
+        @if (!puedePublicar()) {
+          <p class="cell-sub ae__note ae__note--right">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>
+            Faltan {{ areas().length - completas() }} áreas por puntuar para poder publicar.
+          </p>
+        }
+      }
+    } @else {
+      <div class="empty-state">
+        <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+        <p>
+          Esta persona todavía no tiene evaluación en la empresa.<br />
+          Al abrirla podrás puntuar las {{ areas().length }} áreas y completarla en varias
+          sesiones.
+        </p>
+        <button class="btn btn-teal" type="button" [disabled]="isSaving()" (click)="onStart()">
+          @if (isSaving()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+            <span>Abriendo...</span>
+          } @else {
+            <i class="ti ti-plus" aria-hidden="true"></i>
+            <span>Abrir evaluación</span>
+          }
+        </button>
+      </div>
+    }
+  </div>
+}

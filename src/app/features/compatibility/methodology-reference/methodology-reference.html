@@ -1,0 +1,176 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando metodología...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error mr__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm mr__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else if (reference(); as current) {
+  <div class="ph-row">
+    <div>
+      <div class="ph-t">Metodología</div>
+      <div class="ph-s">
+        Cómo calcula ADAPTIA la compatibilidad. Esta página se genera desde el propio catálogo del
+        sistema, así que refleja lo que se está aplicando ahora mismo.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Versiones ================= -->
+  <section class="fc" aria-labelledby="mr-versiones">
+    <div class="fc-hdr" id="mr-versiones">Versiones vigentes</div>
+
+    @for (version of current.versiones; track version.tipo) {
+      <div class="list-row mr__version">
+        <span class="cell-name">{{ versionLabel(version.tipo) }}</span>
+        <code class="mr__code">{{ version.codigo }}</code>
+        <span class="cell-sub mr__desc">{{ version.descripcion }}</span>
+      </div>
+    }
+  </section>
+
+  <!-- ================= Grados ================= -->
+  <section class="fc" aria-labelledby="mr-grados">
+    <div class="fc-hdr" id="mr-grados">Grados por brecha</div>
+
+    <p class="cell-sub mr__note">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      La brecha es la exigencia del puesto menos la capacidad: <strong>E(n) − C(n)</strong>. Cada
+      grado aporta su valor al promedio y, si el área es crítica, impone un techo al resultado.
+    </p>
+
+    <div class="list-tbl">
+      <div class="list-hdr mr__grid" aria-hidden="true">
+        <span>Grado</span>
+        <span>Brecha</span>
+        <span>Valor</span>
+        <span>Techo si es crítica</span>
+      </div>
+      @for (grado of current.grados; track grado.numero) {
+        <div class="list-row mr__grid">
+          <span class="cell-name">{{ grado.numero }}. {{ grado.etiqueta }}</span>
+          <span>{{ grado.brecha }}</span>
+          <span><strong>{{ grado.valor }}</strong></span>
+          <span>{{ grado.techo === null ? '—' : grado.techo + ' %' }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= Bolsas ================= -->
+  <section class="fc" aria-labelledby="mr-bolsas">
+    <div class="fc-hdr" id="mr-bolsas">Bolsas de criticidad</div>
+
+    <p class="cell-sub mr__note">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      Los pesos valen cuando las tres bolsas tienen áreas. Si alguna queda vacía no penaliza: su
+      peso se reparte entre las activas.
+    </p>
+
+    <div class="list-tbl">
+      <div class="list-hdr mr__grid" aria-hidden="true">
+        <span>Bolsa</span>
+        <span>Peso base</span>
+        <span>Promedio</span>
+        <span>Veto</span>
+      </div>
+      @for (bolsa of current.bolsas; track bolsa.criticidad) {
+        <div class="list-row mr__grid">
+          <span class="cell-name">{{ criticalityLabel(bolsa.criticidad) }}</span>
+          <span>{{ bolsa.pesoBase * 100 }} %</span>
+          <span>{{ bolsa.promedio }}</span>
+          <span>
+            @if (bolsa.veta) {
+              <span class="bdg bdg-red">Un área incompatible veta</span>
+            } @else {
+              —
+            }
+          </span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= Categorías ================= -->
+  <section class="fc" aria-labelledby="mr-categorias">
+    <div class="fc-hdr" id="mr-categorias">Categorías del resultado</div>
+
+    <div class="list-tbl">
+      @for (categoria of current.categorias; track categoria.codigo) {
+        <div class="list-row mr__categoria">
+          <span class="cell-name">{{ categoria.etiqueta }}</span>
+          <span class="cell-sub">{{ categoria.intervalo }}</span>
+        </div>
+      }
+    </div>
+
+    <p class="cell-sub mr__note">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      Los intervalos se evalúan sobre el resultado ya redondeado a dos decimales, una sola vez y
+      después de aplicar el techo.
+    </p>
+  </section>
+
+  <!-- ================= Áreas ================= -->
+  <section class="fc" aria-labelledby="mr-areas">
+    <div class="fc-hdr mr__hdr" id="mr-areas">
+      <span>Áreas de evaluación</span>
+      <button class="mr__toggle" type="button" [attr.aria-expanded]="expandedAreas()" (click)="toggleAreas()">
+        {{ expandedAreas() ? 'Ocultar' : 'Ver las ' + areas().length }}
+      </button>
+    </div>
+
+    @if (expandedAreas()) {
+      @for (area of areas(); track area.publicId) {
+        <div class="list-row mr__area">
+          <span class="mr__area-num">{{ area.orden }}</span>
+          <span class="mr__area-body">
+            <span class="cell-name">{{ area.nombre }}</span>
+            <span class="cell-sub">{{ area.grupo }}</span>
+            @if (area.definicionExigencia) {
+              <span class="cell-sub mr__area-def">{{ area.definicionExigencia }}</span>
+            }
+          </span>
+        </div>
+      }
+    }
+  </section>
+
+  <!-- ================= Alertas ================= -->
+  <section class="fc" aria-labelledby="mr-alertas">
+    <div class="fc-hdr mr__hdr" id="mr-alertas">
+      <span>Catálogo de alertas</span>
+      <button class="mr__toggle" type="button" [attr.aria-expanded]="expandedAlerts()" (click)="toggleAlerts()">
+        {{ expandedAlerts() ? 'Ocultar' : 'Ver las ' + current.alertas.length }}
+      </button>
+    </div>
+
+    <p class="cell-sub mr__note">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      Las alertas no modifican el porcentaje: señalan combinaciones que requieren atención. Las
+      que dependen de datos de la persona solo se evalúan en el cruce individual.
+    </p>
+
+    @if (expandedAlerts()) {
+      @for (alerta of current.alertas; track alerta.codigo) {
+        <div class="mr__alerta">
+          <div class="mr__alerta-hdr">
+            <span class="cell-name">{{ alerta.codigo }}</span>
+            <span class="bdg {{ alertTypeBadges[alerta.tipo] }}">{{ alertTypeLabels[alerta.tipo] }}</span>
+            <span class="cell-sub">{{ alerta.seccion }}</span>
+            @if (!alerta.evaluaModoA) {
+              <span class="bdg bdg-gray" title="Depende de datos de la persona">Solo individual</span>
+            }
+          </div>
+          <p class="mr__alerta-msg">{{ alerta.mensaje }}</p>
+        </div>
+      }
+    }
+  </section>
+}

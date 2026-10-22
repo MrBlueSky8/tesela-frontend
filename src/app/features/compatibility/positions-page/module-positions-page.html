@@ -1,0 +1,133 @@
+<div class="ph-row">
+  <div>
+    <div class="ph-t">Puestos</div>
+    <div class="ph-s">
+      Catálogo de la empresa en modo consulta. Evalúa un puesto para poder cruzarlo con los
+      postulantes; crearlos o editarlos se hace desde Gestión.
+    </div>
+  </div>
+</div>
+
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando catálogo...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error mp__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm mp__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else {
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().total }}</div>
+      <div class="stat-lbl">Puestos activos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().evaluados }}</div>
+      <div class="stat-lbl">Con evaluación vigente</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().borradores }}</div>
+      <div class="stat-lbl">En borrador</div>
+    </div>
+  </div>
+
+  @if (activos().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-briefcase" aria-hidden="true"></i>
+      <p>
+        La empresa todavía no tiene puestos activos en su catálogo.<br />
+        Un administrador general debe registrarlos desde Gestión → Puestos.
+      </p>
+    </div>
+  } @else {
+    <div class="search-row mp__toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input
+          class="search-inp"
+          type="search"
+          placeholder="Buscar puesto o área..."
+          aria-label="Buscar puesto"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <select
+        class="fsel mp__filter"
+        aria-label="Filtrar por estado de evaluación"
+        [value]="filter()"
+        (change)="onFilter($event)"
+      >
+        @for (option of filters; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <p class="mp__count" role="status">
+      {{ filtered().length }} {{ filtered().length === 1 ? 'puesto' : 'puestos' }}
+    </p>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <p>Ningún puesto coincide con los filtros.</p>
+      </div>
+    } @else {
+      <div class="list-tbl">
+        <div class="list-hdr mp__grid" aria-hidden="true">
+          <span>Puesto</span>
+          <span>Evaluación</span>
+          <span></span>
+        </div>
+
+        <ul class="mp__list">
+          @for (position of filtered(); track position.publicId) {
+            <li>
+              <div class="list-row mp__grid">
+                <span class="mp__identity">
+                  <span class="cell-name">{{ position.nombre }}</span>
+                  <span class="cell-sub">{{ position.departmentName }}</span>
+                </span>
+
+                <span>
+                  @if (position.evaluado) {
+                    <span class="bdg bdg-green">
+                      <i class="ti ti-circle-check" aria-hidden="true"></i>
+                      {{ estadoLabel(position) }}
+                    </span>
+                  } @else if (position.enBorrador) {
+                    <span class="bdg bdg-amber">{{ estadoLabel(position) }}</span>
+                  } @else {
+                    <span class="bdg bdg-gray">{{ estadoLabel(position) }}</span>
+                  }
+                </span>
+
+                <span class="mp__row-actions">
+                  <a class="btn btn-outline btn-sm" [routerLink]="[position.publicId, 'evaluacion']">
+                    <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+                    {{ position.evaluado || position.enBorrador ? 'Ver evaluación' : 'Evaluar' }}
+                  </a>
+
+                  @if (position.evaluado) {
+                    <a class="btn btn-teal btn-sm" [routerLink]="[position.publicId, 'resultados']">
+                      <i class="ti ti-chart-bar" aria-hidden="true"></i>
+                      Resultados
+                    </a>
+                  }
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+}

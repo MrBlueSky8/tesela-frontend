@@ -1,0 +1,296 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando postulante...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error ad__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm ad__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="..">Volver a postulantes</a>
+} @else if (applicant(); as current) {
+  <div class="ad">
+    <a class="ad__back" routerLink="..">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Postulantes
+    </a>
+
+    <div class="ph-row">
+      <div>
+        <div class="ph-t">{{ fullName() }}</div>
+        <div class="ph-s">{{ documentLabel() }} {{ current.documentNumber }}</div>
+      </div>
+
+      <div class="ad__badges">
+        @if (current.estado === 'ACTIVE') {
+          <span class="bdg bdg-green">Activo</span>
+        } @else {
+          <span class="bdg bdg-gray">Inactivo</span>
+        }
+        @if (current.fichaEstado === 'VIGENTE') {
+          <span class="bdg bdg-blue">Evaluación vigente</span>
+        } @else {
+          <span class="bdg bdg-amber">Ficha en borrador</span>
+        }
+      </div>
+    </div>
+
+    @if (saveSuccess(); as message) {
+      <p class="alert alert-success ad__alert" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button
+          class="alert-close"
+          type="button"
+          (click)="saveSuccess.set(null)"
+          aria-label="Cerrar aviso"
+        >
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </p>
+    }
+
+    @if (saveError(); as message) {
+      <p class="alert alert-error ad__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <!-- ================= Identidad ================= -->
+    <section class="fc" aria-labelledby="identity-heading">
+      <div class="fc-hdr" id="identity-heading">Identidad</div>
+
+      <div class="det-grid">
+        <div>
+          <div class="det-lbl">Nombres</div>
+          <div class="det-val">{{ current.nombres }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">Apellidos</div>
+          <div class="det-val">{{ current.apellidos }}</div>
+        </div>
+        <div>
+          <div class="det-lbl">{{ documentLabel() }}</div>
+          <div class="det-val">{{ current.documentNumber }}</div>
+        </div>
+      </div>
+
+      <p class="cell-sub ad__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        Nombres, apellidos y documento identifican a la persona en toda la plataforma. Si tienen un
+        error, solicita la corrección al soporte de Fundades.
+      </p>
+    </section>
+
+    <!-- ================= Datos del postulante ================= -->
+    <section class="fc" aria-labelledby="contact-heading">
+      <div class="fc-hdr" id="contact-heading">Datos del postulante</div>
+
+      <p class="cell-sub ad__note ad__note--lead">
+        <i class="ti ti-users" aria-hidden="true"></i>
+        El teléfono, la dirección, la fecha de nacimiento y el género pertenecen a la persona: el
+        cambio se verá también en sus otras fichas y cuentas.
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="ad-email">Correo</label>
+            <input
+              class="fi"
+              id="ad-email"
+              type="email"
+              formControlName="email"
+              [class.invalid]="fieldError('email')"
+            />
+            @if (fieldError('email'); as message) {
+              <span class="fi-err">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="ad-phone">Teléfono</label>
+            <input
+              class="fi"
+              id="ad-phone"
+              type="tel"
+              formControlName="telefono"
+              [class.invalid]="fieldError('telefono')"
+            />
+            @if (fieldError('telefono'); as message) {
+              <span class="fi-err">{{ message }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="ad-cargo">Cargo actual</label>
+            <input class="fi" id="ad-cargo" type="text" formControlName="cargoActual" />
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="ad-area">Área o departamento</label>
+            <input class="fi" id="ad-area" type="text" formControlName="areaDepartamento" />
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="ad-address">Dirección</label>
+            <input
+              class="fi"
+              id="ad-address"
+              type="text"
+              maxlength="120"
+              formControlName="direccion"
+              [class.invalid]="fieldError('direccion')"
+            />
+            @if (fieldError('direccion'); as message) {
+              <span class="fi-err">{{ message }}</span>
+            }
+          </div>
+
+          <div class="fg">
+            <label class="fl" for="ad-birth">Fecha de nacimiento</label>
+            <input class="fi" id="ad-birth" type="date" formControlName="fechaNacimiento" />
+          </div>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl" for="ad-gender">Género</label>
+            <select class="fsel" id="ad-gender" formControlName="genero">
+              <option value="" disabled>Sin registrar</option>
+              @for (option of genderOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="ad__actions">
+          <button
+            class="btn btn-ghost"
+            type="button"
+            (click)="onDiscard()"
+            [disabled]="isSaving() || form.pristine"
+          >
+            Descartar
+          </button>
+          <button class="btn btn-primary" type="submit" [disabled]="isSaving() || form.pristine">
+            @if (isSaving()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Guardando...</span>
+            } @else {
+              <i class="ti ti-device-floppy" aria-hidden="true"></i>
+              <span>Guardar cambios</span>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================= Perfiles declarados ================= -->
+    <section class="fc" aria-labelledby="profiles-heading">
+      <div class="fc-hdr" id="profiles-heading">Perfiles de discapacidad declarados</div>
+
+      <p class="cell-sub ad__note ad__note--lead">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        Sin perfil declarado, el informe de compatibilidad no evaluará las alertas por perfil y lo
+        advertirá expresamente.
+      </p>
+
+      <div class="ad__profile-grid">
+        @for (profile of profiles(); track profile.publicId) {
+          <label class="ad__profile" [class.ad__profile--on]="isProfileSelected(profile.publicId)">
+            <input
+              class="chk-inp"
+              type="checkbox"
+              [checked]="isProfileSelected(profile.publicId)"
+              (change)="toggleProfile(profile.publicId, $event)"
+            />
+            <span>{{ profile.nombre }}</span>
+          </label>
+        }
+      </div>
+
+      <div class="ad__actions">
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="isSavingProfiles() || !profilesChanged()"
+          (click)="onSaveProfiles()"
+        >
+          @if (isSavingProfiles()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+            <span>Guardando...</span>
+          } @else {
+            <i class="ti ti-device-floppy" aria-hidden="true"></i>
+            <span>Guardar perfiles</span>
+          }
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= Evaluación ================= -->
+    <section class="fc" aria-labelledby="evaluation-heading">
+      <div class="fc-hdr" id="evaluation-heading">Evaluación de capacidades</div>
+
+      <p class="cell-sub ad__note ad__note--lead">
+        <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+        @switch (current.fichaEstado) {
+          @case ('VIGENTE') {
+            La evaluación de las 30 áreas está publicada y lista para cruzarse con los puestos.
+          }
+          @default {
+            La evaluación de las 30 áreas está en borrador. Puedes completarla en varias sesiones;
+            al publicarla queda disponible para el cruce con los puestos.
+          }
+        }
+      </p>
+
+      <div class="ad__actions">
+        <a class="btn btn-outline" routerLink="evaluacion">
+          <i class="ti ti-list-check" aria-hidden="true"></i>
+          <span>
+            @if (current.fichaEstado === 'VIGENTE') {
+              Ver evaluación de capacidades
+            } @else {
+              Evaluar capacidades
+            }
+          </span>
+        </a>
+
+        @if (current.fichaEstado === 'VIGENTE') {
+          <a class="btn btn-teal" routerLink="resultados">
+            <i class="ti ti-chart-bar" aria-hidden="true"></i>
+            <span>Ver puestos compatibles</span>
+          </a>
+        }
+      </div>
+
+      <div class="ad__actions">
+        <button
+          class="btn btn-outline"
+          type="button"
+          [disabled]="isSaving()"
+          (click)="onToggleEstado()"
+        >
+          @if (current.estado === 'ACTIVE') {
+            <i class="ti ti-user-off" aria-hidden="true"></i>
+            <span>Marcar como inactivo</span>
+          } @else {
+            <i class="ti ti-user-check" aria-hidden="true"></i>
+            <span>Reactivar postulante</span>
+          }
+        </button>
+      </div>
+    </section>
+  </div>
+}

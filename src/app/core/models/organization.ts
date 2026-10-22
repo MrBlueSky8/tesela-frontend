@@ -70,6 +70,8 @@ export interface PositionResponse {
   condiciones: JobConditionCode[];
   /** Tiene evaluacion vigente en el Modulo 1. */
   evaluado: boolean;
+  /** Hay una evaluación en borrador abierta para este puesto. */
+  enBorrador: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,0 +1,83 @@
+.aad__step {
+  margin: 0 0 12px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.aad__alert,
+.aad__notice {
+  margin-bottom: 14px;
+}
+
+.aad__lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+
+.aad__person {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-surface-alt);
+}
+
+.aad__person-doc {
+  margin-bottom: 2px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+}
+
+.aad__form {
+  margin-bottom: 14px;
+}
+
+.aad__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.aad__profiles {
+  margin-top: 4px;
+}
+
+.aad__profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.aad__profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.aad__profile--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.aad__profile:focus-within {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+@media (max-width: 640px) {
+  .aad__form {
+    grid-template-columns: 1fr;
+  }
+}

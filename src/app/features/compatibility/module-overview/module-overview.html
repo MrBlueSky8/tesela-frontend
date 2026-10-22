@@ -1,0 +1,145 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando resumen...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error mo__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm mo__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else if (stats(); as current) {
+  @if (notice(); as message) {
+    <p class="alert alert-success mo__alert" role="status">
+      <i class="ti ti-circle-check" aria-hidden="true"></i>
+      <span>{{ message }}</span>
+      <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </p>
+  }
+
+  @if (actionError(); as message) {
+    <p class="alert alert-error mo__alert" role="alert">
+      <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      <span>{{ message }}</span>
+    </p>
+  }
+
+  <!-- ================= Cobertura ================= -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val">{{ current.puestosEvaluados }} / {{ current.puestosActivos }}</div>
+      <div class="stat-lbl">Puestos evaluados ({{ cobertura() }} %)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ current.postulantesEvaluados }} / {{ current.postulantes }}</div>
+      <div class="stat-lbl">Personas con evaluación vigente</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ current.crucesGenericos + current.crucesPersonales }}</div>
+      <div class="stat-lbl">Cruces calculados</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ current.alertasSeguridad }}</div>
+      <div class="stat-lbl">Alertas de seguridad</div>
+    </div>
+  </div>
+
+  <!-- ================= Desactualizados ================= -->
+  @if (current.crucesDesactualizados > 0) {
+    <div class="alert alert-amber mo__alert" role="status">
+      <i class="ti ti-history" aria-hidden="true"></i>
+      <span>
+        {{ current.crucesDesactualizados }} cruces se calcularon con una versión anterior de la
+        metodología o de una evaluación ya reemplazada. Recalcularlos los pone al día.
+        @if (restantes(); as pendientes) {
+          <strong>Quedan {{ pendientes }} puestos por procesar.</strong>
+        }
+      </span>
+      <button
+        class="btn btn-outline btn-sm mo__retry"
+        type="button"
+        [disabled]="isRecalculating()"
+        (click)="onRecalculate()"
+      >
+        @if (isRecalculating()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+          <span>Recalculando...</span>
+        } @else {
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+          <span>Recalcular</span>
+        }
+      </button>
+    </div>
+  }
+
+  <!-- ================= Distribución ================= -->
+  @for (bloque of [
+    { titulo: 'Cruces con perfiles de referencia', barras: modoA(), total: current.crucesGenericos },
+    { titulo: 'Cruces con personas evaluadas', barras: modoB(), total: current.crucesPersonales }
+  ]; track bloque.titulo) {
+    <section class="fc" [attr.aria-label]="bloque.titulo">
+      <div class="fc-hdr mo__hdr">
+        <span>{{ bloque.titulo }}</span>
+        <span class="mo__count">{{ bloque.total }}</span>
+      </div>
+
+      @if (bloque.barras.length === 0) {
+        <p class="cell-sub mo__note">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          Todavía no hay cruces de este tipo.
+        </p>
+      } @else {
+        @for (barra of bloque.barras; track barra.categoria) {
+          <div class="mo__bar-row">
+            <span class="bdg {{ barra.badge }}">{{ barra.etiqueta }}</span>
+            <span class="mo__bar" aria-hidden="true">
+              <span class="mo__bar-fill mo__bar-fill--{{ barra.categoria }}"
+                    [style.width.%]="barra.porcentaje"></span>
+            </span>
+            <span class="mo__bar-val">{{ barra.total }} · {{ barra.porcentaje }} %</span>
+          </div>
+        }
+      }
+    </section>
+  }
+
+  <!-- ================= Pendientes ================= -->
+  <section class="fc" aria-labelledby="mo-pendientes">
+    <div class="fc-hdr" id="mo-pendientes">Puestos sin evaluación publicada</div>
+
+    @if (current.puestosSinEvaluar.length === 0) {
+      <p class="cell-sub mo__note">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        Todos los puestos activos tienen evaluación vigente.
+      </p>
+    } @else {
+      <p class="cell-sub mo__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        Los rankings solo incluyen puestos con evaluación publicada: hasta que estos se evalúen,
+        la foto está incompleta.
+      </p>
+
+      <ul class="mo__pending">
+        @for (position of current.puestosSinEvaluar; track position.publicId) {
+          <li class="list-row mo__pending-row">
+            <span class="cell-name">{{ position.nombre }}</span>
+            @if (position.enBorrador) {
+              <span class="bdg bdg-amber">En borrador</span>
+            } @else {
+              <span class="bdg bdg-gray">Sin evaluar</span>
+            }
+            <a class="btn btn-outline btn-sm" [routerLink]="['../puestos', position.publicId, 'evaluacion']">
+              <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+              {{ position.enBorrador ? 'Continuar' : 'Evaluar' }}
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

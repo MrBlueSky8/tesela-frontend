@@ -1,0 +1,172 @@
+<div class="ph-row">
+  <div>
+    <div class="ph-t">Postulantes</div>
+    <div class="ph-s">
+      Personas que esta empresa evalúa en el Módulo 1. Para registrar a alguien necesitas su
+      documento de identidad.
+    </div>
+  </div>
+
+  <button
+    class="btn btn-teal btn-sm"
+    type="button"
+    [disabled]="isLoading() || !!loadError()"
+    (click)="addOpen.set(true)"
+  >
+    <i class="ti ti-user-plus" aria-hidden="true"></i>
+    Registrar postulante
+  </button>
+</div>
+
+@if (notice(); as message) {
+  <p class="alert alert-success ap__alert" role="status">
+    <i class="ti ti-circle-check" aria-hidden="true"></i>
+    <span>{{ message }}</span>
+    <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+  </p>
+}
+
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando postulantes...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error ap__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm ap__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else {
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().total }}</div>
+      <div class="stat-lbl">Postulantes activos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().evaluados }}</div>
+      <div class="stat-lbl">Con evaluación vigente</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ stats().pendientes }}</div>
+      <div class="stat-lbl">Pendientes de evaluar</div>
+    </div>
+  </div>
+
+  @if (applicants().length === 0) {
+    <div class="empty-state">
+      <i class="ti ti-users" aria-hidden="true"></i>
+      <p>
+        Aún no hay postulantes en esta empresa.<br />
+        Registra al primero para poder evaluarlo y cruzarlo con los puestos del catálogo.
+      </p>
+      <button class="btn btn-teal" type="button" (click)="addOpen.set(true)">
+        <i class="ti ti-user-plus" aria-hidden="true"></i>
+        Registrar postulante
+      </button>
+    </div>
+  } @else {
+    <div class="search-row ap__toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input
+          class="search-inp"
+          type="search"
+          placeholder="Buscar por nombre, documento o cargo..."
+          aria-label="Buscar postulante"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <select
+        class="fsel ap__filter"
+        aria-label="Filtrar por estado"
+        [value]="statusFilter()"
+        (change)="onFilter($event)"
+      >
+        @for (filter of filters; track filter.value) {
+          <option [value]="filter.value">{{ filter.label }}</option>
+        }
+      </select>
+    </div>
+
+    <p class="ap__count" role="status">
+      {{ filtered().length }} {{ filtered().length === 1 ? 'postulante' : 'postulantes' }}
+    </p>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <p>Ningún postulante coincide con la búsqueda.</p>
+      </div>
+    } @else {
+      <div class="list-tbl">
+        <div class="list-hdr ap__grid" aria-hidden="true">
+          <span>Postulante</span>
+          <span>Perfiles declarados</span>
+          <span>Evaluación</span>
+          <span></span>
+        </div>
+
+        <ul class="ap__list">
+          @for (applicant of filtered(); track applicant.publicId) {
+            <li>
+              <a class="list-row ap__grid ap__row" [routerLink]="[applicant.publicId]">
+                <span class="ap__identity">
+                  <span class="cell-name">
+                    {{ applicant.nombres }} {{ applicant.apellidos }}
+                    @if (applicant.estado === 'INACTIVE') {
+                      <span class="bdg bdg-gray">Inactivo</span>
+                    }
+                  </span>
+                  <span class="cell-sub">
+                    {{ documentLabel(applicant) }}
+                    @if (applicant.cargoActual) {
+                      · {{ applicant.cargoActual }}
+                    }
+                  </span>
+                </span>
+
+                <span class="ap__profiles">
+                  @for (perfil of applicant.perfiles; track perfil) {
+                    <span class="bdg bdg-blue">{{ perfil }}</span>
+                  } @empty {
+                    <span class="cell-meta">Sin perfiles declarados</span>
+                  }
+                </span>
+
+                <span>
+                  @if (applicant.fichaEstado === 'VIGENTE') {
+                    <span class="bdg bdg-green">
+                      <i class="ti ti-circle-check" aria-hidden="true"></i>
+                      {{ fichaLabel(applicant) }}
+                    </span>
+                  } @else {
+                    <span class="bdg bdg-amber">{{ fichaLabel(applicant) }}</span>
+                  }
+                </span>
+
+                <span class="ap__chevron" aria-hidden="true">
+                  <i class="ti ti-chevron-right"></i>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+}
+
+@if (addOpen() && company(); as current) {
+  <app-add-applicant-dialog
+    [companyPublicId]="current.publicId"
+    (added)="onAdded($event)"
+    (closed)="addOpen.set(false)"
+  />
+}

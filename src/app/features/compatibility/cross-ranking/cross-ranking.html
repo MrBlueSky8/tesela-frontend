@@ -1,0 +1,83 @@
+@if (crosses().length === 0) {
+  <div class="empty-state">
+    <i class="ti ti-chart-bar" aria-hidden="true"></i>
+    <p>{{ emptyText() }}</p>
+  </div>
+} @else {
+  <div class="list-tbl">
+    <div class="list-hdr cr__grid" aria-hidden="true">
+      <span>#</span>
+      <span>{{ columnLabel() }}</span>
+      <span>Compatibilidad</span>
+      <span></span>
+    </div>
+
+    <ul class="cr__list">
+      @for (cross of crosses(); track cross.publicId; let i = $index) {
+        <li>
+          <div class="list-row cr__grid">
+            <span class="cr__rank">{{ i + 1 }}</span>
+
+            <span class="cr__identity">
+              <span class="cell-name">{{ nombreDe(cross) }}</span>
+              <span class="cell-sub">
+                <span class="bdg {{ categoryBadges[cross.categoria] }}">
+                  {{ cross.categoriaEtiqueta }}
+                </span>
+                @if (cross.alertasSeguridad > 0) {
+                  <span
+                    class="bdg bdg-red"
+                    [title]="
+                      cross.alertasSeguridad === 1
+                        ? 'Una alerta de seguridad: ábrela en el detalle'
+                        : cross.alertasSeguridad + ' alertas de seguridad: ábrelas en el detalle'
+                    "
+                  >
+                    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+                    {{ cross.alertasSeguridad }}
+                    {{ cross.alertasSeguridad === 1 ? 'alerta' : 'alertas' }}
+                  </span>
+                }
+                @if (cross.vetoActivado) {
+                  <span class="bdg bdg-red" title="Un área crítica quedó en incompatibilidad total">
+                    <i class="ti ti-ban" aria-hidden="true"></i>
+                    Veto
+                  </span>
+                }
+                @if (cross.techoIntervino) {
+                  <span
+                    class="bdg bdg-orange"
+                    [title]="'El resultado quedó limitado al techo de ' + cross.techoAplicado"
+                  >
+                    <i class="ti ti-arrow-bar-to-down" aria-hidden="true"></i>
+                    Techo {{ cross.techoAplicado }}
+                  </span>
+                }
+                @if (cross.desactualizado) {
+                  <span class="bdg bdg-gray" title="Se calculó con una versión ya reemplazada">
+                    Desactualizado
+                  </span>
+                }
+              </span>
+            </span>
+
+            <span class="cr__score">
+              <span class="cr__bar" aria-hidden="true">
+                <span
+                  class="cr__bar-fill cr__bar-fill--{{ cross.categoria }}"
+                  [style.width.%]="cross.valorMostrado"
+                ></span>
+              </span>
+              <span class="cr__value">{{ cross.valorMostrado }}%</span>
+            </span>
+
+            <button class="btn btn-outline btn-sm" type="button" (click)="selected.emit(cross.publicId)">
+              <i class="ti ti-list-details" aria-hidden="true"></i>
+              Detalle
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+}

@@ -1,0 +1,67 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando resultados...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error ac__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm ac__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="..">Volver al postulante</a>
+} @else {
+  <div class="ac">
+    <a class="ac__back" routerLink="..">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Ficha del postulante
+    </a>
+
+    <div class="ph-row">
+      <div>
+        <div class="ph-t">{{ applicantNombre() ?? 'Resultados de compatibilidad' }}</div>
+        <div class="ph-s">Puestos de la empresa ordenados por compatibilidad</div>
+      </div>
+    </div>
+
+    @if (crosses().length === 0) {
+      <div class="empty-state">
+        <i class="ti ti-chart-bar" aria-hidden="true"></i>
+        <p>
+          Esta persona todavía no tiene resultados.<br />
+          Hacen falta su evaluación publicada y al menos un puesto evaluado.
+        </p>
+        <a class="btn btn-teal" routerLink="../evaluacion">
+          <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+          <span>Ir a su evaluación</span>
+        </a>
+      </div>
+    } @else {
+      <p class="cell-sub ac__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        Cada fila cruza la evaluación vigente de la persona con la del puesto. El resultado es una
+        ayuda a la decisión y orienta qué ajustes harían falta, no un veredicto de contratación.
+      </p>
+
+      <app-cross-ranking
+        [crosses]="crosses()"
+        nameField="puestoNombre"
+        columnLabel="Puesto"
+        emptyText="Todavía no hay puestos evaluados con los que cruzar."
+        (selected)="detailOf.set($event)"
+      />
+    }
+  </div>
+}
+
+@if (detailOf(); as crossPublicId) {
+  @if (company(); as current) {
+    <app-cross-detail-dialog
+      [companyPublicId]="current.publicId"
+      [crossPublicId]="crossPublicId"
+      (closed)="detailOf.set(null)"
+    />
+  }
+}

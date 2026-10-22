@@ -1,0 +1,225 @@
+/* Misma anatomía que la evaluación de puesto; aquí la grilla puntúa capacidad. */
+
+.ae {
+  max-width: 900px;
+}
+
+.ae__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.ae__back:hover {
+  color: var(--ts-text);
+}
+
+.ae__alert {
+  margin-bottom: 14px;
+}
+
+.ae__retry {
+  margin-left: auto;
+}
+
+.ae__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ae__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.ae__note--right {
+  justify-content: flex-end;
+  margin: 8px 0 0;
+}
+
+.ae__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+
+.ae__textarea {
+  min-height: 78px;
+  resize: vertical;
+}
+
+/* ---------------------------------------------------------------- Áreas */
+
+.ae__group-hdr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ae__group-count {
+  color: var(--ts-text-3);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ae__area {
+  padding: 12px 0;
+  border-top: 1px solid var(--ts-border);
+}
+
+.ae__area:first-of-type {
+  border-top: none;
+}
+
+.ae__area-hdr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ae__area-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.ae__area-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ts-surface-alt);
+  color: var(--ts-text-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ae__area--done .ae__area-num {
+  background: var(--ts-green-light);
+  color: var(--ts-green-dark);
+}
+
+.ae__area-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ts-text-3);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ae__area-help:hover {
+  color: var(--ts-green-dark);
+}
+
+.ae__area-def {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-surface-alt);
+  color: var(--ts-text-2);
+  font-size: 12.5px;
+}
+
+.ae__levels {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ae__level {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 9px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-card);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ae__level:hover:not(:disabled) {
+  border-color: var(--ts-text-3);
+}
+
+.ae__level--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.ae__level:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.ae__level:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.ae__level-code {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ts-text-3);
+}
+
+.ae__level--on .ae__level-code {
+  color: var(--ts-green-dark);
+}
+
+/* El texto completo va en el title; aquí se recorta para no romper la grilla. */
+.ae__level-text {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ts-text-2);
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.ae__actions--top {
+  margin: 0 0 14px;
+}
+
+.ae__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (max-width: 760px) {
+  .ae__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ae__levels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

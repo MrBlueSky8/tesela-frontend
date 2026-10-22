@@ -1,0 +1,141 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando resultados...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error pc__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm pc__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+  <a class="btn btn-outline btn-sm" routerLink="../..">Volver a puestos</a>
+} @else {
+  <div class="pc">
+    <a class="pc__back" routerLink="../..">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Puestos
+    </a>
+
+    @if (notice(); as message) {
+      <p class="alert alert-success pc__alert" role="status">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </p>
+    }
+
+    @if (actionError(); as message) {
+      <p class="alert alert-error pc__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <div class="ph-row">
+      <div>
+        <div class="ph-t">{{ positionNombre() ?? 'Resultados de compatibilidad' }}</div>
+        <div class="ph-s">Resultados de compatibilidad del puesto</div>
+      </div>
+
+      <button
+        class="btn btn-outline btn-sm"
+        type="button"
+        [disabled]="isRecalculating()"
+        (click)="onRecalculate()"
+      >
+        @if (isRecalculating()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+          <span>Recalculando...</span>
+        } @else {
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+          <span>Recalcular</span>
+        }
+      </button>
+    </div>
+
+    @if (sinResultados()) {
+      <div class="empty-state">
+        <i class="ti ti-chart-bar" aria-hidden="true"></i>
+        <p>
+          Este puesto todavía no tiene resultados.<br />
+          Publica su evaluación de las 30 áreas y los cruces se calcularán solos.
+        </p>
+        <a class="btn btn-teal" routerLink="../evaluacion">
+          <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+          <span>Ir a la evaluación</span>
+        </a>
+      </div>
+    } @else {
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-val">{{ perfiles().length }}</div>
+          <div class="stat-lbl">Perfiles cruzados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ personas().length }}</div>
+          <div class="stat-lbl">Personas cruzadas</div>
+        </div>
+      </div>
+
+      <nav class="pc__tabs" aria-label="Tipo de resultado">
+        <button
+          class="pc__tab"
+          type="button"
+          [class.pc__tab--active]="modo() === 'A'"
+          [attr.aria-pressed]="modo() === 'A'"
+          (click)="setModo('A')"
+        >
+          Perfiles de discapacidad
+        </button>
+        <button
+          class="pc__tab"
+          type="button"
+          [class.pc__tab--active]="modo() === 'B'"
+          [attr.aria-pressed]="modo() === 'B'"
+          (click)="setModo('B')"
+        >
+          Personas evaluadas
+        </button>
+      </nav>
+
+      <p class="cell-sub pc__note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        @if (modo() === 'A') {
+          Estos resultados comparan el puesto con los perfiles de referencia de la metodología. No
+          se refieren a ninguna persona concreta: sirven para saber qué ajustes necesitaría el
+          puesto, no para decidir sobre una candidatura.
+        } @else {
+          Cada fila cruza la evaluación vigente del puesto con la evaluación vigente de la persona.
+          El resultado es una ayuda a la decisión, no un veredicto de contratación.
+        }
+      </p>
+
+      <app-cross-ranking
+        [crosses]="actuales()"
+        nameField="contraparte"
+        [columnLabel]="modo() === 'A' ? 'Perfil' : 'Persona'"
+        [emptyText]="
+          modo() === 'A'
+            ? 'Todavía no hay cruces con los perfiles de referencia.'
+            : 'Ninguna persona de la empresa tiene aún una evaluación publicada.'
+        "
+        (selected)="detailOf.set($event)"
+      />
+    }
+  </div>
+}
+
+@if (detailOf(); as crossPublicId) {
+  @if (company(); as current) {
+    <app-cross-detail-dialog
+      [companyPublicId]="current.publicId"
+      [crossPublicId]="crossPublicId"
+      (closed)="detailOf.set(null)"
+    />
+  }
+}

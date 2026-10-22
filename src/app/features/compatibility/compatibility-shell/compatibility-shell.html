@@ -1,0 +1,21 @@
+<div class="cs">
+  <div class="cs__head">
+    <div class="ph-t">Compatibilidad laboral</div>
+    <div class="ph-s">
+      Módulo 1
+      @if (company(); as current) {
+        · {{ current.nombre }}
+      }
+    </div>
+  </div>
+
+  <nav class="cs__tabs" aria-label="Secciones del módulo">
+    <a class="cs__tab" routerLink="resumen" routerLinkActive="cs__tab--active">Resumen</a>
+    <a class="cs__tab" routerLink="postulantes" routerLinkActive="cs__tab--active">Postulantes</a>
+    <a class="cs__tab" routerLink="puestos" routerLinkActive="cs__tab--active">Puestos</a>
+    <a class="cs__tab" routerLink="perfiles" routerLinkActive="cs__tab--active">Perfiles</a>
+    <a class="cs__tab" routerLink="metodologia" routerLinkActive="cs__tab--active">Metodología</a>
+  </nav>
+
+  <router-outlet />
+</div>

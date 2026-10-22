@@ -1,0 +1,32 @@
+.ac {
+  max-width: 900px;
+}
+
+.ac__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.ac__back:hover {
+  color: var(--ts-text);
+}
+
+.ac__alert {
+  margin-bottom: 14px;
+}
+
+.ac__retry {
+  margin-left: auto;
+}
+
+.ac__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 12px;
+}

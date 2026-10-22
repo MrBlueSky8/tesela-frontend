@@ -1,0 +1,265 @@
+.pe {
+  max-width: 900px;
+}
+
+.pe__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.pe__back:hover {
+  color: var(--ts-text);
+}
+
+.pe__alert {
+  margin-bottom: 14px;
+}
+
+.pe__retry {
+  margin-left: auto;
+}
+
+.pe__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pe__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.pe__note--right {
+  justify-content: flex-end;
+  margin: 8px 0 0;
+}
+
+.pe__textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.pe__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pe__chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.pe__chip--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.pe__chip:focus-within {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+/* ---------------------------------------------------------------- Áreas */
+
+.pe__group-hdr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pe__group-count {
+  color: var(--ts-text-3);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.pe__area {
+  padding: 12px 0;
+  border-top: 1px solid var(--ts-border);
+}
+
+.pe__area:first-of-type {
+  border-top: none;
+}
+
+.pe__area-hdr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pe__area-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.pe__area-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ts-surface-alt);
+  color: var(--ts-text-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pe__area--done .pe__area-num {
+  background: var(--ts-green-light);
+  color: var(--ts-green-dark);
+}
+
+.pe__area-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ts-text-3);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pe__area-help:hover {
+  color: var(--ts-green-dark);
+}
+
+.pe__area-def {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-surface-alt);
+  color: var(--ts-text-2);
+  font-size: 12.5px;
+}
+
+.pe__levels {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.pe__level {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 9px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-card);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pe__level:hover:not(:disabled) {
+  border-color: var(--ts-text-3);
+}
+
+.pe__level--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.pe__level:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pe__level:focus-visible {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.pe__level-code {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ts-text-3);
+}
+
+.pe__level--on .pe__level-code {
+  color: var(--ts-green-dark);
+}
+
+/* El texto completo va en el title; aquí se recorta para no romper la grilla. */
+.pe__level-text {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ts-text-2);
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.pe__criticality {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pe__criticality .fl {
+  margin: 0;
+}
+
+.pe__crit-select {
+  width: auto;
+  min-width: 150px;
+}
+
+.pe__crit-hint {
+  flex: 1 1 220px;
+}
+
+.pe__actions--top {
+  margin: 0 0 14px;
+}
+
+.pe__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (max-width: 760px) {
+  .pe__levels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pe__crit-select {
+    width: 100%;
+  }
+}

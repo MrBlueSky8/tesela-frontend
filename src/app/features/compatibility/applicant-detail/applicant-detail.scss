@@ -1,0 +1,82 @@
+.ad {
+  max-width: 820px;
+}
+
+.ad__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ts-text-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.ad__back:hover {
+  color: var(--ts-text);
+}
+
+.ad__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ad__alert {
+  margin-bottom: 14px;
+}
+
+.ad__retry {
+  margin-left: auto;
+}
+
+.ad__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.ad__note--lead {
+  margin: 0 0 12px;
+}
+
+.ad .frow {
+  margin-bottom: 0;
+}
+
+.ad__profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 6px;
+}
+
+.ad__profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--ts-border-2);
+  border-radius: var(--ts-radius-sm);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.ad__profile--on {
+  border-color: var(--ts-green);
+  background: var(--ts-green-light);
+}
+
+.ad__profile:focus-within {
+  outline: 2px solid var(--ts-green);
+  outline-offset: 1px;
+}
+
+.ad__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}

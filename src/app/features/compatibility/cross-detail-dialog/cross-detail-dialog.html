@@ -1,0 +1,189 @@
+<app-modal-shell title="Detalle del cruce" icon="list-details" size="wide" (closed)="closed.emit()">
+  <div class="modal-body">
+    @if (isLoading()) {
+      <div class="ts-loading" role="status">
+        <span class="ts-spinner" aria-hidden="true"></span>
+        Cargando detalle...
+      </div>
+    } @else if (loadError(); as error) {
+      <p class="alert alert-error cd__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ error }}</span>
+        <button class="btn btn-outline btn-sm cd__retry" type="button" (click)="load()">
+          Reintentar
+        </button>
+      </p>
+    } @else if (cross(); as current) {
+      <div class="cd__head">
+        <div>
+          <div class="cell-name">{{ current.contraparte }}</div>
+          <div class="cell-sub">
+            {{ current.puestoNombre }} ·
+            {{ current.modo === 'A' ? 'Perfil genérico' : 'Persona evaluada' }}
+          </div>
+        </div>
+
+        <div class="cd__result">
+          <span class="cd__value">{{ current.valorMostrado }}%</span>
+          <span class="bdg {{ categoryBadges[current.categoria] }}">
+            {{ current.categoriaEtiqueta }}
+          </span>
+        </div>
+      </div>
+
+      @if (alertasSeguridad().length > 0) {
+        <section class="fc cd__danger" aria-labelledby="cd-seguridad">
+          <div class="fc-hdr" id="cd-seguridad">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            Alertas de seguridad
+          </div>
+          <app-cross-alerts [alerts]="alertasSeguridad()" [emphasis]="true" />
+        </section>
+      }
+
+      @if (current.desactualizado) {
+        <p class="alert alert-amber cd__alert" role="status">
+          <i class="ti ti-history" aria-hidden="true"></i>
+          <span>
+            Este cruce se calculó con una versión de la evaluación que ya fue reemplazada. Vuelve a
+            calcular los cruces del puesto para actualizarlo.
+          </span>
+        </p>
+      }
+
+      <!-- ================= Cómo salió el número ================= -->
+      <section class="fc" aria-labelledby="cd-calculo">
+        <div class="fc-hdr" id="cd-calculo">Cómo se obtuvo el resultado</div>
+
+        <div class="list-tbl">
+          <div class="list-hdr cd__grid" aria-hidden="true">
+            <span>Bolsa</span>
+            <span>Peso</span>
+            <span>Promedio</span>
+          </div>
+          @for (bolsa of bolsas(); track bolsa.nombre) {
+            <div class="list-row cd__grid">
+              <span class="cell-name">{{ bolsa.nombre }}</span>
+              <span>{{ porcentaje(bolsa.peso) }}</span>
+              <span>{{ redondear(bolsa.promedio) }}</span>
+            </div>
+          }
+        </div>
+
+        <p class="cell-sub cd__note">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          La bolsa Crítica usa media armónica; las otras dos, promedio simple. Una bolsa sin áreas
+          no penaliza: su peso se reparte entre las activas.
+        </p>
+
+        <div class="stat-row cd__stats">
+          <div class="stat-card">
+            <div class="stat-val">{{ redondear(current.puntaje) }}</div>
+            <div class="stat-lbl">Puntaje ponderado</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">{{ current.techoAplicado ?? '—' }}</div>
+            <div class="stat-lbl">
+              @if (current.techoIntervino) {
+                Techo aplicado
+              } @else {
+                Techo (sin efecto)
+              }
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">{{ redondear(current.resultadoFinal) }}</div>
+            <div class="stat-lbl">Resultado final</div>
+          </div>
+        </div>
+
+        @if (current.vetoActivado) {
+          <p class="alert alert-error cd__alert" role="status">
+            <i class="ti ti-ban" aria-hidden="true"></i>
+            <span>
+              Veto activado: al menos un área crítica quedó en incompatibilidad total, así que esa
+              bolsa vale cero y el resultado queda limitado al techo.
+            </span>
+          </p>
+        }
+      </section>
+
+      <!-- ================= 3. Alertas informativas ================= -->
+      @if (alertasInformativas().length > 0) {
+        <section class="fc" aria-labelledby="cd-informativas">
+          <div class="fc-hdr" id="cd-informativas">Alertas informativas y ajustes recomendados</div>
+          <app-cross-alerts [alerts]="alertasInformativas()" />
+        </section>
+      }
+
+      @if (current.sinPerfilDeclarado) {
+        <p class="alert alert-amber cd__alert" role="status">
+          <i class="ti ti-user-question" aria-hidden="true"></i>
+          <span>
+            No se declaró perfil de discapacidad: no se evaluaron las alertas que dependen del
+            perfil. Puedes declararlo en la ficha del postulante y volver a calcular.
+          </span>
+        </p>
+      }
+
+      @if (current.alertasNoEvaluadas.length > 0) {
+        <p class="cell-sub cd__note" role="status">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          <span>
+            Este es un cruce genérico por perfil, así que
+            {{ current.alertasNoEvaluadas.length }} alertas no se evaluaron porque dependen de
+            datos de la persona ({{ codigosNoEvaluados() }}). Se evaluarán en su evaluación
+            individual.
+          </span>
+        </p>
+      }
+
+      @if (current.alertas.length === 0) {
+        <p class="cell-sub cd__note" role="status">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span>Este cruce no disparó ninguna alerta del catálogo.</span>
+        </p>
+      }
+
+      <!-- ================= Las 30 áreas ================= -->
+      <section class="fc" aria-labelledby="cd-areas">
+        <div class="fc-hdr" id="cd-areas">Detalle por área</div>
+
+        <div class="list-tbl">
+          <div class="list-hdr cd__areas" aria-hidden="true">
+            <span>Área</span>
+            <span>Exige</span>
+            <span>Tiene</span>
+            <span>Criticidad</span>
+            <span>Resultado</span>
+          </div>
+
+          @for (area of current.areas; track area.areaOrden) {
+            <div class="list-row cd__areas" [class.cd__area--gap]="area.valor < 100">
+              <span class="cd__area-name">
+                <span class="cd__area-num">{{ area.areaOrden }}</span>
+                {{ area.areaNombre }}
+              </span>
+              <span>E{{ area.nivelExigencia }}</span>
+              <span>C{{ area.nivelCapacidad }}</span>
+              <span class="cell-sub">{{ criticalityLabels[area.criticidad] }}</span>
+              <span class="cd__area-grade">
+                <strong>{{ area.valor }}</strong>
+                <span class="cell-sub">{{ area.gradoEtiqueta }}</span>
+              </span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <p class="cell-sub cd__versions">
+        Calculado con la Matriz GAP <strong>{{ current.versionMatriz }}</strong> y las reglas
+        <strong>{{ current.versionReglas }}</strong>.
+      </p>
+    }
+  </div>
+
+  <div class="modal-foot">
+    <button class="btn btn-outline" type="button" (click)="closed.emit()">Cerrar</button>
+  </div>
+</app-modal-shell>

@@ -1,0 +1,218 @@
+<app-modal-shell title="Registrar postulante" icon="user-plus" size="wide" (closed)="closed.emit()">
+  <div class="modal-body">
+    <p class="aad__step">{{ stepLabel() }}</p>
+
+    @if (error(); as message) {
+      <p class="alert alert-error aad__alert" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <!-- ================= Paso 1: documento ================= -->
+    @if (mode() === 'document') {
+      <p class="cell-sub aad__lead">
+        <i class="ti ti-id" aria-hidden="true"></i>
+        Empieza por el documento. Con él sabremos si la persona ya está registrada en la plataforma
+        y completaremos sus datos.
+      </p>
+
+      <form class="frow aad__form" [formGroup]="documentForm" (ngSubmit)="onLookup()" novalidate id="aad-document">
+        <div class="fg">
+          <label class="fl" for="aad-doc-type">Tipo de documento</label>
+          <select class="fsel" id="aad-doc-type" formControlName="documentType">
+            @for (type of documentTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="fg">
+          <label class="fl" for="aad-doc-number">Número de documento</label>
+          <input
+            #documentInput
+            class="fi"
+            id="aad-doc-number"
+            type="text"
+            autocomplete="off"
+            formControlName="documentNumber"
+          />
+        </div>
+      </form>
+    }
+
+    <!-- ================= Paso 2: datos ================= -->
+    @if (mode() === 'identity') {
+      @if (lookup(); as result) {
+        <div class="aad__person">
+          <div class="aad__person-doc">
+            {{ documentForm.getRawValue().documentType }}
+            {{ documentForm.getRawValue().documentNumber }}
+          </div>
+
+          @switch (result.outcome) {
+            @case ('YA_TIENE_FICHA') {
+              <div class="cell-name">{{ result.nombres }} {{ result.apellidos }}</div>
+              <p class="alert alert-amber aad__notice" role="status">
+                <i class="ti ti-user-check" aria-hidden="true"></i>
+                <span>Esta persona ya es postulante de la empresa. Abre su ficha para evaluarla.</span>
+              </p>
+            }
+            @case ('PERSONA_REGISTRADA') {
+              <div class="cell-name">{{ result.nombres }} {{ result.apellidos }}</div>
+              <p class="cell-sub">
+                Ya está registrada en la plataforma. Completa solo los datos que faltan.
+              </p>
+            }
+            @default {
+              <p class="cell-sub">
+                Nadie está registrado con este documento. Completa sus datos para darla de alta.
+              </p>
+            }
+          }
+        </div>
+
+        @if (!alreadyHasFicha()) {
+          <form class="frow aad__form" [formGroup]="createForm" (ngSubmit)="onSubmit()" novalidate id="aad-create">
+            <div class="fg">
+              <label class="fl" for="aad-first">Nombres</label>
+              <input
+                #firstInput
+                class="fi"
+                id="aad-first"
+                type="text"
+                autocomplete="off"
+                formControlName="firstNames"
+                [class.invalid]="fieldError('firstNames')"
+              />
+              @if (fieldError('firstNames'); as message) {
+                <span class="fi-err">{{ message }}</span>
+              }
+            </div>
+
+            <div class="fg">
+              <label class="fl" for="aad-last">Apellidos</label>
+              <input
+                class="fi"
+                id="aad-last"
+                type="text"
+                autocomplete="off"
+                formControlName="lastNames"
+                [class.invalid]="fieldError('lastNames')"
+              />
+              @if (fieldError('lastNames'); as message) {
+                <span class="fi-err">{{ message }}</span>
+              }
+            </div>
+
+            <div class="fg">
+              <label class="fl" for="aad-email">Correo (opcional)</label>
+              <input
+                class="fi"
+                id="aad-email"
+                type="email"
+                autocomplete="off"
+                formControlName="email"
+                [class.invalid]="fieldError('email')"
+              />
+              @if (fieldError('email'); as message) {
+                <span class="fi-err">{{ message }}</span>
+              }
+            </div>
+
+            <div class="fg">
+              <label class="fl" for="aad-phone">Teléfono (opcional)</label>
+              <input
+                class="fi"
+                id="aad-phone"
+                type="tel"
+                autocomplete="off"
+                formControlName="telefono"
+                [class.invalid]="fieldError('telefono')"
+              />
+              @if (fieldError('telefono'); as message) {
+                <span class="fi-err">{{ message }}</span>
+              }
+            </div>
+
+            <div class="fg fg-full">
+              <label class="fl" for="aad-cargo">Cargo actual (opcional)</label>
+              <input
+                class="fi"
+                id="aad-cargo"
+                type="text"
+                autocomplete="off"
+                formControlName="cargoActual"
+              />
+            </div>
+
+            @if (knownPerson()) {
+              <p class="cell-sub fg-full aad__hint">
+                <i class="ti ti-lock" aria-hidden="true"></i>
+                Nombres, apellidos y documento vienen del registro de la persona. Si tienen un error,
+                solicita la corrección a Fundades.
+              </p>
+            }
+          </form>
+
+          <div class="aad__profiles">
+            <div class="fc-hdr">Perfiles de discapacidad declarados</div>
+            <p class="cell-sub aad__hint">
+              Puedes marcar varios, o ninguno si todavía no se conocen. Sin perfil declarado no se
+              evalúan las alertas por perfil del informe de compatibilidad.
+            </p>
+
+            <div class="aad__profile-grid">
+              @for (profile of profiles(); track profile.publicId) {
+                <label class="aad__profile" [class.aad__profile--on]="isProfileSelected(profile.publicId)">
+                  <input
+                    class="chk-inp"
+                    type="checkbox"
+                    [checked]="isProfileSelected(profile.publicId)"
+                    (change)="toggleProfile(profile.publicId, $event)"
+                  />
+                  <span>{{ profile.nombre }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+
+  <div class="modal-foot">
+    @if (mode() === 'document') {
+      <button class="btn btn-outline btn-sm" type="button" (click)="closed.emit()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" type="submit" form="aad-document" [disabled]="isLookingUp()">
+        @if (isLookingUp()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+        }
+        Continuar
+      </button>
+    } @else {
+      <button class="btn btn-outline btn-sm" type="button" (click)="backToDocument()">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        Volver
+      </button>
+
+      @if (alreadyHasFicha()) {
+        @if (fichaLink(); as link) {
+          <a class="btn btn-primary btn-sm" [routerLink]="link" (click)="closed.emit()">
+            <i class="ti ti-user" aria-hidden="true"></i>
+            Ver su ficha
+          </a>
+        } @else {
+          <button class="btn btn-primary btn-sm" type="button" (click)="closed.emit()">Entendido</button>
+        }
+      } @else {
+        <button class="btn btn-teal btn-sm" type="submit" form="aad-create" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="ts-spinner" aria-hidden="true"></span>
+          }
+          Registrar postulante
+        </button>
+      }
+    }
+  </div>
+</app-modal-shell>

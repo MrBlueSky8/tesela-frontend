@@ -1,0 +1,123 @@
+.cd__alert {
+  margin-bottom: 14px;
+}
+
+.cd__retry {
+  margin-left: auto;
+}
+
+.cd__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cd__result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cd__value {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La sección de seguridad tiene que verse antes de leerla. */
+.cd__danger {
+  border-color: var(--ts-red);
+}
+
+.cd__danger .fc-hdr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ts-red-dark);
+}
+
+.cd__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px 90px;
+  align-items: center;
+  gap: 10px;
+}
+
+.cd__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.cd__stats {
+  margin-top: 14px;
+}
+
+.cd__areas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px 48px 90px 130px;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Las áreas que no llegan a 100 son las que explican el resultado. */
+.cd__area--gap {
+  background: var(--ts-surface-alt);
+}
+
+.cd__area-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.cd__area-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ts-card);
+  color: var(--ts-text-3);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.cd__area-grade {
+  display: flex;
+  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd__versions {
+  margin: 12px 0 0;
+}
+
+@media (max-width: 760px) {
+  .cd__grid {
+    grid-template-columns: minmax(0, 1fr) 70px 70px;
+  }
+
+  .cd__areas {
+    grid-template-columns: minmax(0, 1fr) 40px 40px;
+    row-gap: 4px;
+  }
+
+  /* La cabecera se apilaria en tres lineas; es decorativa, asi que se oculta. */
+  .list-hdr.cd__areas {
+    display: none;
+  }
+
+  .cd__areas > :nth-child(4),
+  .cd__areas > :nth-child(5) {
+    grid-column: span 3;
+  }
+}

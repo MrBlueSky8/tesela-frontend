@@ -1,0 +1,25 @@
+<ul class="ca__list">
+  @for (alert of alerts(); track alert.codigo) {
+    <li class="ca__item" [class.ca__item--danger]="emphasis()">
+      <div class="ca__hdr">
+        <span class="ca__code">
+          @if (emphasis()) {
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          }
+          {{ alert.codigo }}
+        </span>
+        <span class="bdg {{ typeBadges[alert.tipo] }}">{{ typeLabels[alert.tipo] }}</span>
+        @if (alert.perfilDisparador; as perfil) {
+          <span class="cell-sub ca__trigger">Perfil: {{ perfil }}</span>
+        }
+      </div>
+
+      <p class="ca__msg">{{ alert.mensaje }}</p>
+
+      <p class="cell-sub ca__action">
+        <i class="ti ti-arrow-narrow-right" aria-hidden="true"></i>
+        {{ alert.accionRecomendada }}
+      </p>
+    </li>
+  }
+</ul>

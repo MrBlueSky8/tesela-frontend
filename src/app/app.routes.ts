@@ -24,6 +24,17 @@ import { PositionsPage } from './features/organization/positions-page/positions-
 import { SiteDetail } from './features/sites/site-detail/site-detail';
 import { SitesPage } from './features/sites/sites-page/sites-page';
 import { Home } from './features/home/home';
+import { ApplicantDetail } from './features/compatibility/applicant-detail/applicant-detail';
+import { ApplicantCrosses } from './features/compatibility/applicant-crosses/applicant-crosses';
+import { MethodologyReferencePage } from './features/compatibility/methodology-reference/methodology-reference';
+import { ModuleOverview } from './features/compatibility/module-overview/module-overview';
+import { ProfileCrosses } from './features/compatibility/profile-crosses/profile-crosses';
+import { ApplicantEvaluation } from './features/compatibility/applicant-evaluation/applicant-evaluation';
+import { ApplicantsPage } from './features/compatibility/applicants-page/applicants-page';
+import { CompatibilityShell } from './features/compatibility/compatibility-shell/compatibility-shell';
+import { ModulePositionsPage } from './features/compatibility/positions-page/module-positions-page';
+import { PositionCrosses } from './features/compatibility/position-crosses/position-crosses';
+import { PositionEvaluation } from './features/compatibility/position-evaluation/position-evaluation';
 import { PlaceholderPage } from './features/placeholder/placeholder-page';
 import { MainLayout } from './layout/main-layout/main-layout';
 
@@ -241,13 +252,71 @@ export const routes: Routes = [
         children: [
           {
             path: 'compatibilidad',
-            component: PlaceholderPage,
-            data: {
-              breadcrumb: 'Compatibilidad laboral',
-              title: 'Compatibilidad laboral',
-              description: 'Módulo 1: evaluación de compatibilidad entre puesto y persona.',
-              privileges: ['CRUCE_PERFILES'],
-            },
+            component: CompatibilityShell,
+            data: { breadcrumb: 'Compatibilidad laboral', privileges: ['CRUCE_PERFILES'] },
+            children: [
+              { path: '', redirectTo: 'resumen', pathMatch: 'full' },
+              { path: 'resumen', component: ModuleOverview, data: { breadcrumb: 'Resumen' } },
+              {
+                path: 'perfiles',
+                data: { breadcrumb: 'Perfiles' },
+                children: [
+                  { path: '', component: ProfileCrosses, data: { breadcrumb: '' } },
+                  {
+                    path: ':profilePublicId',
+                    component: ProfileCrosses,
+                    data: { breadcrumb: 'Perfil' },
+                  },
+                ],
+              },
+              {
+                path: 'metodologia',
+                component: MethodologyReferencePage,
+                data: { breadcrumb: 'Metodología' },
+              },
+              {
+                path: 'postulantes',
+                data: { breadcrumb: 'Postulantes' },
+                children: [
+                  { path: '', component: ApplicantsPage, data: { breadcrumb: '' } },
+                  // La ruta más específica va primero: ':applicantPublicId' consumiría
+                  // el primer segmento y dejaría 'evaluacion' sin resolver.
+                  {
+                    path: ':applicantPublicId/evaluacion',
+                    component: ApplicantEvaluation,
+                    data: { breadcrumb: 'Evaluación' },
+                  },
+                  {
+                    path: ':applicantPublicId/resultados',
+                    component: ApplicantCrosses,
+                    data: { breadcrumb: 'Resultados' },
+                  },
+                  {
+                    path: ':applicantPublicId',
+                    component: ApplicantDetail,
+                    data: { breadcrumb: 'Postulante' },
+                  },
+                ],
+              },
+              {
+                path: 'puestos',
+                data: { breadcrumb: 'Puestos' },
+                children: [
+                  { path: '', component: ModulePositionsPage, data: { breadcrumb: '' } },
+                  // Las rutas específicas van antes de la genérica del puesto.
+                  {
+                    path: ':positionPublicId/evaluacion',
+                    component: PositionEvaluation,
+                    data: { breadcrumb: 'Evaluación' },
+                  },
+                  {
+                    path: ':positionPublicId/resultados',
+                    component: PositionCrosses,
+                    data: { breadcrumb: 'Resultados' },
+                  },
+                ],
+              },
+            ],
           },
           {
             path: 'accesibilidad',

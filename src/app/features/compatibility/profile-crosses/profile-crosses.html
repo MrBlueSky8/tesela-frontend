@@ -1,0 +1,78 @@
+@if (isLoading()) {
+  <div class="ts-loading" role="status">
+    <span class="ts-spinner" aria-hidden="true"></span>
+    Cargando perfiles...
+  </div>
+} @else if (loadError(); as error) {
+  <div class="alert alert-error pf__alert" role="alert">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-outline btn-sm pf__retry" type="button" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+} @else {
+  <div class="ph-row">
+    <div>
+      <div class="ph-t">Puestos por perfil</div>
+      <div class="ph-s">
+        Dado un perfil de discapacidad, qué puestos del catálogo le resultan más compatibles.
+      </div>
+    </div>
+  </div>
+
+  <div class="fg pf__picker">
+    <label class="fl" for="pf-profile">Perfil de discapacidad</label>
+    <select class="fsel" id="pf-profile" [value]="selected() ?? ''" (change)="onSelect($event)">
+      @for (profile of profiles(); track profile.publicId) {
+        <!-- [selected] en la opción: el [value] del select se aplica antes de que existan. -->
+        <option [value]="profile.publicId" [selected]="profile.publicId === selected()">
+          {{ profile.order }}. {{ profile.nombre }}
+        </option>
+      }
+    </select>
+  </div>
+
+  <p class="cell-sub pf__note">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    El ranking compara el puesto con el perfil de referencia de la metodología. No se refiere a
+    ninguna persona concreta: orienta qué ajustes necesitaría cada puesto.
+  </p>
+
+  @if (pendientes().length > 0) {
+    <p class="alert alert-amber pf__alert" role="status">
+      <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      <span>
+        {{ pendientes().length }}
+        {{ pendientes().length === 1 ? 'puesto activo no entra' : 'puestos activos no entran' }}
+        en este ranking porque aún no tienen evaluación publicada:
+        <strong>{{ nombresPendientes() }}</strong>.
+      </span>
+    </p>
+  }
+
+  @if (isLoadingRanking()) {
+    <div class="ts-loading" role="status">
+      <span class="ts-spinner" aria-hidden="true"></span>
+      Cargando ranking...
+    </div>
+  } @else {
+    <app-cross-ranking
+      [crosses]="crosses()"
+      nameField="puestoNombre"
+      columnLabel="Puesto"
+      emptyText="Ningún puesto evaluado se ha cruzado todavía con este perfil."
+      (selected)="detailOf.set($event)"
+    />
+  }
+}
+
+@if (detailOf(); as crossPublicId) {
+  @if (company(); as current) {
+    <app-cross-detail-dialog
+      [companyPublicId]="current.publicId"
+      [crossPublicId]="crossPublicId"
+      (closed)="detailOf.set(null)"
+    />
+  }
+}
