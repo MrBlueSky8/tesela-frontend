@@ -3,6 +3,17 @@
   flex-shrink: 0;
 }
 
+.cs--static {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+  padding: 5px 8px;
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  background: var(--ts-surface-alt);
+}
+
 .cs__trigger {
   display: flex;
   align-items: center;

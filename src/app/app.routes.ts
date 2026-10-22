@@ -68,13 +68,13 @@ export const routes: Routes = [
       {
         path: 'home',
         component: Home,
-        data: { breadcrumb: 'Inicio' },
+        data: { breadcrumb: 'Inicio', companyContextDisplay: 'multi' },
       },
       {
         path: 'companies',
         component: CompaniesPage,
         canActivate: [authGuard],
-        data: { breadcrumb: 'Empresas' },
+        data: { breadcrumb: 'Empresas', companyContextDisplay: 'hidden' },
       },
       {
         // Plana a proposito: un hijo de ruta vacia heredaria el breadcrumb del padre.
@@ -84,6 +84,7 @@ export const routes: Routes = [
         data: {
           breadcrumb: 'Nueva empresa',
           roles: ['ADMIN_PLATAFORMA'],
+          companyContextDisplay: 'hidden',
         },
       },
       {
@@ -94,6 +95,7 @@ export const routes: Routes = [
         data: {
           breadcrumb: 'Empresas',
           roles: ['ADMIN_PLATAFORMA'],
+          companyContextDisplay: 'hidden',
         },
         children: [
           {
@@ -162,12 +164,12 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfilePage,
         canActivate: [authGuard],
-        data: { breadcrumb: 'Mi perfil' },
+        data: { breadcrumb: 'Mi perfil', companyContextDisplay: 'hidden' },
       },
       {
         // Gestion de la empresa seleccionada.
         path: 'empresa',
-        data: { breadcrumb: 'Gestión' },
+        data: { breadcrumb: 'Gestión', companyContextDisplay: 'workspace' },
         canActivateChild: [companyContextGuard],
         // El alcance de esta rama es la empresa seleccionada.
         providers: [CompanyScopeService],
@@ -247,7 +249,7 @@ export const routes: Routes = [
       },
       {
         path: 'modulos',
-        data: { breadcrumb: 'Módulos' },
+        data: { breadcrumb: 'Módulos', companyContextDisplay: 'workspace' },
         canActivateChild: [companyContextGuard],
         children: [
           {

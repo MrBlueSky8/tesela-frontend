@@ -1,3 +1,19 @@
+@if (presentation() === 'static') {
+  @if (company(); as current) {
+    <div class="cs cs--static" aria-label="Empresa de trabajo">
+      @if (current.urlLogo) {
+        <img class="cs__logo" [src]="current.urlLogo" alt="" />
+      } @else {
+        <span class="cs__logo cs__logo--initial" aria-hidden="true">{{ currentInitial() }}</span>
+      }
+
+      <span class="cs__copy">
+        <span class="cs__label">Empresa</span>
+        <span class="cs__name">{{ current.nombre }}</span>
+      </span>
+    </div>
+  }
+} @else if (presentation() === 'switcher') {
 <div class="cs">
   <button
     class="cs__trigger"
@@ -124,3 +140,4 @@
     </div>
   }
 </div>
+}

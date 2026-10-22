@@ -1,10 +1,11 @@
-import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { backendErrorMessage } from '../../../../core/helpers/backend-error-message';
 import { CompanyResponse } from '../../../../core/models/company';
 import { CompanyContextService } from '../../../../core/services/company-context-service';
 import { TokenService } from '../../../../core/services/token-service';
+import type { CompanyContextDisplay } from '../topbar';
 
 /** Sin buscar, el desplegable solo muestra las primeras; el resto sale al buscar. */
 const VISIBLE_WITHOUT_SEARCH = 8;
@@ -28,6 +29,8 @@ export class CompanySwitcher {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly tokenService = inject(TokenService);
 
+  readonly mode = input<CompanyContextDisplay>('workspace');
+
   /** Fundades va al directorio administrativo; el resto, a su lista de empresas. */
   readonly allCompaniesLink = computed(() =>
     this.tokenService.role() === 'ADMIN_PLATAFORMA' ? '/plataforma/empresas' : '/companies',
@@ -37,12 +40,38 @@ export class CompanySwitcher {
 
   readonly isOpen = signal(false);
   readonly isLoading = signal(false);
+  readonly isLoaded = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly selectError = signal<string | null>(null);
   readonly selectingId = signal<string | null>(null);
   readonly search = signal('');
 
   private readonly companies = signal<CompanyResponse[]>([]);
+
+  /**
+   * Un administrador de plataforma cambia de alcance desde el directorio, no
+   * desde un selector global. Para un usuario empresarial el control solo es
+   * interactivo si realmente tiene más de una empresa.
+   */
+  readonly presentation = computed<'hidden' | 'static' | 'switcher'>(() => {
+    if (this.tokenService.role() === 'ADMIN_PLATAFORMA') {
+      return this.mode() === 'workspace' && this.company() ? 'static' : 'hidden';
+    }
+
+    if (this.loadError()) {
+      return 'switcher';
+    }
+
+    if (!this.isLoaded()) {
+      return 'hidden';
+    }
+
+    if (this.companies().length > 1) {
+      return 'switcher';
+    }
+
+    return this.mode() === 'workspace' && this.company() ? 'static' : 'hidden';
+  });
 
   readonly currentInitial = computed(
     () => this.company()?.nombre.trim().charAt(0).toUpperCase() ?? '',
@@ -67,6 +96,12 @@ export class CompanySwitcher {
     this.search().trim() ? 0 : Math.max(0, this.companies().length - VISIBLE_WITHOUT_SEARCH),
   );
 
+  constructor() {
+    if (this.tokenService.role() === 'USUARIO') {
+      this.load();
+    }
+  }
+
   toggle(): void {
     if (this.isOpen()) {
       this.close();
@@ -76,7 +111,9 @@ export class CompanySwitcher {
     this.isOpen.set(true);
     this.selectError.set(null);
     this.search.set('');
-    this.load();
+    if (!this.isLoaded()) {
+      this.load();
+    }
   }
 
   close(): void {
@@ -90,6 +127,7 @@ export class CompanySwitcher {
     this.companyContext.availableCompanies().subscribe({
       next: (companies) => {
         this.isLoading.set(false);
+        this.isLoaded.set(true);
         this.companies.set(companies);
       },
       error: (error: unknown) => {

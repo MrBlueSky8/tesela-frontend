@@ -1,10 +1,9 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { distinctUntilChanged, map } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
-import { transientMessage } from '../../../core/helpers/transient-message';
 import { CompanyContextService } from '../../../core/services/company-context-service';
 import { CompanyScopeService } from '../../../core/services/company-scope-service';
 
@@ -13,7 +12,8 @@ import { CompanyScopeService } from '../../../core/services/company-scope-servic
  * pestanias hacia sus datos, usuarios, puestos y sedes.
  *
  * <p>Administrar no es lo mismo que trabajar: la empresa activa del usuario no
- * cambia al entrar aqui. Para eso esta el boton "Entrar a esta empresa".
+ * cambia al entrar aqui. El boton "Abrir espacio de trabajo" hace explicito el
+ * cambio y lleva al inicio del contexto seleccionado.
  */
 @Component({
   selector: 'app-company-admin-shell',
@@ -25,6 +25,7 @@ export class CompanyAdminShell {
   private readonly route = inject(ActivatedRoute);
   private readonly companyContext = inject(CompanyContextService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   readonly scope = inject(CompanyScopeService);
 
@@ -35,7 +36,6 @@ export class CompanyAdminShell {
 
   readonly isEntering = signal(false);
   readonly enterError = signal<string | null>(null);
-  readonly enterSuccess = transientMessage();
 
   /** La empresa administrada ya es la empresa de trabajo del usuario. */
   readonly isActiveCompany = computed(
@@ -58,8 +58,8 @@ export class CompanyAdminShell {
   }
 
   /**
-   * Hace de la empresa administrada la empresa de trabajo del usuario, sin salir
-   * de la ficha: el encabezado y el menu cambian solos y se confirma aqui mismo.
+   * Hace de la empresa administrada la empresa de trabajo del usuario y abre su
+   * inicio. Asi la ficha administrativa y el alcance operativo no se mezclan.
    */
   enterCompany(): void {
     const company = this.company();
@@ -74,7 +74,7 @@ export class CompanyAdminShell {
     this.companyContext.select(company).subscribe({
       next: () => {
         this.isEntering.set(false);
-        this.enterSuccess.set(`Ahora estás gestionando ${company.nombre} como tu empresa de trabajo.`);
+        void this.router.navigate(['/home']);
       },
       error: (error: unknown) => {
         this.isEntering.set(false);

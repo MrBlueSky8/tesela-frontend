@@ -6,6 +6,8 @@ import { filter, map, startWith } from 'rxjs';
 import { LayoutStateService } from '../../../core/services/layout-state-service';
 import { CompanySwitcher } from './company-switcher/company-switcher';
 
+export type CompanyContextDisplay = 'hidden' | 'multi' | 'workspace';
+
 export interface Crumb {
   label: string;
   route: string | null;
@@ -39,6 +41,22 @@ export class Topbar {
   );
 
   readonly lastIndex = computed(() => this.crumbs().length - 1);
+
+  /**
+   * La empresa solo ocupa el encabezado cuando la ruta depende del espacio de
+   * trabajo. Las rutas de plataforma llevan su empresa en la URL y no deben
+   * mezclarla con la empresa activa del usuario.
+   */
+  readonly companyContextDisplay = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      startWith(null),
+      map(() => this.resolveCompanyContextDisplay()),
+    ),
+    { initialValue: this.resolveCompanyContextDisplay() },
+  );
+
+  readonly showCompanyContext = computed(() => this.companyContextDisplay() !== 'hidden');
 
   toggleSidebar(): void {
     this.layoutState.toggleSidebar();
@@ -74,5 +92,20 @@ export class Topbar {
     }
 
     return crumbs;
+  }
+
+  private resolveCompanyContextDisplay(): CompanyContextDisplay {
+    let display: CompanyContextDisplay = 'hidden';
+    let node: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
+
+    while (node) {
+      const configured = node.data['companyContextDisplay'] as CompanyContextDisplay | undefined;
+      if (configured) {
+        display = configured;
+      }
+      node = node.firstChild;
+    }
+
+    return display;
   }
 }

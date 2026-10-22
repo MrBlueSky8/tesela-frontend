@@ -233,6 +233,13 @@ export class CompanyContextService {
   }
 
   private load(userPublicId: string): Observable<boolean> {
+    // Fundades administra por rutas /plataforma/empresas/:id. Una empresa de
+    // trabajo antigua no debe reaparecer silenciosamente al iniciar sesión.
+    if (this.tokenService.role() !== 'USUARIO') {
+      localStorage.removeItem(STORAGE_KEY);
+      return of(false);
+    }
+
     const stored = this.readStored();
 
     if (stored?.userPublicId === userPublicId) {
@@ -243,11 +250,6 @@ export class CompanyContextService {
         tap(([company, access]) => this.apply(company, access)),
         map(() => true),
       );
-    }
-
-    // Un administrador de plataforma ve todas las empresas: elegir por el seria arbitrario.
-    if (this.tokenService.role() !== 'USUARIO') {
-      return of(false);
     }
 
     return this.companyApi
@@ -267,9 +269,11 @@ export class CompanyContextService {
     this.companyState.set(company);
     this.accessState.set(access);
 
-    if (userPublicId) {
+    if (userPublicId && this.tokenService.role() === 'USUARIO') {
       const selection: StoredSelection = { userPublicId, companyPublicId: company.publicId };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(selection));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
     }
   }
 

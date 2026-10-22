@@ -13,7 +13,9 @@
     ></i>
   </button>
 
-  <app-company-switcher />
+  @if (showCompanyContext()) {
+    <app-company-switcher [mode]="companyContextDisplay()" />
+  }
 
   <nav class="bc" aria-label="Ruta de navegación">
     @for (crumb of crumbs(); track crumb.label; let i = $index) {
