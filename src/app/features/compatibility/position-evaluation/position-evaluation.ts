@@ -10,7 +10,6 @@ import {
   CRITICALITY_LABELS,
   LEARNING_CURVE_LABELS,
 } from '../../../core/helpers/methodology-labels';
-import { transientMessage } from '../../../core/helpers/transient-message';
 import {
   AreaCriticality,
   EvaluationAreaResponse,
@@ -21,12 +20,19 @@ import {
   WorkEnvironment,
 } from '../../../core/models/position-evaluation';
 import { CompanyContextService } from '../../../core/services/company-context-service';
+import { ToastService } from '../../../core/services/toast-service';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
 /** Lo que el evaluador lleva puntuado en un área. */
 interface AreaDraft {
   nivelExigencia: number | null;
   criticidad: AreaCriticality | null;
+}
+
+interface PendingArea {
+  groupName: string;
+  area: EvaluationAreaResponse;
+  missing: string;
 }
 
 /**
@@ -49,6 +55,7 @@ export class PositionEvaluation {
   private readonly api = inject(CompatibilityApiService);
   private readonly companyContext = inject(CompanyContextService);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   readonly company = this.companyContext.company;
   readonly criticalityLabels = CRITICALITY_LABELS;
@@ -63,8 +70,6 @@ export class PositionEvaluation {
   readonly loadError = signal<string | null>(null);
   readonly isSaving = signal(false);
   readonly isPublishing = signal(false);
-  readonly actionError = signal<string | null>(null);
-  readonly notice = transientMessage();
   readonly confirmingPublish = signal(false);
   readonly confirmingDiscard = signal(false);
   readonly isDiscarding = signal(false);
@@ -74,6 +79,7 @@ export class PositionEvaluation {
   readonly jornada = signal<JobModality[]>([]);
   readonly entorno = signal<WorkEnvironment[]>([]);
   readonly expanded = signal<number | null>(null);
+  readonly openGroups = signal<Set<string>>(new Set());
 
   readonly contextForm = this.fb.nonNullable.group({
     descripcionLibre: [''],
@@ -110,14 +116,41 @@ export class PositionEvaluation {
     return grupos;
   });
 
+  /** Primera área que todavía necesita nivel, criticidad o ambos. */
+  readonly nextPending = computed<PendingArea | null>(() => {
+    const draft = this.draft();
+
+    for (const group of this.grupos()) {
+      for (const area of group.areas) {
+        const levelMissing = draft[area.orden]?.nivelExigencia == null;
+        const criticalityMissing = draft[area.orden]?.criticidad == null;
+
+        if (levelMissing || criticalityMissing) {
+          return {
+            groupName: group.nombre,
+            area,
+            missing:
+              levelMissing && criticalityMissing
+                ? 'nivel y criticidad'
+                : levelMissing
+                  ? 'nivel'
+                  : 'criticidad',
+          };
+        }
+      }
+    }
+
+    return null;
+  });
+
   /** Cuántas áreas de un grupo están completas, para el avance por bloque. */
   completasDe(areas: EvaluationAreaResponse[]): number {
     const draft = this.draft();
     return areas.filter(
       (area) =>
-        draft[area.orden]?.nivelExigencia !== null
-        && draft[area.orden]?.criticidad !== null
-        && draft[area.orden] !== undefined,
+        draft[area.orden]?.nivelExigencia !== null &&
+        draft[area.orden]?.criticidad !== null &&
+        draft[area.orden] !== undefined,
     ).length;
   }
 
@@ -148,6 +181,7 @@ export class PositionEvaluation {
         this.areas.set(areas);
         this.fields.set(fields);
         this.setEvaluation(evaluation);
+        this.initializeGroupExpansion();
       },
       error: (error: unknown) => {
         this.isLoading.set(false);
@@ -160,7 +194,7 @@ export class PositionEvaluation {
     });
   }
 
-  /** Abre un borrador, o recupera el que ya tenga abierto el evaluador. */
+  /** Abre el borrador del puesto, o recupera el que ya tuviera abierto. */
   onStart(): void {
     const company = this.company();
     const positionPublicId = this.route.snapshot.paramMap.get('positionPublicId');
@@ -170,19 +204,18 @@ export class PositionEvaluation {
     }
 
     this.isSaving.set(true);
-    this.actionError.set(null);
-
     this.api.startPositionEvaluation(company.publicId, positionPublicId).subscribe({
       next: (evaluation) => {
         this.isSaving.set(false);
         this.setEvaluation(evaluation);
-        this.notice.set(evaluation.editable
+        this.initializeGroupExpansion();
+        this.toast.info(evaluation.editable
           ? 'Evaluación abierta. Puedes completarla en varias sesiones.'
           : `Este puesto ya tiene un borrador abierto por ${evaluation.evaluadorNombre}.`);
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
-        this.actionError.set(backendErrorMessage(error, 'No pudimos abrir la evaluación.'));
+        this.toast.error(backendErrorMessage(error, 'No pudimos abrir la evaluación.'));
       },
     });
   }
@@ -220,6 +253,45 @@ export class PositionEvaluation {
 
   toggleExpanded(orden: number): void {
     this.expanded.update((current) => (current === orden ? null : orden));
+  }
+
+  isGroupOpen(groupName: string): boolean {
+    return this.openGroups().has(groupName);
+  }
+
+  toggleGroup(groupName: string): void {
+    this.openGroups.update((current) => {
+      const updated = new Set(current);
+      if (updated.has(groupName)) {
+        updated.delete(groupName);
+      } else {
+        updated.add(groupName);
+      }
+      return updated;
+    });
+  }
+
+  /** Abre y enfoca la primera área incompleta, sin alterar sus datos. */
+  goToNextPending(closeGroup?: string): void {
+    const pending = this.nextPending();
+    if (!pending) {
+      return;
+    }
+
+    this.openGroups.update((current) => {
+      const updated = new Set(current);
+      if (closeGroup) {
+        updated.delete(closeGroup);
+      }
+      updated.add(pending.groupName);
+      return updated;
+    });
+
+    requestAnimationFrame(() => {
+      const element = document.getElementById(`pe-area-${pending.area.orden}`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element?.focus({ preventScroll: true });
+    });
   }
 
   toggleJornada(valor: JobModality, event: Event): void {
@@ -281,7 +353,6 @@ export class PositionEvaluation {
     }
 
     this.isDiscarding.set(true);
-    this.actionError.set(null);
 
     this.api
       .discardPositionEvaluation(company.publicId, evaluation.positionPublicId, evaluation.publicId)
@@ -290,12 +361,12 @@ export class PositionEvaluation {
           this.isDiscarding.set(false);
           this.confirmingDiscard.set(false);
           this.setEvaluation(null);
-          this.notice.set('Borrador descartado. El puesto vuelve a quedar sin evaluación.');
+          this.toast.success('Borrador descartado. El puesto vuelve a quedar sin evaluación.');
         },
         error: (error: unknown) => {
           this.isDiscarding.set(false);
           this.confirmingDiscard.set(false);
-          this.actionError.set(backendErrorMessage(error, 'No pudimos descartar el borrador.'));
+          this.toast.error(backendErrorMessage(error, 'No pudimos descartar el borrador.'));
         },
       });
   }
@@ -323,8 +394,6 @@ export class PositionEvaluation {
 
     const flag = publicar ? this.isPublishing : this.isSaving;
     flag.set(true);
-    this.actionError.set(null);
-
     this.api
       .savePositionEvaluation(company.publicId, evaluation.positionPublicId, evaluation.publicId, {
         descripcionLibre: value.descripcionLibre.trim() || null,
@@ -339,7 +408,9 @@ export class PositionEvaluation {
           if (!publicar) {
             flag.set(false);
             this.setEvaluation(guardada);
-            this.notice.set(`Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas.`);
+            this.toast.success(
+              `Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas.`,
+            );
             return;
           }
           this.publicar(company.publicId, guardada);
@@ -347,7 +418,7 @@ export class PositionEvaluation {
         error: (error: unknown) => {
           flag.set(false);
           this.confirmingPublish.set(false);
-          this.actionError.set(backendErrorMessage(error, 'No pudimos guardar la evaluación.'));
+          this.toast.error(backendErrorMessage(error, 'No pudimos guardar la evaluación.'));
         },
       });
   }
@@ -361,12 +432,12 @@ export class PositionEvaluation {
           this.isPublishing.set(false);
           this.confirmingPublish.set(false);
           this.setEvaluation(publicada);
-          this.notice.set('Evaluación publicada. Ya puede cruzarse con los postulantes.');
+          this.toast.success('Evaluación publicada. Ya puede cruzarse con los postulantes.');
         },
         error: (error: unknown) => {
           this.isPublishing.set(false);
           this.confirmingPublish.set(false);
-          this.actionError.set(backendErrorMessage(error, 'No pudimos publicar la evaluación.'));
+          this.toast.error(backendErrorMessage(error, 'No pudimos publicar la evaluación.'));
         },
       });
   }
@@ -403,5 +474,13 @@ export class PositionEvaluation {
     } else {
       this.contextForm.enable({ emitEvent: false });
     }
+  }
+
+  /** Al entrar, oculta lo completo y deja listo el primer bloque pendiente. */
+  private initializeGroupExpansion(): void {
+    const firstIncomplete = this.grupos().find(
+      (group) => this.completasDe(group.areas) < group.areas.length,
+    );
+    this.openGroups.set(new Set(firstIncomplete ? [firstIncomplete.nombre] : []));
   }
 }

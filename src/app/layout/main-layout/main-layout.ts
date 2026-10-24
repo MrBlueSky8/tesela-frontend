@@ -5,6 +5,7 @@ import { CompanyContextService } from '../../core/services/company-context-servi
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { Sidebar } from '../components/sidebar/sidebar';
 import { Topbar } from '../components/topbar/topbar';
+import { ToastContainer } from '../components/toast-container/toast-container';
 
 /**
  * Shell autenticado. En escritorio replica el layout de las maquetas
@@ -13,7 +14,7 @@ import { Topbar } from '../components/topbar/topbar';
  */
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, Sidebar, Topbar, BottomNav],
+  imports: [RouterOutlet, Sidebar, Topbar, BottomNav, ToastContainer],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })

@@ -2,14 +2,11 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
-import {
-  CATEGORY_BADGES,
-  CATEGORY_LABELS,
-} from '../../../core/helpers/methodology-labels';
-import { transientMessage } from '../../../core/helpers/transient-message';
+import { CATEGORY_BADGES, CATEGORY_LABELS } from '../../../core/helpers/methodology-labels';
 import { CompatibilityCategory } from '../../../core/models/compatibility-cross';
 import { ModuleStats } from '../../../core/models/module-stats';
 import { CompanyContextService } from '../../../core/services/company-context-service';
+import { ToastService } from '../../../core/services/toast-service';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
 /** Una categoría con su cuenta y su porcentaje dentro del modo. */
@@ -39,6 +36,7 @@ interface CategoryBar {
 export class ModuleOverview {
   private readonly api = inject(CompatibilityApiService);
   private readonly companyContext = inject(CompanyContextService);
+  private readonly toast = inject(ToastService);
 
   readonly company = this.companyContext.company;
 
@@ -48,8 +46,6 @@ export class ModuleOverview {
 
   readonly isRecalculating = signal(false);
   readonly restantes = signal<number | null>(null);
-  readonly actionError = signal<string | null>(null);
-  readonly notice = transientMessage();
 
   readonly cobertura = computed(() => {
     const stats = this.stats();
@@ -96,7 +92,6 @@ export class ModuleOverview {
       return;
     }
     this.isRecalculating.set(true);
-    this.actionError.set(null);
     this.siguienteTanda(0);
   }
 
@@ -120,13 +115,13 @@ export class ModuleOverview {
         }
         this.isRecalculating.set(false);
         this.restantes.set(null);
-        this.notice.set(`${total} puestos recalculados con la metodología vigente.`);
+        this.toast.success(`${total} puestos recalculados con la metodología vigente.`);
         this.load();
       },
       error: (error: unknown) => {
         this.isRecalculating.set(false);
         this.restantes.set(null);
-        this.actionError.set(backendErrorMessage(error, 'No pudimos recalcular los cruces.'));
+        this.toast.error(backendErrorMessage(error, 'No pudimos recalcular los cruces.'));
       },
     });
   }

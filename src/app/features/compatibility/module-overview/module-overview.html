@@ -12,23 +12,6 @@
     </button>
   </div>
 } @else if (stats(); as current) {
-  @if (notice(); as message) {
-    <p class="alert alert-success mo__alert" role="status">
-      <i class="ti ti-circle-check" aria-hidden="true"></i>
-      <span>{{ message }}</span>
-      <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
-        <i class="ti ti-x" aria-hidden="true"></i>
-      </button>
-    </p>
-  }
-
-  @if (actionError(); as message) {
-    <p class="alert alert-error mo__alert" role="alert">
-      <i class="ti ti-alert-circle" aria-hidden="true"></i>
-      <span>{{ message }}</span>
-    </p>
-  }
-
   <!-- ================= Cobertura ================= -->
   <div class="stat-row">
     <div class="stat-card">
@@ -78,10 +61,17 @@
   }
 
   <!-- ================= Distribución ================= -->
-  @for (bloque of [
-    { titulo: 'Cruces con perfiles de referencia', barras: modoA(), total: current.crucesGenericos },
-    { titulo: 'Cruces con personas evaluadas', barras: modoB(), total: current.crucesPersonales }
-  ]; track bloque.titulo) {
+  @for (
+    bloque of [
+      {
+        titulo: 'Cruces con perfiles de referencia',
+        barras: modoA(),
+        total: current.crucesGenericos,
+      },
+      { titulo: 'Cruces con personas evaluadas', barras: modoB(), total: current.crucesPersonales },
+    ];
+    track bloque.titulo
+  ) {
     <section class="fc" [attr.aria-label]="bloque.titulo">
       <div class="fc-hdr mo__hdr">
         <span>{{ bloque.titulo }}</span>
@@ -98,8 +88,10 @@
           <div class="mo__bar-row">
             <span class="bdg {{ barra.badge }}">{{ barra.etiqueta }}</span>
             <span class="mo__bar" aria-hidden="true">
-              <span class="mo__bar-fill mo__bar-fill--{{ barra.categoria }}"
-                    [style.width.%]="barra.porcentaje"></span>
+              <span
+                class="mo__bar-fill mo__bar-fill--{{ barra.categoria }}"
+                [style.width.%]="barra.porcentaje"
+              ></span>
             </span>
             <span class="mo__bar-val">{{ barra.total }} · {{ barra.porcentaje }} %</span>
           </div>
@@ -120,8 +112,8 @@
     } @else {
       <p class="cell-sub mo__note">
         <i class="ti ti-info-circle" aria-hidden="true"></i>
-        Los rankings solo incluyen puestos con evaluación publicada: hasta que estos se evalúen,
-        la foto está incompleta.
+        Los rankings solo incluyen puestos con evaluación publicada: hasta que estos se evalúen, la
+        foto está incompleta.
       </p>
 
       <ul class="mo__pending">
@@ -133,7 +125,10 @@
             } @else {
               <span class="bdg bdg-gray">Sin evaluar</span>
             }
-            <a class="btn btn-outline btn-sm" [routerLink]="['../puestos', position.publicId, 'evaluacion']">
+            <a
+              class="btn btn-outline btn-sm"
+              [routerLink]="['../puestos', position.publicId, 'evaluacion']"
+            >
               <i class="ti ti-clipboard-list" aria-hidden="true"></i>
               {{ position.enBorrador ? 'Continuar' : 'Evaluar' }}
             </a>

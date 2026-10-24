@@ -19,23 +19,6 @@
       Ficha del postulante
     </a>
 
-    @if (notice(); as message) {
-      <p class="alert alert-success ae__alert" role="status">
-        <i class="ti ti-circle-check" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-        <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
-          <i class="ti ti-x" aria-hidden="true"></i>
-        </button>
-      </p>
-    }
-
-    @if (actionError(); as message) {
-      <p class="alert alert-error ae__alert" role="alert">
-        <i class="ti ti-alert-circle" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-      </p>
-    }
-
     @if (evaluation(); as current) {
       <div class="ph-row">
         <div>
@@ -70,8 +53,8 @@
               Esta evaluación está publicada, así que es de solo lectura. Para cambiarla, abre una
               evaluación nueva: la vigente quedará reemplazada y se conservará.
             } @else {
-              Este borrador lo abrió {{ current.evaluadorNombre }}. Solo su autor o un
-              administrador general pueden modificarlo.
+              Este borrador lo abrió {{ current.evaluadorNombre }}. Solo su autor o un administrador
+              general pueden modificarlo.
             }
           </span>
         </p>
@@ -144,7 +127,12 @@
 
           <div class="fg">
             <label class="fl" for="ae-observaciones">Observaciones del evaluador</label>
-            <textarea class="fi" id="ae-observaciones" rows="2" formControlName="observacionesEvaluador"></textarea>
+            <textarea
+              class="fi"
+              id="ae-observaciones"
+              rows="2"
+              formControlName="observacionesEvaluador"
+            ></textarea>
           </div>
         </form>
       </section>
@@ -182,7 +170,11 @@
                 <p class="ae__area-def">{{ area.definicionCapacidad }}</p>
               }
 
-              <div class="ae__levels" role="group" [attr.aria-label]="'Nivel de capacidad en ' + area.nombre">
+              <div
+                class="ae__levels"
+                role="group"
+                [attr.aria-label]="'Nivel de capacidad en ' + area.nombre"
+              >
                 @for (nivel of area.niveles; track nivel.nivel) {
                   <button
                     class="ae__level"
@@ -218,7 +210,12 @@
 
         <div class="ae__actions">
           @if (confirmingPublish()) {
-            <button class="btn btn-ghost" type="button" (click)="cancelPublish()" [disabled]="isPublishing()">
+            <button
+              class="btn btn-ghost"
+              type="button"
+              (click)="cancelPublish()"
+              [disabled]="isPublishing()"
+            >
               Cancelar
             </button>
           }
@@ -268,8 +265,7 @@
         <i class="ti ti-clipboard-list" aria-hidden="true"></i>
         <p>
           Esta persona todavía no tiene evaluación en la empresa.<br />
-          Al abrirla podrás puntuar las {{ areas().length }} áreas y completarla en varias
-          sesiones.
+          Al abrirla podrás puntuar las {{ areas().length }} áreas y completarla en varias sesiones.
         </p>
         <button class="btn btn-teal" type="button" [disabled]="isSaving()" (click)="onStart()">
           @if (isSaving()) {

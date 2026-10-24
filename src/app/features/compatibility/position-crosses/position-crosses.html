@@ -19,23 +19,6 @@
       Puestos
     </a>
 
-    @if (notice(); as message) {
-      <p class="alert alert-success pc__alert" role="status">
-        <i class="ti ti-circle-check" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-        <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
-          <i class="ti ti-x" aria-hidden="true"></i>
-        </button>
-      </p>
-    }
-
-    @if (actionError(); as message) {
-      <p class="alert alert-error pc__alert" role="alert">
-        <i class="ti ti-alert-circle" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-      </p>
-    }
-
     <div class="ph-row">
       <div>
         <div class="ph-t">{{ positionNombre() ?? 'Resultados de compatibilidad' }}</div>
