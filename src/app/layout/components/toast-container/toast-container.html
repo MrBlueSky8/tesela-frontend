@@ -1,0 +1,24 @@
+<div class="toast-stack" aria-live="polite" aria-atomic="false">
+  @for (item of toast.messages(); track item.id) {
+    <div
+      class="toast"
+      [class]="'toast toast--' + item.type"
+      [attr.role]="item.type === 'error' ? 'alert' : 'status'"
+    >
+      <i
+        class="ti toast__icon"
+        [class]="'ti toast__icon ' + icon(item.type)"
+        aria-hidden="true"
+      ></i>
+      <span class="toast__message">{{ item.message }}</span>
+      <button
+        class="toast__close"
+        type="button"
+        (click)="toast.dismiss(item.id)"
+        aria-label="Cerrar notificación"
+      >
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+</div>

@@ -7,11 +7,14 @@ import { distinctUntilChanged, forkJoin, map } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import { GENDER_OPTIONS } from '../../../core/helpers/person-labels';
-import { transientMessage } from '../../../core/helpers/transient-message';
 import { ApplicantResponse, UpdateApplicantRequest } from '../../../core/models/applicant';
 import { Gender } from '../../../core/models/user-profile-response';
 import { CompanyContextService } from '../../../core/services/company-context-service';
-import { CompatibilityApiService, DisabilityProfileCatalogItem } from '../compatibility-api-service';
+import { ToastService } from '../../../core/services/toast-service';
+import {
+  CompatibilityApiService,
+  DisabilityProfileCatalogItem,
+} from '../compatibility-api-service';
 
 const DOCUMENT_LABELS: Record<string, string> = {
   DNI: 'DNI',
@@ -39,6 +42,7 @@ export class ApplicantDetail {
   private readonly companyContext = inject(CompanyContextService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
 
   readonly company = this.companyContext.company;
   readonly genderOptions = GENDER_OPTIONS;
@@ -50,7 +54,6 @@ export class ApplicantDetail {
 
   readonly isSaving = signal(false);
   readonly saveError = signal<string | null>(null);
-  readonly saveSuccess = transientMessage();
 
   readonly isSavingProfiles = signal(false);
   readonly selectedProfiles = signal<string[]>([]);
@@ -68,8 +71,10 @@ export class ApplicantDetail {
   readonly profilesChanged = computed(() => {
     const actuales = (this.applicant()?.perfiles ?? []).map((perfil) => perfil.publicId).sort();
     const elegidos = [...this.selectedProfiles()].sort();
-    return actuales.length !== elegidos.length
-      || actuales.some((publicId, index) => publicId !== elegidos[index]);
+    return (
+      actuales.length !== elegidos.length ||
+      actuales.some((publicId, index) => publicId !== elegidos[index])
+    );
   });
 
   readonly form = this.fb.nonNullable.group({
@@ -142,7 +147,7 @@ export class ApplicantDetail {
     const payload = this.changes(applicant);
     if (Object.keys(payload).length === 0) {
       this.saveError.set(null);
-      this.saveSuccess.set('No hay cambios por guardar.');
+      this.toast.info('No hay cambios por guardar.');
       return;
     }
 
@@ -153,11 +158,11 @@ export class ApplicantDetail {
       next: (actualizado) => {
         this.isSaving.set(false);
         this.setApplicant(actualizado);
-        this.saveSuccess.set('Datos del postulante actualizados.');
+        this.toast.success('Datos del postulante actualizados.');
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
-        this.saveError.set(backendErrorMessage(error, 'No pudimos guardar los cambios.'));
+        this.toast.error(backendErrorMessage(error, 'No pudimos guardar los cambios.'));
       },
     });
   }
@@ -192,17 +197,19 @@ export class ApplicantDetail {
     this.isSavingProfiles.set(true);
     this.saveError.set(null);
 
-    this.api.updateProfiles(company.publicId, applicant.publicId, this.selectedProfiles()).subscribe({
-      next: (actualizado) => {
-        this.isSavingProfiles.set(false);
-        this.setApplicant(actualizado);
-        this.saveSuccess.set('Perfiles declarados actualizados.');
-      },
-      error: (error: unknown) => {
-        this.isSavingProfiles.set(false);
-        this.saveError.set(backendErrorMessage(error, 'No pudimos guardar los perfiles.'));
-      },
-    });
+    this.api
+      .updateProfiles(company.publicId, applicant.publicId, this.selectedProfiles())
+      .subscribe({
+        next: (actualizado) => {
+          this.isSavingProfiles.set(false);
+          this.setApplicant(actualizado);
+          this.toast.success('Perfiles declarados actualizados.');
+        },
+        error: (error: unknown) => {
+          this.isSavingProfiles.set(false);
+          this.toast.error(backendErrorMessage(error, 'No pudimos guardar los perfiles.'));
+        },
+      });
   }
 
   onToggleEstado(): void {
@@ -215,23 +222,26 @@ export class ApplicantDetail {
 
     const estado = applicant.estado === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     this.isSaving.set(true);
+    this.saveError.set(null);
 
     this.api.update(company.publicId, applicant.publicId, { estado }).subscribe({
       next: (actualizado) => {
         this.isSaving.set(false);
         this.setApplicant(actualizado);
-        this.saveSuccess.set(
+        this.toast.success(
           estado === 'ACTIVE' ? 'Postulante reactivado.' : 'Postulante marcado como inactivo.',
         );
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
-        this.saveError.set(backendErrorMessage(error, 'No pudimos cambiar el estado.'));
+        this.toast.error(backendErrorMessage(error, 'No pudimos cambiar el estado.'));
       },
     });
   }
 
-  fieldError(name: 'email' | 'telefono' | 'direccion' | 'cargoActual' | 'areaDepartamento'): string | null {
+  fieldError(
+    name: 'email' | 'telefono' | 'direccion' | 'cargoActual' | 'areaDepartamento',
+  ): string | null {
     const control = this.form.controls[name];
 
     if (!control.touched && !control.dirty) {

@@ -10,13 +10,13 @@ import {
   HEALTH_STATUS_LABELS,
   HEALTH_STATUS_VALUES,
 } from '../../../core/helpers/methodology-labels';
-import { transientMessage } from '../../../core/helpers/transient-message';
 import {
   ApplicantEvaluationResponse,
   HealthStatus,
 } from '../../../core/models/applicant-evaluation';
 import { EvaluationAreaResponse } from '../../../core/models/position-evaluation';
 import { CompanyContextService } from '../../../core/services/company-context-service';
+import { ToastService } from '../../../core/services/toast-service';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
 /**
@@ -39,6 +39,7 @@ export class ApplicantEvaluation {
   private readonly api = inject(CompatibilityApiService);
   private readonly companyContext = inject(CompanyContextService);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   readonly company = this.companyContext.company;
   readonly healthLabels = HEALTH_STATUS_LABELS;
@@ -53,8 +54,6 @@ export class ApplicantEvaluation {
   readonly loadError = signal<string | null>(null);
   readonly isSaving = signal(false);
   readonly isPublishing = signal(false);
-  readonly actionError = signal<string | null>(null);
-  readonly notice = transientMessage();
   readonly confirmingPublish = signal(false);
 
   /** Nivel de capacidad elegido por área, indexado por orden. */
@@ -144,17 +143,15 @@ export class ApplicantEvaluation {
     }
 
     this.isSaving.set(true);
-    this.actionError.set(null);
-
     this.api.startApplicantEvaluation(company.publicId, applicantPublicId).subscribe({
       next: (evaluation) => {
         this.isSaving.set(false);
         this.setEvaluation(evaluation);
-        this.notice.set('Evaluación abierta. Puedes completarla en varias sesiones.');
+        this.toast.info('Evaluación abierta. Puedes completarla en varias sesiones.');
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
-        this.actionError.set(backendErrorMessage(error, 'No pudimos abrir la evaluación.'));
+        this.toast.error(backendErrorMessage(error, 'No pudimos abrir la evaluación.'));
       },
     });
   }
@@ -210,8 +207,6 @@ export class ApplicantEvaluation {
 
     const flag = publicar ? this.isPublishing : this.isSaving;
     flag.set(true);
-    this.actionError.set(null);
-
     this.api
       .saveApplicantEvaluation(
         company.publicId,
@@ -232,7 +227,7 @@ export class ApplicantEvaluation {
           if (!publicar) {
             flag.set(false);
             this.setEvaluation(guardada);
-            this.notice.set(
+            this.toast.success(
               `Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas.`,
             );
             return;
@@ -242,7 +237,7 @@ export class ApplicantEvaluation {
         error: (error: unknown) => {
           flag.set(false);
           this.confirmingPublish.set(false);
-          this.actionError.set(backendErrorMessage(error, 'No pudimos guardar la evaluación.'));
+          this.toast.error(backendErrorMessage(error, 'No pudimos guardar la evaluación.'));
         },
       });
   }
@@ -256,12 +251,12 @@ export class ApplicantEvaluation {
           this.isPublishing.set(false);
           this.confirmingPublish.set(false);
           this.setEvaluation(publicada);
-          this.notice.set('Evaluación publicada. Ya puede cruzarse con los puestos.');
+          this.toast.success('Evaluación publicada. Ya puede cruzarse con los puestos.');
         },
         error: (error: unknown) => {
           this.isPublishing.set(false);
           this.confirmingPublish.set(false);
-          this.actionError.set(backendErrorMessage(error, 'No pudimos publicar la evaluación.'));
+          this.toast.error(backendErrorMessage(error, 'No pudimos publicar la evaluación.'));
         },
       });
   }

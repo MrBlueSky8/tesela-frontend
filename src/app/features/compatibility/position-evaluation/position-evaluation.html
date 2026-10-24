@@ -19,23 +19,6 @@
       Puestos
     </a>
 
-    @if (notice(); as message) {
-      <p class="alert alert-success pe__alert" role="status">
-        <i class="ti ti-circle-check" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-        <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
-          <i class="ti ti-x" aria-hidden="true"></i>
-        </button>
-      </p>
-    }
-
-    @if (actionError(); as message) {
-      <p class="alert alert-error pe__alert" role="alert">
-        <i class="ti ti-alert-circle" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-      </p>
-    }
-
     @if (evaluation(); as current) {
       <div class="ph-row">
         <div>
@@ -52,6 +35,22 @@
           <span class="bdg bdg-blue">{{ completas() }} de {{ areas().length }} áreas</span>
         </div>
       </div>
+
+      @if (editable() && nextPending(); as pending) {
+        <div class="insight pe__pending" role="status">
+          <div class="pe__pending-copy">
+            <i class="ti ti-progress-check" aria-hidden="true"></i>
+            <span>
+              Siguiente pendiente:
+              <strong>{{ pending.area.orden }}. {{ pending.area.nombre }}</strong> — falta
+              {{ pending.missing }}.
+            </span>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" (click)="goToNextPending()">
+            Ir al pendiente
+          </button>
+        </div>
+      }
 
       @if (publicada()) {
         <div class="pe__actions pe__actions--top">
@@ -70,8 +69,8 @@
               Esta evaluación está publicada, así que es de solo lectura. Para cambiarla, abre una
               evaluación nueva del puesto: la vigente quedará reemplazada y se conservará.
             } @else {
-              Este borrador lo abrió {{ current.evaluadorNombre }}. Solo su autor o un
-              administrador general pueden modificarlo.
+              Este borrador lo abrió {{ current.evaluadorNombre }}. Solo su autor o un administrador
+              general pueden modificarlo.
             }
           </span>
         </p>
@@ -154,83 +153,125 @@
       </section>
 
       <!-- ================= Las 30 áreas ================= -->
-      @for (grupo of grupos(); track grupo.nombre) {
-        <section class="fc" [attr.aria-label]="grupo.nombre">
-          <div class="fc-hdr pe__group-hdr">
-            <span>{{ grupo.nombre }}</span>
-            <span class="pe__group-count">
-              {{ completasDe(grupo.areas) }} de {{ grupo.areas.length }}
+      @for (grupo of grupos(); track grupo.nombre; let groupIndex = $index) {
+        <section class="fc pe__group" [attr.aria-label]="grupo.nombre">
+          <button
+            class="fc-hdr pe__group-hdr"
+            type="button"
+            [attr.aria-expanded]="isGroupOpen(grupo.nombre)"
+            [attr.aria-controls]="'pe-group-' + groupIndex"
+            (click)="toggleGroup(grupo.nombre)"
+          >
+            <span class="pe__group-name">{{ grupo.nombre }}</span>
+            <span class="pe__group-summary">
+              @if (completasDe(grupo.areas) === grupo.areas.length) {
+                <span class="bdg bdg-green">Completado</span>
+              } @else if (completasDe(grupo.areas) > 0) {
+                <span class="bdg bdg-amber">En progreso</span>
+              } @else {
+                <span class="bdg bdg-gray">Sin iniciar</span>
+              }
+              <span class="pe__group-count">
+                {{ completasDe(grupo.areas) }} de {{ grupo.areas.length }}
+              </span>
+              <i
+                class="ti ti-chevron-down pe__group-chevron"
+                [class.pe__group-chevron--open]="isGroupOpen(grupo.nombre)"
+                aria-hidden="true"
+              ></i>
             </span>
-          </div>
+          </button>
 
-          @for (area of grupo.areas; track area.publicId) {
-            <div class="pe__area" [class.pe__area--done]="nivelDe(area.orden) && criticidadDe(area.orden)">
-              <div class="pe__area-hdr">
-                <span class="pe__area-name">
-                  <span class="pe__area-num">{{ area.orden }}</span>
-                  {{ area.nombre }}
-                </span>
-
-                <button
-                  class="pe__area-help"
-                  type="button"
-                  [attr.aria-expanded]="expanded() === area.orden"
-                  (click)="toggleExpanded(area.orden)"
+          @if (isGroupOpen(grupo.nombre)) {
+            <div class="pe__group-body" [id]="'pe-group-' + groupIndex">
+              @for (area of grupo.areas; track area.publicId) {
+                <div
+                  class="pe__area"
+                  [id]="'pe-area-' + area.orden"
+                  tabindex="-1"
+                  [class.pe__area--done]="nivelDe(area.orden) && criticidadDe(area.orden)"
                 >
-                  <i class="ti ti-help-circle" aria-hidden="true"></i>
-                  {{ expanded() === area.orden ? 'Ocultar detalle' : 'Qué mide' }}
-                </button>
-              </div>
+                  <div class="pe__area-hdr">
+                    <span class="pe__area-name">
+                      <span class="pe__area-num">{{ area.orden }}</span>
+                      {{ area.nombre }}
+                    </span>
 
-              @if (expanded() === area.orden) {
-                <p class="pe__area-def">{{ area.definicionExigencia }}</p>
+                    <button
+                      class="pe__area-help"
+                      type="button"
+                      [attr.aria-expanded]="expanded() === area.orden"
+                      (click)="toggleExpanded(area.orden)"
+                    >
+                      <i class="ti ti-help-circle" aria-hidden="true"></i>
+                      {{ expanded() === area.orden ? 'Ocultar detalle' : 'Qué mide' }}
+                    </button>
+                  </div>
+
+                  @if (expanded() === area.orden) {
+                    <p class="pe__area-def">{{ area.definicionExigencia }}</p>
+                  }
+
+                  <div
+                    class="pe__levels"
+                    role="group"
+                    [attr.aria-label]="'Nivel de exigencia de ' + area.nombre"
+                  >
+                    @for (nivel of area.niveles; track nivel.nivel) {
+                      <button
+                        class="pe__level"
+                        type="button"
+                        [class.pe__level--on]="nivelDe(area.orden) === nivel.nivel"
+                        [disabled]="!editable()"
+                        [attr.aria-pressed]="nivelDe(area.orden) === nivel.nivel"
+                        [title]="nivel.exigencia"
+                        (click)="setNivel(area.orden, nivel.nivel)"
+                      >
+                        <span class="pe__level-code">E{{ nivel.nivel }}</span>
+                        <span class="pe__level-text">{{ nivel.exigencia }}</span>
+                      </button>
+                    }
+                  </div>
+
+                  <div class="pe__criticality">
+                    <label class="fl" [attr.for]="'pe-crit-' + area.orden">Criticidad</label>
+                    <select
+                      class="fsel pe__crit-select"
+                      [id]="'pe-crit-' + area.orden"
+                      [value]="criticidadDe(area.orden) ?? ''"
+                      [disabled]="!editable()"
+                      (change)="setCriticidad(area.orden, $event)"
+                    >
+                      <option value="" [selected]="criticidadDe(area.orden) === null">
+                        Elegir...
+                      </option>
+                      @for (nivel of fields()?.criticidad ?? []; track nivel) {
+                        <option [value]="nivel" [selected]="criticidadDe(area.orden) === nivel">
+                          {{ criticalityLabels[nivel] }}
+                        </option>
+                      }
+                    </select>
+                    @if (criticidadDe(area.orden); as elegida) {
+                      <span class="cell-sub pe__crit-hint">{{ criticalityHints[elegida] }}</span>
+                    }
+                  </div>
+                </div>
               }
 
-              <div class="pe__levels" role="group" [attr.aria-label]="'Nivel de exigencia de ' + area.nombre">
-                @for (nivel of area.niveles; track nivel.nivel) {
+              @if (completasDe(grupo.areas) === grupo.areas.length && nextPending()) {
+                <div class="insight pe__group-next">
+                  <span
+                    ><i class="ti ti-circle-check" aria-hidden="true"></i> Bloque completado</span
+                  >
                   <button
-                    class="pe__level"
+                    class="btn btn-outline btn-sm"
                     type="button"
-                    [class.pe__level--on]="nivelDe(area.orden) === nivel.nivel"
-                    [disabled]="!editable()"
-                    [attr.aria-pressed]="nivelDe(area.orden) === nivel.nivel"
-                    [title]="nivel.exigencia"
-                    (click)="setNivel(area.orden, nivel.nivel)"
+                    (click)="goToNextPending(grupo.nombre)"
                   >
-                    <span class="pe__level-code">E{{ nivel.nivel }}</span>
-                    <span class="pe__level-text">{{ nivel.exigencia }}</span>
+                    Continuar al siguiente pendiente
                   </button>
-                }
-              </div>
-
-              <div class="pe__criticality">
-                <label class="fl" [attr.for]="'pe-crit-' + area.orden">Criticidad</label>
-                <select
-                  class="fsel pe__crit-select"
-                  [id]="'pe-crit-' + area.orden"
-                  [value]="criticidadDe(area.orden) ?? ''"
-                  [disabled]="!editable()"
-                  (change)="setCriticidad(area.orden, $event)"
-                >
-                  <option
-                    value=""
-                    [selected]="criticidadDe(area.orden) === null"
-                  >
-                    Elegir...
-                  </option>
-                  @for (nivel of fields()?.criticidad ?? []; track nivel) {
-                    <option
-                      [value]="nivel"
-                      [selected]="criticidadDe(area.orden) === nivel"
-                    >
-                      {{ criticalityLabels[nivel] }}
-                    </option>
-                  }
-                </select>
-                @if (criticidadDe(area.orden); as elegida) {
-                  <span class="cell-sub pe__crit-hint">{{ criticalityHints[elegida] }}</span>
-                }
-              </div>
+                </div>
+              }
             </div>
           }
         </section>
@@ -242,16 +283,20 @@
           <div class="alert alert-amber pe__alert" role="alert">
             <i class="ti ti-alert-triangle" aria-hidden="true"></i>
             <span>
-              Al publicar, esta evaluación pasa a ser la vigente del puesto y se usará para
-              calcular la compatibilidad. Si ya había una, quedará reemplazada y se conservará como
-              historia.
+              Al publicar, esta evaluación pasa a ser la vigente del puesto y se usará para calcular
+              la compatibilidad. Si ya había una, quedará reemplazada y se conservará como historia.
             </span>
           </div>
         }
 
         <div class="pe__actions">
           @if (confirmingPublish()) {
-            <button class="btn btn-ghost" type="button" (click)="cancelPublish()" [disabled]="isPublishing()">
+            <button
+              class="btn btn-ghost"
+              type="button"
+              (click)="cancelPublish()"
+              [disabled]="isPublishing()"
+            >
               Cancelar
             </button>
           }

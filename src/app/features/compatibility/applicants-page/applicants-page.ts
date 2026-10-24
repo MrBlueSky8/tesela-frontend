@@ -2,9 +2,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
-import { transientMessage } from '../../../core/helpers/transient-message';
 import { ApplicantSummaryResponse } from '../../../core/models/applicant';
 import { CompanyContextService } from '../../../core/services/company-context-service';
+import { ToastService } from '../../../core/services/toast-service';
 import { AddApplicantDialog } from '../add-applicant-dialog/add-applicant-dialog';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
@@ -29,13 +29,13 @@ const DOCUMENT_LABELS: Record<string, string> = {
 export class ApplicantsPage {
   private readonly api = inject(CompatibilityApiService);
   private readonly companyContext = inject(CompanyContextService);
+  private readonly toast = inject(ToastService);
 
   readonly company = this.companyContext.company;
 
   readonly applicants = signal<ApplicantSummaryResponse[]>([]);
   readonly isLoading = signal(true);
   readonly loadError = signal<string | null>(null);
-  readonly notice = transientMessage();
 
   readonly search = signal('');
   readonly statusFilter = signal<StatusFilter>('ACTIVE');
@@ -110,7 +110,7 @@ export class ApplicantsPage {
 
   onAdded(nombre: string): void {
     this.addOpen.set(false);
-    this.notice.set(`${nombre} quedó registrado como postulante de la empresa.`);
+    this.toast.success(`${nombre} quedó registrado como postulante de la empresa.`);
     this.load();
   }
 
@@ -124,9 +124,5 @@ export class ApplicantsPage {
 }
 
 function normalize(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '');
+  return value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }

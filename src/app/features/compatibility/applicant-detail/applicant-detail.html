@@ -39,21 +39,6 @@
       </div>
     </div>
 
-    @if (saveSuccess(); as message) {
-      <p class="alert alert-success ad__alert" role="status">
-        <i class="ti ti-circle-check" aria-hidden="true"></i>
-        <span>{{ message }}</span>
-        <button
-          class="alert-close"
-          type="button"
-          (click)="saveSuccess.set(null)"
-          aria-label="Cerrar aviso"
-        >
-          <i class="ti ti-x" aria-hidden="true"></i>
-        </button>
-      </p>
-    }
-
     @if (saveError(); as message) {
       <p class="alert alert-error ad__alert" role="alert">
         <i class="ti ti-alert-circle" aria-hidden="true"></i>

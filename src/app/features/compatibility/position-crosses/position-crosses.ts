@@ -4,9 +4,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
-import { transientMessage } from '../../../core/helpers/transient-message';
 import { CompatibilityCrossSummary, CrossMode } from '../../../core/models/compatibility-cross';
 import { CompanyContextService } from '../../../core/services/company-context-service';
+import { ToastService } from '../../../core/services/toast-service';
 import { CompatibilityApiService } from '../compatibility-api-service';
 import { CrossDetailDialog } from '../cross-detail-dialog/cross-detail-dialog';
 import { CrossRanking } from '../cross-ranking/cross-ranking';
@@ -29,6 +29,7 @@ export class PositionCrosses {
   private readonly api = inject(CompatibilityApiService);
   private readonly companyContext = inject(CompanyContextService);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   readonly company = this.companyContext.company;
 
@@ -39,8 +40,6 @@ export class PositionCrosses {
   readonly isLoading = signal(true);
   readonly loadError = signal<string | null>(null);
   readonly isRecalculating = signal(false);
-  readonly actionError = signal<string | null>(null);
-  readonly notice = transientMessage();
 
   readonly detailOf = signal<string | null>(null);
 
@@ -105,17 +104,15 @@ export class PositionCrosses {
     }
 
     this.isRecalculating.set(true);
-    this.actionError.set(null);
-
     this.api.recalculatePositionCrosses(company.publicId, positionPublicId).subscribe({
       next: (cuantos) => {
         this.isRecalculating.set(false);
-        this.notice.set(`${cuantos} cruces recalculados con la metodología vigente.`);
+        this.toast.success(`${cuantos} cruces recalculados con la metodología vigente.`);
         this.load();
       },
       error: (error: unknown) => {
         this.isRecalculating.set(false);
-        this.actionError.set(backendErrorMessage(error, 'No pudimos recalcular los cruces.'));
+        this.toast.error(backendErrorMessage(error, 'No pudimos recalcular los cruces.'));
       },
     });
   }

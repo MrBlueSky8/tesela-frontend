@@ -18,16 +18,6 @@
   </button>
 </div>
 
-@if (notice(); as message) {
-  <p class="alert alert-success ap__alert" role="status">
-    <i class="ti ti-circle-check" aria-hidden="true"></i>
-    <span>{{ message }}</span>
-    <button class="alert-close" type="button" (click)="notice.set(null)" aria-label="Cerrar aviso">
-      <i class="ti ti-x" aria-hidden="true"></i>
-    </button>
-  </p>
-}
-
 @if (isLoading()) {
   <div class="ts-loading" role="status">
     <span class="ts-spinner" aria-hidden="true"></span>
