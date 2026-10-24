@@ -212,9 +212,19 @@
                   [disabled]="!editable()"
                   (change)="setCriticidad(area.orden, $event)"
                 >
-                  <option value="">Elegir...</option>
+                  <option
+                    value=""
+                    [selected]="criticidadDe(area.orden) === null"
+                  >
+                    Elegir...
+                  </option>
                   @for (nivel of fields()?.criticidad ?? []; track nivel) {
-                    <option [value]="nivel">{{ criticalityLabels[nivel] }}</option>
+                    <option
+                      [value]="nivel"
+                      [selected]="criticidadDe(area.orden) === nivel"
+                    >
+                      {{ criticalityLabels[nivel] }}
+                    </option>
                   }
                 </select>
                 @if (criticidadDe(area.orden); as elegida) {
