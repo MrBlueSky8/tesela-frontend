@@ -20,10 +20,12 @@ import { controlErrorMessage } from '../../../core/helpers/form-error-message';
 import {
   DepartmentResponse,
   JobConditionCode,
+  JobConditionDimension,
   JobConditionResponse,
   PositionResponse,
   UpdatePositionRequest,
 } from '../../../core/models/organization';
+import { JobModality, WorkEnvironment } from '../../../core/models/position-evaluation';
 import { ModalShell } from '../../../shared/components/modal-shell/modal-shell';
 import { OrganizationApiService } from '../organization-api-service';
 
@@ -105,7 +107,7 @@ export class PositionFormDialog implements OnInit {
   });
 
   readonly modalidad = computed(() =>
-    this.conditions().filter((condition) => condition.dimension === 'MODALIDAD'),
+    this.conditions().filter((condition) => condition.dimension === 'JORNADA'),
   );
   readonly entorno = computed(() =>
     this.conditions().filter((condition) => condition.dimension === 'ENTORNO'),
@@ -136,8 +138,9 @@ export class PositionFormDialog implements OnInit {
     if (value.tareasPrincipales.trim() !== (position.tareasPrincipales ?? '')) {
       request.tareasPrincipales = value.tareasPrincipales.trim();
     }
-    if (!sameCodes(this.selectedConditions(), position.condiciones)) {
-      request.condiciones = this.orderedConditions();
+    if (!sameCodes(this.selectedConditions(), [...position.jornada, ...position.entorno])) {
+      request.jornada = this.orderedConditions('JORNADA') as JobModality[];
+      request.entorno = this.orderedConditions('ENTORNO') as WorkEnvironment[];
     }
     return request;
   });
@@ -162,7 +165,7 @@ export class PositionFormDialog implements OnInit {
         descripcion: position.descripcion ?? '',
         tareasPrincipales: position.tareasPrincipales ?? '',
       });
-      this.selectedConditions.set([...position.condiciones]);
+      this.selectedConditions.set([...position.jornada, ...position.entorno]);
     } else {
       // Con un solo departamento activo no hay nada que elegir.
       const active = this.departments().filter((d) => d.status === 'ACTIVE');
@@ -264,7 +267,8 @@ export class PositionFormDialog implements OnInit {
           ...(value.tareasPrincipales.trim()
             ? { tareasPrincipales: value.tareasPrincipales.trim() }
             : {}),
-          condiciones: this.orderedConditions(),
+          jornada: this.orderedConditions('JORNADA') as JobModality[],
+          entorno: this.orderedConditions('ENTORNO') as WorkEnvironment[],
         });
 
     this.isSaving.set(true);
@@ -291,10 +295,15 @@ export class PositionFormDialog implements OnInit {
     });
   }
 
-  /** En el orden del catalogo, para que la peticion sea estable. */
-  private orderedConditions(): JobConditionCode[] {
+  /**
+   * Lo elegido de una dimensión, en el orden del catálogo para que la
+   * petición sea estable. La selección se lleva plana en la pantalla y se
+   * separa aquí, que es donde el backend espera las dos listas.
+   */
+  private orderedConditions(dimension: JobConditionDimension): JobConditionCode[] {
     const selected = new Set(this.selectedConditions());
     return this.conditions()
+      .filter((condition) => condition.dimension === dimension)
       .map((condition) => condition.name)
       .filter((code) => selected.has(code));
   }

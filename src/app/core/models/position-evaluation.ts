@@ -53,9 +53,16 @@ export interface AreaLevelText {
 }
 
 /** Valores posibles de los campos complementarios del puesto. */
+/** Un valor del enumerado con el nombre que se muestra. */
+export interface FieldOption<T extends string> {
+  name: T;
+  label: string;
+}
+
 export interface PositionEvaluationFields {
-  jornada: JobModality[];
-  entorno: WorkEnvironment[];
+  /** Con etiqueta: es el mismo vocabulario que el catálogo de puestos. */
+  jornada: FieldOption<JobModality>[];
+  entorno: FieldOption<WorkEnvironment>[];
   curvaAprendizaje: LearningCurve[];
   criticidad: AreaCriticality[];
 }

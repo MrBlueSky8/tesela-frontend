@@ -1,11 +1,6 @@
 import { HealthStatus } from '../models/applicant-evaluation';
 import { AlertType, CompatibilityCategory } from '../models/compatibility-cross';
-import {
-  AreaCriticality,
-  JobModality,
-  LearningCurve,
-  WorkEnvironment,
-} from '../models/position-evaluation';
+import { AreaCriticality, LearningCurve } from '../models/position-evaluation';
 
 /** Etiquetas legibles de los valores que el backend guarda como enum. */
 
@@ -29,32 +24,12 @@ export const LEARNING_CURVE_LABELS: Record<LearningCurve, string> = {
   ALTA_Y_CONTINUA: 'Alta y continua: el aprendizaje es parte estructural del rol',
 };
 
-export const JOB_MODALITY_LABELS: Record<JobModality, string> = {
-  TURNO_NOCTURNO: 'Turno nocturno',
-  TURNO_ROTATIVO: 'Turno rotativo',
-  FINES_DE_SEMANA: 'Fines de semana',
-  JORNADA_PARTIDA: 'Jornada partida',
-  TRABAJO_REMOTO_TOTAL: 'Trabajo remoto total',
-  TRABAJO_REMOTO_PARCIAL: 'Trabajo remoto parcial',
-  VIAJES_FRECUENTES: 'Viajes frecuentes',
-  GUARDIAS_DISPONIBILIDAD: 'Guardias o disponibilidad',
-};
-
-export const WORK_ENVIRONMENT_LABELS: Record<WorkEnvironment, string> = {
-  OFICINA: 'Oficina',
-  PLANTA_O_TALLER: 'Planta o taller',
-  EXTERIOR: 'Exterior',
-  TRABAJO_EN_ALTURA: 'Trabajo en altura',
-  ESPACIO_CONFINADO: 'Espacio confinado',
-  CONTACTO_CONTINUO_PUBLICO: 'Contacto continuo con público',
-  CONDUCCION_MOTOCICLETA: 'Conducción de motocicleta',
-  CONDUCCION_VEHICULO_LIVIANO: 'Conducción de vehículo liviano',
-  CONDUCCION_VEHICULO_PESADO: 'Conducción de vehículo pesado',
-  OPERACION_MAQUINARIA_PESADA: 'Operación de maquinaria pesada',
-  TRABAJO_EN_SOLITARIO: 'Trabajo en solitario',
-  LABORATORIO: 'Laboratorio',
-  COCINA_O_ALIMENTOS: 'Cocina o manipulación de alimentos',
-};
+/*
+ * La jornada y el entorno no tienen mapa aquí a propósito: sus etiquetas
+ * vienen del backend junto con los valores, porque son el mismo vocabulario
+ * que el catálogo de puestos y tenerlas en dos sitios fue lo que permitió
+ * que las dos listas se separaran sin que nadie lo notara.
+ */
 
 /** Campo D: estado de salud general. No pondera, alimenta las alertas. */
 export const HEALTH_STATUS_LABELS: Record<HealthStatus, string> = {

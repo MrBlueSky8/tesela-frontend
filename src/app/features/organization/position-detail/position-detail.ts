@@ -55,16 +55,20 @@ export class PositionDetail {
 
   /** Condiciones del puesto agrupadas, con la etiqueta del catalogo. */
   readonly conditionGroups = computed(() => {
-    const selected = new Set(this.position()?.condiciones ?? []);
+    const position = this.position();
+    const selected = new Set<string>([...(position?.jornada ?? []), ...(position?.entorno ?? [])]);
     const chosen = this.conditions().filter((condition) => selected.has(condition.name));
 
     return [
-      { label: 'Modalidad', items: chosen.filter((c) => c.dimension === 'MODALIDAD') },
+      { label: 'Modalidad', items: chosen.filter((c) => c.dimension === 'JORNADA') },
       { label: 'Entorno', items: chosen.filter((c) => c.dimension === 'ENTORNO') },
     ];
   });
 
-  readonly hasConditions = computed(() => (this.position()?.condiciones.length ?? 0) > 0);
+  readonly hasConditions = computed(() => {
+    const position = this.position();
+    return (position?.jornada.length ?? 0) + (position?.entorno.length ?? 0) > 0;
+  });
 
   constructor() {
     // Angular reutiliza el componente si solo cambia el parametro (p. ej. con

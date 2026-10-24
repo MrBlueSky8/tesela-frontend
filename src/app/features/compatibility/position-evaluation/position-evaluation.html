@@ -112,16 +112,16 @@
           <div class="fg">
             <span class="fl">Modalidad y condiciones de jornada</span>
             <div class="pe__chips">
-              @for (valor of fields()?.jornada ?? []; track valor) {
-                <label class="pe__chip" [class.pe__chip--on]="isJornada(valor)">
+              @for (opcion of fields()?.jornada ?? []; track opcion.name) {
+                <label class="pe__chip" [class.pe__chip--on]="isJornada(opcion.name)">
                   <input
                     class="chk-inp"
                     type="checkbox"
-                    [checked]="isJornada(valor)"
+                    [checked]="isJornada(opcion.name)"
                     [disabled]="!editable()"
-                    (change)="toggleJornada(valor, $event)"
+                    (change)="toggleJornada(opcion.name, $event)"
                   />
-                  <span>{{ modalityLabels[valor] }}</span>
+                  <span>{{ opcion.label }}</span>
                 </label>
               }
             </div>
@@ -131,16 +131,16 @@
           <div class="fg">
             <span class="fl">Entorno físico</span>
             <div class="pe__chips">
-              @for (valor of fields()?.entorno ?? []; track valor) {
-                <label class="pe__chip" [class.pe__chip--on]="isEntorno(valor)">
+              @for (opcion of fields()?.entorno ?? []; track opcion.name) {
+                <label class="pe__chip" [class.pe__chip--on]="isEntorno(opcion.name)">
                   <input
                     class="chk-inp"
                     type="checkbox"
-                    [checked]="isEntorno(valor)"
+                    [checked]="isEntorno(opcion.name)"
                     [disabled]="!editable()"
-                    (change)="toggleEntorno(valor, $event)"
+                    (change)="toggleEntorno(opcion.name, $event)"
                   />
-                  <span>{{ environmentLabels[valor] }}</span>
+                  <span>{{ opcion.label }}</span>
                 </label>
               }
             </div>

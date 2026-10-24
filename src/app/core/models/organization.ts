@@ -1,34 +1,21 @@
+import { JobModality, WorkEnvironment } from './position-evaluation';
+
 /**
  * Contratos del paquete `organization` de TeselaBackend: departamentos,
  * catalogo de puestos y condiciones laborales.
  */
 export type RecordStatus = 'ACTIVE' | 'INACTIVE';
 
-/** Espejo de organization/entity/CondicionPuesto (codigos de "Reglas del modelo de datos" 3.1). */
-export type JobConditionCode =
-  | 'TURNO_DIURNO'
-  | 'TURNO_NOCTURNO'
-  | 'TURNO_ROTATIVO'
-  | 'FINES_DE_SEMANA'
-  | 'JORNADA_PARTIDA'
-  | 'REMOTO_TOTAL'
-  | 'REMOTO_PARCIAL'
-  | 'VIAJES_FRECUENTES'
-  | 'GUARDIAS_DISPONIBILIDAD'
-  | 'OFICINA_CLIMATIZADA'
-  | 'PLANTA_TALLER'
-  | 'EXTERIOR'
-  | 'TRABAJO_EN_ALTURA'
-  | 'ESPACIO_CONFINADO'
-  | 'CONTACTO_CONTINUO_PUBLICO'
-  | 'CONDUCCION_VEHICULOS'
-  | 'TRABAJO_EN_SOLITARIO'
-  | 'LABORATORIO'
-  | 'COCINA_ALIMENTOS';
+/**
+ * Las condiciones del puesto son el mismo vocabulario que los campos E y F
+ * de la evaluación del Módulo 1, así que se reutilizan sus tipos en vez de
+ * declarar una lista paralela.
+ */
+export type JobConditionCode = JobModality | WorkEnvironment;
 
-export type JobConditionDimension = 'MODALIDAD' | 'ENTORNO';
+export type JobConditionDimension = 'JORNADA' | 'ENTORNO';
 
-/** Las etiquetas vienen del backend: catalogo y Modulo 1 muestran el mismo texto. */
+/** Las etiquetas vienen del backend: catálogo y Módulo 1 muestran el mismo texto. */
 export interface JobConditionResponse {
   name: JobConditionCode;
   dimension: JobConditionDimension;
@@ -67,7 +54,8 @@ export interface PositionResponse {
   createdByMembershipPublicId: string | null;
   createdByName: string;
   status: RecordStatus;
-  condiciones: JobConditionCode[];
+  jornada: JobModality[];
+  entorno: WorkEnvironment[];
   /** Tiene evaluacion vigente en el Modulo 1. */
   evaluado: boolean;
   /** Hay una evaluación en borrador abierta para este puesto. */
@@ -81,7 +69,8 @@ export interface CreatePositionRequest {
   nombre: string;
   descripcion?: string;
   tareasPrincipales?: string;
-  condiciones: JobConditionCode[];
+  jornada: JobModality[];
+  entorno: WorkEnvironment[];
 }
 
 /** PATCH parcial: ausente no toca; "" vacia descripcion o tareas. */
@@ -91,5 +80,6 @@ export interface UpdatePositionRequest {
   descripcion?: string;
   tareasPrincipales?: string;
   status?: RecordStatus;
-  condiciones?: JobConditionCode[];
+  jornada?: JobModality[];
+  entorno?: WorkEnvironment[];
 }

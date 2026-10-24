@@ -8,9 +8,7 @@ import { backendErrorMessage } from '../../../core/helpers/backend-error-message
 import {
   CRITICALITY_HINTS,
   CRITICALITY_LABELS,
-  JOB_MODALITY_LABELS,
   LEARNING_CURVE_LABELS,
-  WORK_ENVIRONMENT_LABELS,
 } from '../../../core/helpers/methodology-labels';
 import { transientMessage } from '../../../core/helpers/transient-message';
 import {
@@ -56,8 +54,6 @@ export class PositionEvaluation {
   readonly criticalityLabels = CRITICALITY_LABELS;
   readonly criticalityHints = CRITICALITY_HINTS;
   readonly learningCurveLabels = LEARNING_CURVE_LABELS;
-  readonly modalityLabels = JOB_MODALITY_LABELS;
-  readonly environmentLabels = WORK_ENVIRONMENT_LABELS;
 
   readonly areas = signal<EvaluationAreaResponse[]>([]);
   readonly fields = signal<PositionEvaluationFields | null>(null);
