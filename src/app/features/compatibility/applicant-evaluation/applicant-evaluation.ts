@@ -19,6 +19,11 @@ import { CompanyContextService } from '../../../core/services/company-context-se
 import { ToastService } from '../../../core/services/toast-service';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
+interface PendingArea {
+  groupName: string;
+  area: EvaluationAreaResponse;
+}
+
 /**
  * Evaluacion de capacidades de una persona: los campos complementarios A a D y
  * las 30 areas con su nivel de capacidad C1 a C5.
@@ -59,6 +64,7 @@ export class ApplicantEvaluation {
   /** Nivel de capacidad elegido por área, indexado por orden. */
   readonly draft = signal<Record<number, number>>({});
   readonly expanded = signal<number | null>(null);
+  readonly openGroups = signal<Set<string>>(new Set());
 
   readonly form = this.fb.nonNullable.group({
     autocontrol: [''],
@@ -91,6 +97,20 @@ export class ApplicantEvaluation {
     return grupos;
   });
 
+  /** Primera área que todavía no tiene un nivel de capacidad seleccionado. */
+  readonly nextPending = computed<PendingArea | null>(() => {
+    const draft = this.draft();
+
+    for (const group of this.grupos()) {
+      const area = group.areas.find((item) => draft[item.orden] === undefined);
+      if (area) {
+        return { groupName: group.nombre, area };
+      }
+    }
+
+    return null;
+  });
+
   completasDe(areas: EvaluationAreaResponse[]): number {
     const draft = this.draft();
     return areas.filter((area) => draft[area.orden] !== undefined).length;
@@ -121,6 +141,7 @@ export class ApplicantEvaluation {
         this.isLoading.set(false);
         this.areas.set(areas);
         this.setEvaluation(evaluation);
+        this.initializeGroupExpansion();
       },
       error: (error: unknown) => {
         this.isLoading.set(false);
@@ -147,6 +168,7 @@ export class ApplicantEvaluation {
       next: (evaluation) => {
         this.isSaving.set(false);
         this.setEvaluation(evaluation);
+        this.initializeGroupExpansion();
         this.toast.info('Evaluación abierta. Puedes completarla en varias sesiones.');
       },
       error: (error: unknown) => {
@@ -171,6 +193,45 @@ export class ApplicantEvaluation {
 
   toggleExpanded(orden: number): void {
     this.expanded.update((current) => (current === orden ? null : orden));
+  }
+
+  isGroupOpen(groupName: string): boolean {
+    return this.openGroups().has(groupName);
+  }
+
+  toggleGroup(groupName: string): void {
+    this.openGroups.update((current) => {
+      const updated = new Set(current);
+      if (updated.has(groupName)) {
+        updated.delete(groupName);
+      } else {
+        updated.add(groupName);
+      }
+      return updated;
+    });
+  }
+
+  /** Abre y enfoca la primera área incompleta, sin alterar sus datos. */
+  goToNextPending(closeGroup?: string): void {
+    const pending = this.nextPending();
+    if (!pending) {
+      return;
+    }
+
+    this.openGroups.update((current) => {
+      const updated = new Set(current);
+      if (closeGroup) {
+        updated.delete(closeGroup);
+      }
+      updated.add(pending.groupName);
+      return updated;
+    });
+
+    requestAnimationFrame(() => {
+      const element = document.getElementById(`ae-area-${pending.area.orden}`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element?.focus({ preventScroll: true });
+    });
   }
 
   // ---------------------------------------------------------------- Guardar y publicar
@@ -288,5 +349,13 @@ export class ApplicantEvaluation {
     } else {
       this.form.enable({ emitEvent: false });
     }
+  }
+
+  /** Al entrar, oculta lo completo y deja listo el primer bloque pendiente. */
+  private initializeGroupExpansion(): void {
+    const firstIncomplete = this.grupos().find(
+      (group) => this.completasDe(group.areas) < group.areas.length,
+    );
+    this.openGroups.set(new Set(firstIncomplete ? [firstIncomplete.nombre] : []));
   }
 }

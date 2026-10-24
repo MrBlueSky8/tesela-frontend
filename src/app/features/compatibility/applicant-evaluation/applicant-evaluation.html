@@ -36,6 +36,21 @@
         </div>
       </div>
 
+      @if (editable() && nextPending(); as pending) {
+        <div class="insight ae__pending" role="status">
+          <div class="ae__pending-copy">
+            <i class="ti ti-progress-check" aria-hidden="true"></i>
+            <span>
+              Siguiente pendiente:
+              <strong>{{ pending.area.orden }}. {{ pending.area.nombre }}</strong>.
+            </span>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" (click)="goToNextPending()">
+            Ir al pendiente
+          </button>
+        </div>
+      }
+
       @if (publicada()) {
         <div class="ae__actions ae__actions--top">
           <a class="btn btn-teal btn-sm" routerLink="../resultados">
@@ -138,58 +153,103 @@
       </section>
 
       <!-- ================= Las 30 áreas ================= -->
-      @for (grupo of grupos(); track grupo.nombre) {
-        <section class="fc" [attr.aria-label]="grupo.nombre">
-          <div class="fc-hdr ae__group-hdr">
-            <span>{{ grupo.nombre }}</span>
-            <span class="ae__group-count">
-              {{ completasDe(grupo.areas) }} de {{ grupo.areas.length }}
+      @for (grupo of grupos(); track grupo.nombre; let groupIndex = $index) {
+        <section class="fc ae__group" [attr.aria-label]="grupo.nombre">
+          <button
+            class="fc-hdr ae__group-hdr"
+            type="button"
+            [attr.aria-expanded]="isGroupOpen(grupo.nombre)"
+            [attr.aria-controls]="'ae-group-' + groupIndex"
+            (click)="toggleGroup(grupo.nombre)"
+          >
+            <span class="ae__group-name">{{ grupo.nombre }}</span>
+            <span class="ae__group-summary">
+              @if (completasDe(grupo.areas) === grupo.areas.length) {
+                <span class="bdg bdg-green">Completado</span>
+              } @else if (completasDe(grupo.areas) > 0) {
+                <span class="bdg bdg-amber">En progreso</span>
+              } @else {
+                <span class="bdg bdg-gray">Sin iniciar</span>
+              }
+              <span class="ae__group-count">
+                {{ completasDe(grupo.areas) }} de {{ grupo.areas.length }}
+              </span>
+              <i
+                class="ti ti-chevron-down ae__group-chevron"
+                [class.ae__group-chevron--open]="isGroupOpen(grupo.nombre)"
+                aria-hidden="true"
+              ></i>
             </span>
-          </div>
+          </button>
 
-          @for (area of grupo.areas; track area.publicId) {
-            <div class="ae__area" [class.ae__area--done]="nivelDe(area.orden)">
-              <div class="ae__area-hdr">
-                <span class="ae__area-name">
-                  <span class="ae__area-num">{{ area.orden }}</span>
-                  {{ area.nombre }}
-                </span>
-
-                <button
-                  class="ae__area-help"
-                  type="button"
-                  [attr.aria-expanded]="expanded() === area.orden"
-                  (click)="toggleExpanded(area.orden)"
+          @if (isGroupOpen(grupo.nombre)) {
+            <div class="ae__group-body" [id]="'ae-group-' + groupIndex">
+              @for (area of grupo.areas; track area.publicId) {
+                <div
+                  class="ae__area"
+                  [id]="'ae-area-' + area.orden"
+                  tabindex="-1"
+                  [class.ae__area--done]="nivelDe(area.orden)"
                 >
-                  <i class="ti ti-help-circle" aria-hidden="true"></i>
-                  {{ expanded() === area.orden ? 'Ocultar detalle' : 'Qué mide' }}
-                </button>
-              </div>
+                  <div class="ae__area-hdr">
+                    <span class="ae__area-name">
+                      <span class="ae__area-num">{{ area.orden }}</span>
+                      {{ area.nombre }}
+                    </span>
 
-              @if (expanded() === area.orden) {
-                <p class="ae__area-def">{{ area.definicionCapacidad }}</p>
+                    <button
+                      class="ae__area-help"
+                      type="button"
+                      [attr.aria-expanded]="expanded() === area.orden"
+                      (click)="toggleExpanded(area.orden)"
+                    >
+                      <i class="ti ti-help-circle" aria-hidden="true"></i>
+                      {{ expanded() === area.orden ? 'Ocultar detalle' : 'Qué mide' }}
+                    </button>
+                  </div>
+
+                  @if (expanded() === area.orden) {
+                    <p class="ae__area-def">{{ area.definicionCapacidad }}</p>
+                  }
+
+                  <div
+                    class="ae__levels"
+                    role="group"
+                    [attr.aria-label]="'Nivel de capacidad en ' + area.nombre"
+                  >
+                    @for (nivel of area.niveles; track nivel.nivel) {
+                      <button
+                        class="ae__level"
+                        type="button"
+                        [class.ae__level--on]="nivelDe(area.orden) === nivel.nivel"
+                        [disabled]="!editable()"
+                        [attr.aria-pressed]="nivelDe(area.orden) === nivel.nivel"
+                        [title]="nivel.capacidad"
+                        (click)="setNivel(area.orden, nivel.nivel)"
+                      >
+                        <span class="ae__level-code">C{{ nivel.nivel }}</span>
+                        <span class="ae__level-text">{{ nivel.capacidad }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
               }
 
-              <div
-                class="ae__levels"
-                role="group"
-                [attr.aria-label]="'Nivel de capacidad en ' + area.nombre"
-              >
-                @for (nivel of area.niveles; track nivel.nivel) {
+              @if (completasDe(grupo.areas) === grupo.areas.length && nextPending()) {
+                <div class="insight ae__group-next">
+                  <span>
+                    <i class="ti ti-circle-check" aria-hidden="true"></i>
+                    Bloque completado
+                  </span>
                   <button
-                    class="ae__level"
+                    class="btn btn-outline btn-sm"
                     type="button"
-                    [class.ae__level--on]="nivelDe(area.orden) === nivel.nivel"
-                    [disabled]="!editable()"
-                    [attr.aria-pressed]="nivelDe(area.orden) === nivel.nivel"
-                    [title]="nivel.capacidad"
-                    (click)="setNivel(area.orden, nivel.nivel)"
+                    (click)="goToNextPending(grupo.nombre)"
                   >
-                    <span class="ae__level-code">C{{ nivel.nivel }}</span>
-                    <span class="ae__level-text">{{ nivel.capacidad }}</span>
+                    Continuar al siguiente pendiente
                   </button>
-                }
-              </div>
+                </div>
+              }
             </div>
           }
         </section>
