@@ -245,6 +245,13 @@
   margin: 0 0 14px;
 }
 
+/* Destructivo: se distingue del resto sin gritar. */
+.pe__discard {
+  margin-right: auto;
+  color: var(--ts-red);
+  border-color: var(--ts-red);
+}
+
 .pe__actions {
   display: flex;
   flex-wrap: wrap;

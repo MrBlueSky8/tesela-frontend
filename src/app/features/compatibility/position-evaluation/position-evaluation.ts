@@ -66,6 +66,8 @@ export class PositionEvaluation {
   readonly actionError = signal<string | null>(null);
   readonly notice = transientMessage();
   readonly confirmingPublish = signal(false);
+  readonly confirmingDiscard = signal(false);
+  readonly isDiscarding = signal(false);
 
   /** Niveles elegidos por área, indexados por orden. */
   readonly draft = signal<Record<number, AreaDraft>>({});
@@ -174,7 +176,9 @@ export class PositionEvaluation {
       next: (evaluation) => {
         this.isSaving.set(false);
         this.setEvaluation(evaluation);
-        this.notice.set('Evaluación abierta. Puedes completarla en varias sesiones.');
+        this.notice.set(evaluation.editable
+          ? 'Evaluación abierta. Puedes completarla en varias sesiones.'
+          : `Este puesto ya tiene un borrador abierto por ${evaluation.evaluadorNombre}.`);
       },
       error: (error: unknown) => {
         this.isSaving.set(false);
@@ -258,6 +262,48 @@ export class PositionEvaluation {
     this.confirmingPublish.set(false);
   }
 
+  /**
+   * Descartar pide confirmación porque es irreversible: el borrador y lo
+   * puntuado hasta ahora se pierden. Existe para que un borrador abandonado
+   * no bloquee al resto, ya que el puesto solo admite uno.
+   */
+  onDiscard(): void {
+    if (!this.confirmingDiscard()) {
+      this.confirmingDiscard.set(true);
+      return;
+    }
+
+    const company = this.company();
+    const evaluation = this.evaluation();
+
+    if (!company || !evaluation || this.isDiscarding()) {
+      return;
+    }
+
+    this.isDiscarding.set(true);
+    this.actionError.set(null);
+
+    this.api
+      .discardPositionEvaluation(company.publicId, evaluation.positionPublicId, evaluation.publicId)
+      .subscribe({
+        next: () => {
+          this.isDiscarding.set(false);
+          this.confirmingDiscard.set(false);
+          this.setEvaluation(null);
+          this.notice.set('Borrador descartado. El puesto vuelve a quedar sin evaluación.');
+        },
+        error: (error: unknown) => {
+          this.isDiscarding.set(false);
+          this.confirmingDiscard.set(false);
+          this.actionError.set(backendErrorMessage(error, 'No pudimos descartar el borrador.'));
+        },
+      });
+  }
+
+  cancelDiscard(): void {
+    this.confirmingDiscard.set(false);
+  }
+
   private enviar(publicar: boolean): void {
     const company = this.company();
     const evaluation = this.evaluation();
@@ -328,6 +374,7 @@ export class PositionEvaluation {
   private setEvaluation(evaluation: PositionEvaluationResponse | null): void {
     this.evaluation.set(evaluation);
     this.confirmingPublish.set(false);
+    this.confirmingDiscard.set(false);
 
     if (!evaluation) {
       this.draft.set({});

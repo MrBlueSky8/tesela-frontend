@@ -126,6 +126,19 @@ export class CompatibilityApiService {
       .pipe(map((response) => response.data));
   }
 
+  /** Descarta el borrador del puesto; una publicada no se borra. */
+  discardPositionEvaluation(
+    companyPublicId: string,
+    positionPublicId: string,
+    evaluationPublicId: string,
+  ): Observable<void> {
+    return this.http
+      .delete<ApiResponse<void>>(
+        `${this.evaluationsUrl(companyPublicId, positionPublicId)}/${encodeURIComponent(evaluationPublicId)}`,
+      )
+      .pipe(map(() => undefined));
+  }
+
   savePositionEvaluation(
     companyPublicId: string,
     positionPublicId: string,

@@ -238,6 +238,16 @@
 
       <!-- ================= Acciones ================= -->
       @if (editable()) {
+        @if (confirmingDiscard()) {
+          <div class="alert alert-error pe__alert" role="alert">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            <span>
+              Al descartar se pierde el borrador y todo lo puntuado hasta ahora. El puesto queda
+              sin evaluación y cualquier evaluador podrá empezar una nueva.
+            </span>
+          </div>
+        }
+
         @if (confirmingPublish()) {
           <div class="alert alert-amber pe__alert" role="alert">
             <i class="ti ti-alert-triangle" aria-hidden="true"></i>
@@ -253,6 +263,29 @@
           @if (confirmingPublish()) {
             <button class="btn btn-ghost" type="button" (click)="cancelPublish()" [disabled]="isPublishing()">
               Cancelar
+            </button>
+          } @else if (confirmingDiscard()) {
+            <button class="btn btn-ghost" type="button" (click)="cancelDiscard()" [disabled]="isDiscarding()">
+              Cancelar
+            </button>
+          }
+
+          @if (!publicada() && !confirmingPublish()) {
+            <button
+              class="btn btn-outline pe__discard"
+              type="button"
+              [disabled]="isSaving() || isPublishing() || isDiscarding()"
+              (click)="onDiscard()"
+            >
+              @if (isDiscarding()) {
+                <span class="ts-spinner" aria-hidden="true"></span>
+                <span>Descartando...</span>
+              } @else if (confirmingDiscard()) {
+                <span>Sí, descartar</span>
+              } @else {
+                <i class="ti ti-trash" aria-hidden="true"></i>
+                <span>Descartar borrador</span>
+              }
             </button>
           }
 
