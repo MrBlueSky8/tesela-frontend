@@ -16,6 +16,14 @@
   color: var(--ts-text);
 }
 
+/* Sello de la evaluación vigente: quién la firmó y desde cuándo. */
+.pe__stamp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
 .pe__alert {
   margin-bottom: 14px;
 }

@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
@@ -30,7 +31,7 @@ import { CompatibilityApiService } from '../compatibility-api-service';
  */
 @Component({
   selector: 'app-applicant-evaluation',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe],
   templateUrl: './applicant-evaluation.html',
   styleUrl: './applicant-evaluation.scss',
 })
@@ -55,6 +56,7 @@ export class ApplicantEvaluation {
   readonly isSaving = signal(false);
   readonly isPublishing = signal(false);
   readonly confirmingPublish = signal(false);
+  readonly confirmingReevaluate = signal(false);
 
   /** Nivel de capacidad elegido por área, indexado por orden. */
   readonly draft = signal<Record<number, number>>({});
@@ -187,6 +189,24 @@ export class ApplicantEvaluation {
     this.enviar(true);
   }
 
+  /**
+   * Reevaluar abre un borrador nuevo sobre una persona que ya tiene
+   * evaluacion vigente. La vigente se conserva como historia; lo que pide
+   * confirmacion es que al publicar se recalculan sus cruces.
+   */
+  onReevaluate(): void {
+    if (!this.confirmingReevaluate()) {
+      this.confirmingReevaluate.set(true);
+      return;
+    }
+    this.confirmingReevaluate.set(false);
+    this.onStart();
+  }
+
+  cancelReevaluate(): void {
+    this.confirmingReevaluate.set(false);
+  }
+
   cancelPublish(): void {
     this.confirmingPublish.set(false);
   }
@@ -264,6 +284,7 @@ export class ApplicantEvaluation {
   private setEvaluation(evaluation: ApplicantEvaluationResponse | null): void {
     this.evaluation.set(evaluation);
     this.confirmingPublish.set(false);
+    this.confirmingReevaluate.set(false);
 
     if (!evaluation) {
       this.draft.set({});

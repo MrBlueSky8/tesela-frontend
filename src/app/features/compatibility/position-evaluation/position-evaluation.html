@@ -53,11 +53,54 @@
       }
 
       @if (publicada()) {
+        @if (current.publicadaEn) {
+          <p class="cell-sub pe__stamp">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>
+            Vigente desde el {{ current.publicadaEn | date: 'dd/MM/yyyy HH:mm' }}
+            @if (current.publicadaPor; as quien) {
+              · publicada por {{ quien }}
+            }
+          </p>
+        }
+
+        @if (confirmingReevaluate()) {
+          <div class="alert alert-amber pe__alert" role="alert">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>
+            <span>
+              Se abrirá un borrador nuevo. La evaluación vigente sigue activa hasta que publiques
+              el nuevo; al publicarlo quedará reemplazada, se conservará como historia y los cruces
+              del puesto se recalcularán.
+            </span>
+          </div>
+        }
+
         <div class="pe__actions pe__actions--top">
-          <a class="btn btn-teal btn-sm" routerLink="../resultados">
+          <a class="btn btn-outline btn-sm" routerLink="../resultados">
             <i class="ti ti-chart-bar" aria-hidden="true"></i>
             <span>Ver resultados de compatibilidad</span>
           </a>
+
+          @if (confirmingReevaluate()) {
+            <button class="btn btn-ghost btn-sm" type="button" (click)="cancelReevaluate()">
+              Cancelar
+            </button>
+          }
+          <button
+            class="btn btn-teal btn-sm"
+            type="button"
+            [disabled]="isSaving()"
+            (click)="onReevaluate()"
+          >
+            @if (isSaving()) {
+              <span class="ts-spinner" aria-hidden="true"></span>
+              <span>Abriendo...</span>
+            } @else if (confirmingReevaluate()) {
+              <span>Sí, reevaluar</span>
+            } @else {
+              <i class="ti ti-refresh" aria-hidden="true"></i>
+              <span>Reevaluar</span>
+            }
+          </button>
         </div>
       }
 
