@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
@@ -46,7 +47,7 @@ interface PendingArea {
  */
 @Component({
   selector: 'app-position-evaluation',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe],
   templateUrl: './position-evaluation.html',
   styleUrl: './position-evaluation.scss',
 })
@@ -72,6 +73,7 @@ export class PositionEvaluation {
   readonly isPublishing = signal(false);
   readonly confirmingPublish = signal(false);
   readonly confirmingDiscard = signal(false);
+  readonly confirmingReevaluate = signal(false);
   readonly isDiscarding = signal(false);
 
   /** Niveles elegidos por área, indexados por orden. */
@@ -375,6 +377,25 @@ export class PositionEvaluation {
     this.confirmingDiscard.set(false);
   }
 
+  /**
+   * Reevaluar abre un borrador nuevo sobre un puesto que ya tiene evaluación
+   * vigente. Pide confirmación no porque destruya nada —la vigente se
+   * conserva como historia— sino porque al publicar el nuevo se recalculan
+   * todos los cruces del puesto.
+   */
+  onReevaluate(): void {
+    if (!this.confirmingReevaluate()) {
+      this.confirmingReevaluate.set(true);
+      return;
+    }
+    this.confirmingReevaluate.set(false);
+    this.onStart();
+  }
+
+  cancelReevaluate(): void {
+    this.confirmingReevaluate.set(false);
+  }
+
   private enviar(publicar: boolean): void {
     const company = this.company();
     const evaluation = this.evaluation();
@@ -446,6 +467,7 @@ export class PositionEvaluation {
     this.evaluation.set(evaluation);
     this.confirmingPublish.set(false);
     this.confirmingDiscard.set(false);
+    this.confirmingReevaluate.set(false);
 
     if (!evaluation) {
       this.draft.set({});

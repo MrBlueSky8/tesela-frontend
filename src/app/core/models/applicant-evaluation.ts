@@ -33,6 +33,9 @@ export interface ApplicantEvaluationResponse {
   areas: AreaCapacity[];
   areasRegistradas: number;
   areasRequeridas: number;
+  /** Cuándo pasó a vigente y quién la publicó. Nulos si es borrador. */
+  publicadaEn: string | null;
+  publicadaPor: string | null;
   createdAt: string;
   updatedAt: string;
 }
