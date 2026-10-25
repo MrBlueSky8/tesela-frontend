@@ -22,13 +22,6 @@
             {{ current.modo === 'A' ? 'Perfil genérico' : 'Persona evaluada' }}
           </div>
         </div>
-
-        <div class="cd__result">
-          <span class="cd__value">{{ current.valorMostrado }}%</span>
-          <span class="bdg {{ categoryBadges[current.categoria] }}">
-            {{ current.categoriaEtiqueta }}
-          </span>
-        </div>
       </div>
 
       @if (alertasSeguridad().length > 0) {
@@ -40,6 +33,13 @@
           <app-cross-alerts [alerts]="alertasSeguridad()" [emphasis]="true" />
         </section>
       }
+
+      <div class="cd__result cd__result--summary" aria-label="Resultado de compatibilidad">
+        <span class="cd__value">{{ current.valorMostrado }}%</span>
+        <span class="bdg {{ categoryBadges[current.categoria] }}">
+          {{ current.categoriaEtiqueta }}
+        </span>
+      </div>
 
       @if (current.desactualizado) {
         <p class="alert alert-amber cd__alert" role="status">
