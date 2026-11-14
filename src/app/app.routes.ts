@@ -32,6 +32,7 @@ import { ProfileCrosses } from './features/compatibility/profile-crosses/profile
 import { ApplicantEvaluation } from './features/compatibility/applicant-evaluation/applicant-evaluation';
 import { ApplicantsPage } from './features/compatibility/applicants-page/applicants-page';
 import { CompatibilityShell } from './features/compatibility/compatibility-shell/compatibility-shell';
+import { CompatibilityReport } from './features/compatibility/compatibility-report/compatibility-report';
 import { ModulePositionsPage } from './features/compatibility/positions-page/module-positions-page';
 import { PositionCrosses } from './features/compatibility/position-crosses/position-crosses';
 import { PositionEvaluation } from './features/compatibility/position-evaluation/position-evaluation';
@@ -275,6 +276,12 @@ export const routes: Routes = [
                 path: 'metodologia',
                 component: MethodologyReferencePage,
                 data: { breadcrumb: 'Metodología' },
+              },
+              {
+                // Informe en formato estándar (Hito 4): imprimible o guardable como PDF.
+                path: 'cruces/:crossPublicId/informe',
+                component: CompatibilityReport,
+                data: { breadcrumb: 'Informe' },
               },
               {
                 path: 'postulantes',

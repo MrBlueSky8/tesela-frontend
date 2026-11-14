@@ -325,6 +325,13 @@
       </div>
     </section>
 
+    <!-- ================= Contexto para la IA (lo define Fundades) ================= -->
+    <app-company-ai-context
+      [company]="current"
+      [editable]="isPlatformAdmin()"
+      (updated)="onAiContextUpdated($event)"
+    />
+
     <!-- ================= Plataforma ================= -->
     @if (isPlatformAdmin()) {
       <section class="fc profile__platform" aria-labelledby="platform-heading">

@@ -1,0 +1,107 @@
+.rep__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.rep__doc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rep__header {
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--ts-border-2);
+}
+
+.rep__title {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+.rep__data {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.rep__data dt {
+  color: var(--ts-text-3);
+  font-size: 11.5px;
+}
+
+.rep__data dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.rep__alert {
+  margin: 10px 0 0;
+}
+
+.rep__danger {
+  border-color: var(--ts-red);
+}
+
+.rep__result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.rep__value {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rep__table {
+  width: 100%;
+  margin: 0 0 10px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.rep__table th,
+.rep__table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ts-border-2);
+  text-align: left;
+}
+
+.rep__table th {
+  color: var(--ts-text-3);
+  font-weight: 600;
+}
+
+.rep__subtitle {
+  margin: 12px 0 6px;
+  font-size: 14px;
+}
+
+.rep__line {
+  margin: 0 0 6px;
+}
+
+.rep__footer {
+  padding-top: 10px;
+  border-top: 1px solid var(--ts-border-2);
+  color: var(--ts-text-3);
+  font-size: 12px;
+}
+
+@media print {
+  .rep__section {
+    break-inside: avoid;
+  }
+
+  .rep__table th,
+  .rep__table td {
+    border-bottom-color: #ccc;
+  }
+}

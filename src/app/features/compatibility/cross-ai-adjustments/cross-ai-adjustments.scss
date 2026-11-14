@@ -1,0 +1,78 @@
+.caj__intro {
+  margin: 0 0 10px;
+}
+
+.caj__loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-blue-light);
+  color: var(--ts-blue-dark);
+}
+
+.caj__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.caj__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.caj__text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.caj__why {
+  margin: 2px 0 0;
+}
+
+.caj__nota {
+  margin: 0 0 8px;
+}
+
+.caj__edit {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ts-border-2);
+}
+
+.caj__edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.caj__edit-row .fl {
+  margin: 0;
+}
+
+.caj__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.caj__errors {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+/* En el informe impreso, cada ajuste no se parte entre páginas. */
+@media print {
+  .caj__item {
+    break-inside: avoid;
+  }
+}

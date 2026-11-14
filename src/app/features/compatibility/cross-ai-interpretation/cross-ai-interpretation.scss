@@ -1,0 +1,45 @@
+.cai__intro {
+  margin: 0 0 10px;
+}
+
+.cai__loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-blue-light);
+  color: var(--ts-blue-dark);
+}
+
+.cai__resumen {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.cai__factores {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+.cai__nota {
+  margin: 0 0 8px;
+}
+
+.cai__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cai__factor-edit .btn {
+  align-self: flex-end;
+}
+
+.cai__errors {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}

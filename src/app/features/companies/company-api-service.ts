@@ -77,6 +77,15 @@ export class CompanyApiService {
       .pipe(map((response) => response.data));
   }
 
+  /** Solo ADMIN_PLATAFORMA. Un texto vacío borra el contexto. */
+  updateAiContext(companyPublicId: string, contextoIa: string): Observable<CompanyResponse> {
+    return this.http
+      .patch<ApiResponse<CompanyResponse>>(`${this.companyUrl(companyPublicId)}/ai-context`, {
+        contextoIa,
+      })
+      .pipe(map((response) => response.data));
+  }
+
   myAccess(companyPublicId: string): Observable<CompanyMyAccessResponse> {
     return this.http
       .get<ApiResponse<CompanyMyAccessResponse>>(`${this.companyUrl(companyPublicId)}/my-access`)

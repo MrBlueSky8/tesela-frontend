@@ -1,0 +1,23 @@
+.aof {
+  border-color: var(--ts-blue-light);
+}
+
+.aof__hdr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--ts-blue-dark);
+}
+
+.aof__state {
+  margin-left: auto;
+}
+
+.aof__disclaimer {
+  margin: 0 0 10px;
+}
+
+.aof__stamp {
+  margin: 10px 0;
+}

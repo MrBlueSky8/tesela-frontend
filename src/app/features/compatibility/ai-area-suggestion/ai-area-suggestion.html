@@ -1,0 +1,77 @@
+@let s = suggestion();
+<div class="aas" [class.aas--empty]="s.nivel === null">
+  @if (s.nivel === null) {
+    <p class="aas__line">
+      <i class="ti ti-sparkles" aria-hidden="true"></i>
+      <span>
+        <strong>La IA no tuvo datos para esta área.</strong>
+        <span class="cell-sub aas__why">{{ s.justificacion }}</span>
+      </span>
+    </p>
+  } @else {
+    <div class="aas__line">
+      <i class="ti ti-sparkles" aria-hidden="true"></i>
+      <span>
+        <strong>IA sugiere: E{{ s.nivel }}</strong>
+        @if (s.criticidad) {
+          ·
+          <span class="bdg" [class.bdg-red]="s.criticidad === 'CRITICA'"
+                [class.bdg-gray]="s.criticidad !== 'CRITICA'">
+            {{ criticalityLabels[s.criticidad] }}
+          </span>
+        } @else {
+          · <span class="cell-sub">criticidad sin determinar</span>
+        }
+        <span class="cell-sub"> · {{ confidenceLabels[s.confianza] }}</span>
+      </span>
+
+      @switch (state()) {
+        @case ('COINCIDE') {
+          <span class="bdg bdg-green aas__state">
+            <i class="ti ti-check" aria-hidden="true"></i> Coincide con la IA
+          </span>
+        }
+        @case ('MODIFICADA') {
+          <span class="bdg bdg-purple aas__state">
+            <i class="ti ti-pencil" aria-hidden="true"></i> Modificado
+          </span>
+        }
+      }
+    </div>
+
+    <p class="cell-sub aas__why">«{{ s.justificacion }}»</p>
+
+    @if (editable() && state() !== 'COINCIDE') {
+      <div class="aas__actions">
+        @if (s.criticidad) {
+          <button
+            class="btn btn-outline btn-sm"
+            type="button"
+            [attr.aria-label]="'Aceptar la sugerencia de la IA para ' + s.areaNombre"
+            (click)="accept.emit()"
+          >
+            Aceptar sugerencia
+          </button>
+        }
+        @if (!levelAlreadySet()) {
+          <button
+            class="btn btn-ghost btn-sm"
+            type="button"
+            [attr.aria-label]="'Aplicar solo el nivel sugerido para ' + s.areaNombre"
+            (click)="levelOnly.emit()"
+          >
+            Solo el nivel
+          </button>
+        }
+        <button
+          class="btn btn-ghost btn-sm"
+          type="button"
+          [attr.aria-label]="'Descartar la sugerencia de la IA para ' + s.areaNombre"
+          (click)="dismiss.emit()"
+        >
+          Descartar
+        </button>
+      </div>
+    }
+  }
+</div>

@@ -90,3 +90,106 @@ export interface CompatibilityCrossDetail extends CompatibilityCrossSummary {
   alertasNoEvaluadas: UnevaluatedAlert[];
   sinPerfilDeclarado: boolean;
 }
+
+// ---------------------------------------------------------------- Interpretación con IA (Hito 4, S5)
+
+/** BORRADOR: generada o editada, sin revisar. APROBADA: forma parte del informe. */
+export type InterpretationStatus = 'BORRADOR' | 'APROBADA';
+
+export interface InterpretationFactor {
+  areaOrden: number;
+  areaNombre: string;
+  explicacion: string;
+}
+
+export interface CrossInterpretation {
+  publicId: string;
+  estado: InterpretationStatus;
+  modelo: string;
+  versionPrompt: string;
+  generadaEn: string;
+  resumen: string;
+  factores: InterpretationFactor[];
+  consideraciones: string | null;
+  limitaciones: string | null;
+  /** El evaluador cambió algo de lo que generó la IA. */
+  editada: boolean;
+  solicitadaPor: string | null;
+  aprobadaPor: string | null;
+  aprobadaEn: string | null;
+}
+
+/** Espejo de methodology/dto/CrossAiInterpretationResponse. */
+export interface CrossInterpretationState {
+  /** La IA está activa y el cruce puede interpretarse. */
+  permitida: boolean;
+  motivo: string | null;
+  interpretacion: CrossInterpretation | null;
+}
+
+export interface UpdateCrossInterpretationRequest {
+  resumen: string;
+  factores: { areaOrden: number; explicacion: string }[];
+  consideraciones: string;
+  limitaciones: string;
+}
+
+// ---------------------------------------------------------------- Ajustes razonables con IA (Hito 4, S6)
+
+/** Lo común a toda salida de IA sobre un cruce: estado y sello de revisión. */
+export interface AiOutputMeta {
+  publicId: string;
+  estado: InterpretationStatus;
+  modelo: string;
+  versionPrompt: string;
+  generadaEn: string;
+  editada: boolean;
+  solicitadaPor: string | null;
+  aprobadaPor: string | null;
+  aprobadaEn: string | null;
+}
+
+export type AdjustmentType =
+  | 'ENTORNO_FISICO'
+  | 'AYUDA_TECNICA'
+  | 'COMUNICACION'
+  | 'ORGANIZACION_TAREAS'
+  | 'JORNADA'
+  | 'APOYO_Y_FORMACION';
+
+export type AdjustmentPriority = 'ALTA' | 'MEDIA' | 'BAJA';
+
+/** Un ajuste propuesto. Cita un área con brecha, una alerta disparada o ambas. */
+export interface CrossAdjustment {
+  areaOrden: number | null;
+  areaNombre: string | null;
+  alerta: string | null;
+  tipo: AdjustmentType;
+  prioridad: AdjustmentPriority;
+  ajuste: string;
+  justificacion: string | null;
+}
+
+export interface CrossAdjustmentsProposal extends AiOutputMeta {
+  ajustes: CrossAdjustment[];
+  notaGeneral: string | null;
+}
+
+/** Espejo de methodology/dto/CrossAiAdjustmentsResponse. */
+export interface CrossAdjustmentsState {
+  permitida: boolean;
+  motivo: string | null;
+  propuesta: CrossAdjustmentsProposal | null;
+}
+
+export interface UpdateCrossAdjustmentsRequest {
+  ajustes: {
+    areaOrden: number | null;
+    alerta: string | null;
+    tipo: AdjustmentType;
+    prioridad: AdjustmentPriority;
+    ajuste: string;
+    justificacion: string;
+  }[];
+  notaGeneral: string;
+}

@@ -1046,3 +1046,43 @@ a:hover {
   color: var(--ts-text-3);
   font-size: 13px;
 }
+
+/* ================= IMPRESION =================
+ * Informe de compatibilidad (Hito 4): se imprime o se guarda como PDF desde
+ * el navegador. Fuera de pantalla queda solo el documento, sin la aplicacion.
+ */
+@media print {
+  app-sidebar,
+  app-topbar,
+  app-bottom-nav,
+  app-toast-container,
+  .cs__head,
+  .cs__tabs,
+  .layout__notice,
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body,
+  .shell,
+  .main,
+  .content {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .shell,
+  .main {
+    display: block !important;
+  }
+
+  .content {
+    padding: 0 !important;
+  }
+
+  .fc {
+    box-shadow: none !important;
+  }
+}

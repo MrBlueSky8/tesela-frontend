@@ -195,6 +195,21 @@
         </form>
       </section>
 
+      <!-- ================= Asistencia de IA (Hito 4) ================= -->
+      @if (editable() && aiActiva()) {
+        <app-ai-suggestion-panel
+          [suggestion]="sugerencia()"
+          [loading]="sugiriendo()"
+          [hidden]="sugerenciaOculta()"
+          [applicableLevels]="nivelesAplicables()"
+          [focusToken]="sugerenciaFoco()"
+          (suggest)="onSugerir()"
+          (applyLevels)="aplicarNivelesVacios()"
+          (hide)="ocultarPropuesta()"
+          (show)="mostrarPropuesta()"
+        />
+      }
+
       <!-- ================= Las 30 áreas ================= -->
       @for (grupo of grupos(); track grupo.nombre; let groupIndex = $index) {
         <section class="fc pe__group" [attr.aria-label]="grupo.nombre">
@@ -238,6 +253,23 @@
                     <span class="pe__area-name">
                       <span class="pe__area-num">{{ area.orden }}</span>
                       {{ area.nombre }}
+                      <!-- En modo lectura queda a la vista qué áreas vinieron de la IA. -->
+                      @if (!editable()) {
+                        @switch (origenPorArea().get(area.orden)) {
+                          @case ('IA') {
+                            <span class="bdg bdg-blue pe__origin">
+                              <i class="ti ti-sparkles" aria-hidden="true"></i>
+                              {{ levelSourceLabels['IA'] }}
+                            </span>
+                          }
+                          @case ('IA_MODIFICADO') {
+                            <span class="bdg bdg-purple pe__origin">
+                              <i class="ti ti-pencil" aria-hidden="true"></i>
+                              {{ levelSourceLabels['IA_MODIFICADO'] }}
+                            </span>
+                          }
+                        }
+                      }
                     </span>
 
                     <button
@@ -298,6 +330,18 @@
                       <span class="cell-sub pe__crit-hint">{{ criticalityHints[elegida] }}</span>
                     }
                   </div>
+
+                  @if (editable() && aiActiva() && !sugerenciaOculta()) {
+                    @if (propuestaPorArea().get(area.orden); as propuesta) {
+                      <app-ai-area-suggestion
+                        [suggestion]="propuesta"
+                        [value]="draft()[area.orden]"
+                        (accept)="aceptarSugerencia(area.orden)"
+                        (levelOnly)="aplicarSoloNivel(area.orden)"
+                        (dismiss)="descartarSugerencia(area.orden)"
+                      />
+                    }
+                  }
                 </div>
               }
 

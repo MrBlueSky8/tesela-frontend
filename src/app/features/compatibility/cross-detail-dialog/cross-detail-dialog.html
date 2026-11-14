@@ -108,6 +108,12 @@
         }
       </section>
 
+      <!-- ================= Interpretación asistida por IA (Hito 4) ================= -->
+      <app-cross-ai-interpretation
+        [companyPublicId]="companyPublicId()"
+        [crossPublicId]="crossPublicId()"
+      />
+
       <!-- ================= 3. Alertas informativas ================= -->
       @if (alertasInformativas().length > 0) {
         <section class="fc" aria-labelledby="cd-informativas">
@@ -115,6 +121,12 @@
           <app-cross-alerts [alerts]="alertasInformativas()" />
         </section>
       }
+
+      <!-- ================= 4. Ajustes razonables (IA, Hito 4) ================= -->
+      <app-cross-ai-adjustments
+        [companyPublicId]="companyPublicId()"
+        [crossPublicId]="crossPublicId()"
+      />
 
       @if (current.sinPerfilDeclarado) {
         <p class="alert alert-amber cd__alert" role="status">
@@ -184,6 +196,15 @@
   </div>
 
   <div class="modal-foot">
+    @if (cross()) {
+      <a
+        class="btn btn-ghost"
+        [routerLink]="['/modulos/compatibilidad/cruces', crossPublicId(), 'informe']"
+        title="Informe en formato estándar, listo para imprimir o guardar como PDF"
+      >
+        <i class="ti ti-file-text" aria-hidden="true"></i> Ver informe
+      </a>
+    }
     <button class="btn btn-outline" type="button" (click)="closed.emit()">Cerrar</button>
   </div>
 </app-modal-shell>

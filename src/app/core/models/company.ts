@@ -32,6 +32,9 @@ export interface CompanyResponse {
   adminLimit: number;
   /** Opcional en el backend. */
   urlWeb: string | null;
+  /** Contexto que Fundades da a la IA sobre la empresa. La empresa lo ve; solo Fundades lo edita. */
+  contextoIa: string | null;
+  contextoIaActualizadoEn: string | null;
   createdAt: string;
   updatedAt: string;
 }

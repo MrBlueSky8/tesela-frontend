@@ -1,0 +1,112 @@
+@if (!isLoading()) {
+  @let i = interpretacion();
+  @if (printMode() ? i?.estado === 'APROBADA' : (i || acciones().generar || state()?.motivo)) {
+    <app-ai-output-frame
+      titulo="Interpretación del resultado"
+      headingId="cai-heading"
+      [meta]="i"
+      [showStamp]="!draft()"
+      [printMode]="printMode()"
+    >
+      <div aria-live="polite">
+        @if (generating()) {
+          <div class="cai__loading" role="status">
+            <span class="ts-spinner" aria-hidden="true"></span>
+            <span>Interpretando el cruce… puede tardar unos segundos.</span>
+          </div>
+        } @else if (draft(); as d) {
+          <!-- ===== Revisión humana ===== -->
+          <div class="fg">
+            <label class="fl" for="cai-resumen">Resumen</label>
+            <textarea class="fi" id="cai-resumen" rows="4" [value]="d.resumen"
+                      (input)="setCampo('resumen', $event)"></textarea>
+          </div>
+          @for (f of d.factores; track f.areaOrden; let idx = $index) {
+            <div class="fg cai__factor-edit">
+              <label class="fl" [attr.for]="'cai-f-' + f.areaOrden">{{ f.areaOrden }} · {{ f.areaNombre }}</label>
+              <textarea class="fi" [id]="'cai-f-' + f.areaOrden" rows="2" [value]="f.explicacion"
+                        (input)="setFactor(idx, $event)"></textarea>
+              <button class="btn btn-ghost btn-sm" type="button"
+                      [attr.aria-label]="'Quitar el factor ' + f.areaNombre" (click)="quitarFactor(idx)">
+                Quitar
+              </button>
+            </div>
+          }
+          <div class="fg">
+            <label class="fl" for="cai-cons">Consideraciones</label>
+            <textarea class="fi" id="cai-cons" rows="2" [value]="d.consideraciones"
+                      (input)="setCampo('consideraciones', $event)"></textarea>
+          </div>
+          <div class="fg">
+            <label class="fl" for="cai-lim">Limitaciones</label>
+            <textarea class="fi" id="cai-lim" rows="2" [value]="d.limitaciones"
+                      (input)="setCampo('limitaciones', $event)"></textarea>
+          </div>
+          @if (errores().length > 0) {
+            <ul class="fi-err cai__errors" role="alert">
+              @for (e of errores(); track e) {
+                <li>{{ e }}</li>
+              }
+            </ul>
+          }
+        } @else if (i) {
+          <!-- ===== Lectura ===== -->
+          <p class="cai__resumen">{{ i.resumen }}</p>
+          @if (i.factores.length > 0) {
+            <ul class="cai__factores">
+              @for (f of i.factores; track f.areaOrden) {
+                <li>
+                  <strong>{{ f.areaOrden }} · {{ f.areaNombre }}:</strong>
+                  {{ f.explicacion }}
+                </li>
+              }
+            </ul>
+          }
+          @if (i.consideraciones) {
+            <p class="cai__nota"><strong>Consideraciones:</strong> {{ i.consideraciones }}</p>
+          }
+          @if (i.limitaciones) {
+            <p class="cai__nota"><strong>Limitaciones:</strong> {{ i.limitaciones }}</p>
+          }
+        } @else if (acciones().generar) {
+          <p class="cai__intro">
+            La IA puede explicar en lenguaje claro por qué este cruce obtuvo su resultado: qué áreas y
+            qué reglas lo determinan. Revisarás el texto antes de que forme parte del informe.
+          </p>
+        } @else if (state()?.motivo; as motivo) {
+          <p class="cell-sub">{{ motivo }}</p>
+        }
+      </div>
+
+      <div class="cai__actions" frameActions>
+        @if (draft()) {
+          <button class="btn btn-ghost btn-sm" type="button" (click)="onCancelarEdicion()">Cancelar</button>
+          <button class="btn btn-primary btn-sm" type="button"
+                  [disabled]="saving() || errores().length > 0" (click)="onGuardarEdicion()">
+            Guardar cambios
+          </button>
+        } @else if (!generating()) {
+          @if (i && acciones().revisar) {
+            <button class="btn btn-outline btn-sm" type="button" (click)="onEditar()">
+              <i class="ti ti-pencil" aria-hidden="true"></i> Corregir
+            </button>
+            <button class="btn btn-teal btn-sm" type="button" [disabled]="saving()" (click)="onAprobar()">
+              <i class="ti ti-check" aria-hidden="true"></i> Aprobar
+            </button>
+          }
+          @if (acciones().generar) {
+            @if (i) {
+              <button class="btn btn-ghost btn-sm" type="button" (click)="onGenerar()">
+                <i class="ti ti-refresh" aria-hidden="true"></i> Generar de nuevo
+              </button>
+            } @else {
+              <button class="btn btn-teal btn-sm" type="button" (click)="onGenerar()">
+                <i class="ti ti-sparkles" aria-hidden="true"></i> Interpretar con IA
+              </button>
+            }
+          }
+        }
+      </div>
+    </app-ai-output-frame>
+  }
+}

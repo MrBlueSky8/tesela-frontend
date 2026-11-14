@@ -1,8 +1,56 @@
 import { HealthStatus } from '../models/applicant-evaluation';
-import { AlertType, CompatibilityCategory } from '../models/compatibility-cross';
-import { AreaCriticality, LearningCurve } from '../models/position-evaluation';
+import {
+  AdjustmentPriority,
+  AdjustmentType,
+  AlertType,
+  CompatibilityCategory,
+} from '../models/compatibility-cross';
+import {
+  AiConfidence,
+  AreaCriticality,
+  LearningCurve,
+  LevelSource,
+} from '../models/position-evaluation';
 
 /** Etiquetas legibles de los valores que el backend guarda como enum. */
+
+/** Tipo de ajuste razonable propuesto (S6). */
+export const ADJUSTMENT_TYPE_LABELS: Record<AdjustmentType, string> = {
+  ENTORNO_FISICO: 'Entorno físico',
+  AYUDA_TECNICA: 'Ayuda técnica',
+  COMUNICACION: 'Comunicación',
+  ORGANIZACION_TAREAS: 'Organización de tareas',
+  JORNADA: 'Jornada',
+  APOYO_Y_FORMACION: 'Apoyo y formación',
+};
+
+export const ADJUSTMENT_PRIORITY_LABELS: Record<AdjustmentPriority, string> = {
+  ALTA: 'Prioridad alta',
+  MEDIA: 'Prioridad media',
+  BAJA: 'Prioridad baja',
+};
+
+export const ADJUSTMENT_PRIORITY_BADGES: Record<AdjustmentPriority, string> = {
+  ALTA: 'bdg-red',
+  MEDIA: 'bdg-amber',
+  BAJA: 'bdg-gray',
+};
+
+export const ADJUSTMENT_PRIORITIES: AdjustmentPriority[] = ['ALTA', 'MEDIA', 'BAJA'];
+
+/** Confianza de una sugerencia de IA (escala del prototipo de Fundades). */
+export const CONFIDENCE_LABELS: Record<AiConfidence, string> = {
+  ALTA: 'confianza alta',
+  MEDIA: 'confianza media',
+  BAJA: 'confianza baja',
+};
+
+/** Origen del nivel de un área, para mostrarlo en modo lectura. */
+export const LEVEL_SOURCE_LABELS: Record<LevelSource, string> = {
+  EVALUADOR: 'Evaluador',
+  IA: 'Sugerido por IA',
+  IA_MODIFICADO: 'IA modificada por el evaluador',
+};
 
 export const CRITICALITY_LABELS: Record<AreaCriticality, string> = {
   NORMAL: 'Normal',

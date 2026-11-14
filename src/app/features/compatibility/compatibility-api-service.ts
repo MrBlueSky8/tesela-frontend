@@ -15,7 +15,11 @@ import { ModuleStats, RecalculationBatch } from '../../core/models/module-stats'
 import {
   CompatibilityCrossDetail,
   CompatibilityCrossSummary,
+  CrossAdjustmentsState,
+  CrossInterpretationState,
   CrossMode,
+  UpdateCrossAdjustmentsRequest,
+  UpdateCrossInterpretationRequest,
 } from '../../core/models/compatibility-cross';
 import {
   ApplicantEvaluationResponse,
@@ -23,6 +27,8 @@ import {
   SaveApplicantEvaluationRequest,
 } from '../../core/models/applicant-evaluation';
 import {
+  AiLevelSuggestion,
+  AiStatus,
   EvaluationAreaResponse,
   PositionEvaluationFields,
   PositionEvaluationResponse,
@@ -162,6 +168,45 @@ export class CompatibilityApiService {
       .post<ApiResponse<PositionEvaluationResponse>>(
         `${this.evaluationsUrl(companyPublicId, positionPublicId)}/${encodeURIComponent(evaluationPublicId)}/publish`,
         {},
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  // ---------------------------------------------------------------- Asistencia de IA
+
+  /**
+   * Si la IA está disponible. No se cachea: depende de la configuración del
+   * servidor, y un valor viejo escondería el botón sin motivo.
+   */
+  aiStatus(): Observable<AiStatus> {
+    return this.http
+      .get<ApiResponse<AiStatus>>(`${this.apiUrl}/ai/status`)
+      .pipe(map((response) => response.data));
+  }
+
+  /** Pide a la IA una propuesta para las 30 áreas. Tarda 20-40 s; no toca el borrador. */
+  suggestPositionLevels(
+    companyPublicId: string,
+    positionPublicId: string,
+    evaluationPublicId: string,
+  ): Observable<AiLevelSuggestion> {
+    return this.http
+      .post<ApiResponse<AiLevelSuggestion>>(
+        `${this.evaluationsUrl(companyPublicId, positionPublicId)}/${encodeURIComponent(evaluationPublicId)}/ai-suggestion`,
+        {},
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  /** La última sugerencia del borrador, o null si no hay. */
+  currentPositionSuggestion(
+    companyPublicId: string,
+    positionPublicId: string,
+    evaluationPublicId: string,
+  ): Observable<AiLevelSuggestion | null> {
+    return this.http
+      .get<ApiResponse<AiLevelSuggestion | null>>(
+        `${this.evaluationsUrl(companyPublicId, positionPublicId)}/${encodeURIComponent(evaluationPublicId)}/ai-suggestion`,
       )
       .pipe(map((response) => response.data));
   }
@@ -319,6 +364,87 @@ export class CompatibilityApiService {
           + `/crosses/${encodeURIComponent(crossPublicId)}`,
       )
       .pipe(map((response) => response.data));
+  }
+
+  // ---------------------------------------------------------------- Interpretación con IA
+
+  /** La interpretación vigente del cruce y si puede interpretarse. */
+  crossInterpretation(companyPublicId: string, crossPublicId: string): Observable<CrossInterpretationState> {
+    return this.http
+      .get<ApiResponse<CrossInterpretationState>>(this.interpretationUrl(companyPublicId, crossPublicId))
+      .pipe(map((response) => response.data));
+  }
+
+  /** Genera una interpretación nueva, en borrador. */
+  interpretCross(companyPublicId: string, crossPublicId: string): Observable<CrossInterpretationState> {
+    return this.http
+      .post<ApiResponse<CrossInterpretationState>>(this.interpretationUrl(companyPublicId, crossPublicId), {})
+      .pipe(map((response) => response.data));
+  }
+
+  /** Revisión humana del borrador. */
+  updateCrossInterpretation(
+    companyPublicId: string,
+    crossPublicId: string,
+    payload: UpdateCrossInterpretationRequest,
+  ): Observable<CrossInterpretationState> {
+    return this.http
+      .put<ApiResponse<CrossInterpretationState>>(this.interpretationUrl(companyPublicId, crossPublicId), payload)
+      .pipe(map((response) => response.data));
+  }
+
+  /** Aprueba el borrador: desde ahí forma parte del informe. */
+  approveCrossInterpretation(companyPublicId: string, crossPublicId: string): Observable<CrossInterpretationState> {
+    return this.http
+      .post<ApiResponse<CrossInterpretationState>>(
+        `${this.interpretationUrl(companyPublicId, crossPublicId)}/approve`,
+        {},
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  // ---------------------------------------------------------------- Ajustes razonables con IA
+
+  /** La propuesta vigente del cruce y si puede pedirse una. */
+  crossAdjustments(companyPublicId: string, crossPublicId: string): Observable<CrossAdjustmentsState> {
+    return this.http
+      .get<ApiResponse<CrossAdjustmentsState>>(this.adjustmentsUrl(companyPublicId, crossPublicId))
+      .pipe(map((response) => response.data));
+  }
+
+  /** Genera una propuesta nueva, en borrador. */
+  proposeCrossAdjustments(companyPublicId: string, crossPublicId: string): Observable<CrossAdjustmentsState> {
+    return this.http
+      .post<ApiResponse<CrossAdjustmentsState>>(this.adjustmentsUrl(companyPublicId, crossPublicId), {})
+      .pipe(map((response) => response.data));
+  }
+
+  /** Revisión humana del borrador: corregir texto o prioridad, o quitar ajustes. */
+  updateCrossAdjustments(
+    companyPublicId: string,
+    crossPublicId: string,
+    payload: UpdateCrossAdjustmentsRequest,
+  ): Observable<CrossAdjustmentsState> {
+    return this.http
+      .put<ApiResponse<CrossAdjustmentsState>>(this.adjustmentsUrl(companyPublicId, crossPublicId), payload)
+      .pipe(map((response) => response.data));
+  }
+
+  /** Aprueba el borrador: desde ahí forma parte del informe (sección 4). */
+  approveCrossAdjustments(companyPublicId: string, crossPublicId: string): Observable<CrossAdjustmentsState> {
+    return this.http
+      .post<ApiResponse<CrossAdjustmentsState>>(`${this.adjustmentsUrl(companyPublicId, crossPublicId)}/approve`, {})
+      .pipe(map((response) => response.data));
+  }
+
+  private adjustmentsUrl(companyPublicId: string, crossPublicId: string): string {
+    return `${this.apiUrl}/companies/${encodeURIComponent(companyPublicId)}`
+      + `/crosses/${encodeURIComponent(crossPublicId)}/ai-adjustments`;
+  }
+
+  private interpretationUrl(companyPublicId: string, crossPublicId: string): string {
+    return `${this.apiUrl}/companies/${encodeURIComponent(companyPublicId)}`
+      + `/crosses/${encodeURIComponent(crossPublicId)}/ai-interpretation`;
   }
 
   /** Recalcula los cruces del puesto; devuelve cuántos quedaron. */

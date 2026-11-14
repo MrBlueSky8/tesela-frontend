@@ -1,0 +1,103 @@
+<section class="fc ai" aria-labelledby="ai-heading">
+  <div class="fc-hdr ai__hdr" id="ai-heading">
+    <i class="ti ti-sparkles" aria-hidden="true"></i>
+    Asistencia de IA
+  </div>
+
+  <!-- Lo que se anuncia a lectores de pantalla: la espera y el resultado. -->
+  <div aria-live="polite">
+    @if (loading()) {
+      <div class="ai__loading" role="status">
+        <span class="ts-spinner" aria-hidden="true"></span>
+        <span>
+          <strong>Analizando el puesto…</strong> Puede tardar hasta un minuto. Puedes seguir
+          revisando el formulario mientras tanto.
+        </span>
+      </div>
+    } @else if (suggestion(); as s) {
+      @if (hidden()) {
+        <p class="ai__hidden">
+          <span class="cell-sub">Propuesta de la IA oculta.</span>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="show.emit()">
+            Mostrar propuesta
+          </button>
+        </p>
+      } @else {
+        <div class="ai__summary" #summary tabindex="-1">
+          <p class="ai__title">
+            Propuesta de la IA
+            <span class="cell-sub">
+              · {{ s.modelo }} · {{ s.generadaEn | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+          </p>
+          <p class="ai__counts">
+            <span class="bdg bdg-blue">{{ s.areas.length - s.areasSinInformacion }} con nivel</span>
+            @if (s.areasSinInformacion > 0) {
+              <span class="bdg bdg-gray">{{ s.areasSinInformacion }} sin información</span>
+            }
+            <span class="bdg" [class.bdg-red]="s.avisoCriticas" [class.bdg-amber]="!s.avisoCriticas">
+              {{ s.areasCriticas }} {{ s.areasCriticas === 1 ? 'crítica' : 'críticas' }}
+            </span>
+          </p>
+        </div>
+
+        @if (s.avisoCriticas) {
+          <div class="alert alert-amber ai__alert" role="status">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            <span>
+              La IA propone {{ s.areasCriticas }} áreas críticas. La bolsa crítica pesa 50 % y una
+              incompatibilidad total en cualquiera de ellas veta el resultado. Confirma solo las que
+              sean determinantes para el desempeño mínimo del puesto.
+            </span>
+          </div>
+        }
+
+        @if (s.notaGeneral) {
+          <p class="ai__note">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>
+            <span>{{ s.notaGeneral }}</span>
+          </p>
+        }
+
+        <p class="cell-sub ai__how">
+          La propuesta aparece en cada área. La criticidad se acepta área por área. Nada se guarda
+          hasta que pulses «Guardar borrador».
+        </p>
+
+        <div class="ai__actions">
+          <button
+            class="btn btn-teal btn-sm"
+            type="button"
+            [disabled]="applicableLevels() === 0"
+            (click)="applyLevels.emit()"
+          >
+            <i class="ti ti-wand" aria-hidden="true"></i>
+            @if (applicableLevels() === 0) {
+              Sin áreas vacías que llenar
+            } @else {
+              Aplicar {{ applicableLevels() }} {{ applicableLevels() === 1 ? 'nivel' : 'niveles' }} a
+              las áreas vacías
+            }
+          </button>
+          <button class="btn btn-outline btn-sm" type="button" (click)="suggest.emit()">
+            <i class="ti ti-refresh" aria-hidden="true"></i>
+            Volver a sugerir
+          </button>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="hide.emit()">
+            Ocultar propuesta
+          </button>
+        </div>
+      }
+    } @else {
+      <p class="ai__intro">
+        La IA propone el nivel y la criticidad de las 30 áreas a partir de la descripción, las
+        tareas, la jornada, el entorno y el contexto del puesto. Es una sugerencia: tú revisas y
+        decides.
+      </p>
+      <button class="btn btn-teal btn-sm" type="button" (click)="suggest.emit()">
+        <i class="ti ti-sparkles" aria-hidden="true"></i>
+        Sugerir con IA
+      </button>
+    }
+  </div>
+</section>

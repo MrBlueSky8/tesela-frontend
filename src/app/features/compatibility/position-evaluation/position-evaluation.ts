@@ -3,25 +3,33 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of, switchMap } from 'rxjs';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import {
   CRITICALITY_HINTS,
   CRITICALITY_LABELS,
   LEARNING_CURVE_LABELS,
+  LEVEL_SOURCE_LABELS,
 } from '../../../core/helpers/methodology-labels';
 import {
+  AiAreaSuggestion,
+  AiLevelSuggestion,
   AreaCriticality,
   EvaluationAreaResponse,
   JobModality,
   LearningCurve,
+  LevelSource,
   PositionEvaluationFields,
   PositionEvaluationResponse,
+  SavePositionEvaluationRequest,
   WorkEnvironment,
 } from '../../../core/models/position-evaluation';
 import { CompanyContextService } from '../../../core/services/company-context-service';
 import { ToastService } from '../../../core/services/toast-service';
+import { AiAreaSuggestionCard } from '../ai-area-suggestion/ai-area-suggestion';
+import { nivelesParaAreasVacias } from '../ai-suggestion/ai-suggestion-rules';
+import { AiSuggestionPanel } from '../ai-suggestion-panel/ai-suggestion-panel';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
 /** Lo que el evaluador lleva puntuado en un área. */
@@ -47,7 +55,7 @@ interface PendingArea {
  */
 @Component({
   selector: 'app-position-evaluation',
-  imports: [ReactiveFormsModule, RouterLink, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe, AiSuggestionPanel, AiAreaSuggestionCard],
   templateUrl: './position-evaluation.html',
   styleUrl: './position-evaluation.scss',
 })
@@ -75,6 +83,46 @@ export class PositionEvaluation {
   readonly confirmingDiscard = signal(false);
   readonly confirmingReevaluate = signal(false);
   readonly isDiscarding = signal(false);
+
+  // --- Asistencia de IA (Hito 4). La IA propone; el borrador solo cambia al guardar.
+  readonly aiActiva = signal(false);
+  readonly sugerencia = signal<AiLevelSuggestion | null>(null);
+  readonly sugiriendo = signal(false);
+  readonly sugerenciaOculta = signal(false);
+  /** Áreas cuya propuesta el evaluador descartó en esta sesión. No se persiste. */
+  readonly descartadas = signal<ReadonlySet<number>>(new Set());
+  /** Sube con cada propuesta nueva: el panel mueve el foco al resumen. */
+  readonly sugerenciaFoco = signal(0);
+  readonly levelSourceLabels = LEVEL_SOURCE_LABELS;
+
+  /** Propuesta por orden de área, sin las descartadas. */
+  readonly propuestaPorArea = computed(() => {
+    const porArea = new Map<number, AiAreaSuggestion>();
+    const descartadas = this.descartadas();
+    for (const area of this.sugerencia()?.areas ?? []) {
+      if (!descartadas.has(area.areaOrden)) {
+        porArea.set(area.areaOrden, area);
+      }
+    }
+    return porArea;
+  });
+
+  /** Cuántas áreas vacías llenaría "Aplicar niveles". */
+  readonly nivelesAplicables = computed(() => {
+    const sugerencia = this.sugerencia();
+    return sugerencia
+      ? Object.keys(nivelesParaAreasVacias(this.draft(), sugerencia, this.descartadas())).length
+      : 0;
+  });
+
+  /** Origen guardado de cada área, para mostrarlo en modo lectura. */
+  readonly origenPorArea = computed(() => {
+    const origen = new Map<number, LevelSource>();
+    for (const area of this.evaluation()?.areas ?? []) {
+      origen.set(area.areaOrden, area.origen);
+    }
+    return origen;
+  });
 
   /** Niveles elegidos por área, indexados por orden. */
   readonly draft = signal<Record<number, AreaDraft>>({});
@@ -184,6 +232,7 @@ export class PositionEvaluation {
         this.fields.set(fields);
         this.setEvaluation(evaluation);
         this.initializeGroupExpansion();
+        this.cargarAsistenciaIa();
       },
       error: (error: unknown) => {
         this.isLoading.set(false);
@@ -211,6 +260,7 @@ export class PositionEvaluation {
         this.isSaving.set(false);
         this.setEvaluation(evaluation);
         this.initializeGroupExpansion();
+        this.cargarAsistenciaIa();
         this.toast.info(evaluation.editable
           ? 'Evaluación abierta. Puedes completarla en varias sesiones.'
           : `Este puesto ya tiene un borrador abierto por ${evaluation.evaluadorNombre}.`);
@@ -404,33 +454,22 @@ export class PositionEvaluation {
       return;
     }
 
-    const value = this.contextForm.getRawValue();
-    const areas = Object.entries(this.draft())
-      .filter(([, area]) => area.nivelExigencia !== null && area.criticidad !== null)
-      .map(([orden, area]) => ({
-        areaOrden: Number(orden),
-        nivelExigencia: area.nivelExigencia as number,
-        criticidad: area.criticidad as AreaCriticality,
-      }));
-
     const flag = publicar ? this.isPublishing : this.isSaving;
     flag.set(true);
+    const antes = this.draft();
     this.api
-      .savePositionEvaluation(company.publicId, evaluation.positionPublicId, evaluation.publicId, {
-        descripcionLibre: value.descripcionLibre.trim() || null,
-        notasEvaluador: value.notasEvaluador.trim() || null,
-        curvaAprendizaje: (value.curvaAprendizaje as LearningCurve) || null,
-        jornada: this.jornada(),
-        entorno: this.entorno(),
-        areas,
-      })
+      .savePositionEvaluation(company.publicId, evaluation.positionPublicId, evaluation.publicId, this.payload())
       .subscribe({
         next: (guardada) => {
           if (!publicar) {
             flag.set(false);
             this.setEvaluation(guardada);
+            const pendientes = this.conservarIncompletas(antes);
             this.toast.success(
-              `Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas.`,
+              `Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas.` +
+                (pendientes > 0
+                  ? ` ${pendientes} ${pendientes === 1 ? 'área queda' : 'áreas quedan'} en pantalla sin guardar hasta completar nivel y criticidad.`
+                  : ''),
             );
             return;
           }
@@ -442,6 +481,191 @@ export class PositionEvaluation {
           this.toast.error(backendErrorMessage(error, 'No pudimos guardar la evaluación.'));
         },
       });
+  }
+
+  /**
+   * El servidor solo guarda áreas completas (nivel y criticidad). Tras guardar,
+   * las que estaban a medias se devuelven a la pantalla: sin esto, un nivel
+   * aplicado desde la IA (o puesto a mano) sin criticidad desaparecía al guardar.
+   */
+  private conservarIncompletas(antes: Record<number, AreaDraft>): number {
+    const incompletas = Object.entries(antes).filter(
+      ([, area]) => (area.nivelExigencia === null) !== (area.criticidad === null),
+    );
+    if (incompletas.length === 0) {
+      return 0;
+    }
+    this.draft.update((current) => {
+      const next = { ...current };
+      for (const [orden, area] of incompletas) {
+        next[Number(orden)] ??= area;
+      }
+      return next;
+    });
+    return incompletas.length;
+  }
+
+  /** Lo que hay en pantalla, tal como se guarda. Solo van las áreas completas. */
+  private payload(): SavePositionEvaluationRequest {
+    const value = this.contextForm.getRawValue();
+    const areas = Object.entries(this.draft())
+      .filter(([, area]) => area.nivelExigencia !== null && area.criticidad !== null)
+      .map(([orden, area]) => ({
+        areaOrden: Number(orden),
+        nivelExigencia: area.nivelExigencia as number,
+        criticidad: area.criticidad as AreaCriticality,
+      }));
+    return {
+      descripcionLibre: value.descripcionLibre.trim() || null,
+      notasEvaluador: value.notasEvaluador.trim() || null,
+      curvaAprendizaje: (value.curvaAprendizaje as LearningCurve) || null,
+      jornada: this.jornada(),
+      entorno: this.entorno(),
+      areas,
+    };
+  }
+
+  // ------------------------------------------------------------ Asistencia IA
+
+  /**
+   * Estado de la IA y la última propuesta del borrador. Si algo falla, la IA
+   * se trata como no disponible: el formulario manual nunca se bloquea.
+   */
+  private cargarAsistenciaIa(): void {
+    const company = this.company();
+    const evaluation = this.evaluation();
+    this.limpiarSugerencia();
+    if (!company || !evaluation?.editable) {
+      this.aiActiva.set(false);
+      return;
+    }
+
+    forkJoin({
+      status: this.api.aiStatus().pipe(catchError(() => of({ activa: false, modelo: null }))),
+      sugerencia: this.api
+        .currentPositionSuggestion(company.publicId, evaluation.positionPublicId, evaluation.publicId)
+        .pipe(catchError(() => of(null))),
+    }).subscribe(({ status, sugerencia }) => {
+      // La respuesta puede llegar tarde: solo vale si sigue siendo el mismo borrador.
+      if (this.evaluation()?.publicId !== evaluation.publicId) {
+        return;
+      }
+      this.aiActiva.set(status.activa);
+      this.sugerencia.set(status.activa ? sugerencia : null);
+    });
+  }
+
+  /**
+   * Pide la propuesta. Primero guarda el borrador: el servidor lee de lo
+   * guardado la jornada, el entorno y el contexto que se envían a la IA.
+   */
+  onSugerir(): void {
+    const company = this.company();
+    const evaluation = this.evaluation();
+    if (!company || !evaluation?.editable || this.sugiriendo() || this.isSaving() || this.isPublishing()) {
+      return;
+    }
+
+    this.sugiriendo.set(true);
+    this.toast.info('Guardamos el borrador antes de consultar a la IA.');
+    const antes = this.draft();
+    this.api
+      .savePositionEvaluation(company.publicId, evaluation.positionPublicId, evaluation.publicId, this.payload())
+      .pipe(
+        switchMap((guardada) => {
+          this.setEvaluation(guardada);
+          this.conservarIncompletas(antes);
+          return this.api.suggestPositionLevels(company.publicId, guardada.positionPublicId, guardada.publicId);
+        }),
+      )
+      .subscribe({
+        next: (sugerencia) => {
+          this.sugiriendo.set(false);
+          this.sugerencia.set(sugerencia);
+          this.sugerenciaOculta.set(false);
+          this.descartadas.set(new Set());
+          this.sugerenciaFoco.update((n) => n + 1);
+          this.toast.success('La IA preparó una propuesta. Revísala área por área.');
+        },
+        error: (error: unknown) => {
+          this.sugiriendo.set(false);
+          this.toast.error(this.mensajeErrorIa(error));
+        },
+      });
+  }
+
+  /** Nivel y criticidad de la IA: la confirmación explícita del área. */
+  aceptarSugerencia(orden: number): void {
+    const propuesta = this.propuestaPorArea().get(orden);
+    if (!this.editable() || !propuesta || propuesta.nivel === null) {
+      return;
+    }
+    this.draft.update((current) => ({
+      ...current,
+      [orden]: {
+        nivelExigencia: propuesta.nivel,
+        criticidad: propuesta.criticidad ?? current[orden]?.criticidad ?? null,
+      },
+    }));
+  }
+
+  /** Solo el nivel; la criticidad queda como estaba. */
+  aplicarSoloNivel(orden: number): void {
+    const propuesta = this.propuestaPorArea().get(orden);
+    if (propuesta?.nivel != null) {
+      this.setNivel(orden, propuesta.nivel);
+    }
+  }
+
+  /** Niveles en las áreas vacías. Nunca criticidades ni áreas ya puntuadas. */
+  aplicarNivelesVacios(): void {
+    const sugerencia = this.sugerencia();
+    if (!this.editable() || !sugerencia) {
+      return;
+    }
+    const niveles = nivelesParaAreasVacias(this.draft(), sugerencia, this.descartadas());
+    const cuantos = Object.keys(niveles).length;
+    this.draft.update((current) => {
+      const next = { ...current };
+      for (const [orden, nivel] of Object.entries(niveles)) {
+        next[Number(orden)] = { nivelExigencia: nivel, criticidad: current[Number(orden)]?.criticidad ?? null };
+      }
+      return next;
+    });
+    this.toast.info(
+      `${cuantos} ${cuantos === 1 ? 'nivel aplicado' : 'niveles aplicados'}. ` +
+        'Falta confirmar la criticidad de cada área y guardar.',
+    );
+  }
+
+  descartarSugerencia(orden: number): void {
+    this.descartadas.update((current) => new Set(current).add(orden));
+  }
+
+  ocultarPropuesta(): void {
+    this.sugerenciaOculta.set(true);
+  }
+
+  mostrarPropuesta(): void {
+    this.sugerenciaOculta.set(false);
+  }
+
+  private limpiarSugerencia(): void {
+    this.sugerencia.set(null);
+    this.sugerenciaOculta.set(false);
+    this.descartadas.set(new Set());
+  }
+
+  private mensajeErrorIa(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 503) {
+        return 'La asistencia de IA no está disponible en este momento. Puedes continuar manualmente.';
+      }
+      if (error.status === 502) {
+        return 'La IA no devolvió una propuesta válida. Puedes intentarlo de nuevo o continuar manualmente.';
+      }
+    }
+    return backendErrorMessage(error, 'No pudimos obtener la sugerencia de la IA.');
   }
 
   /** Publicar guarda primero: lo que se publica es siempre lo que está en pantalla. */

@@ -1,0 +1,60 @@
+<section class="fc aic" aria-labelledby="aic-heading">
+  <div class="fc-hdr aic__hdr" id="aic-heading">
+    <i class="ti ti-sparkles" aria-hidden="true"></i>
+    Contexto para la asistencia de IA
+  </div>
+
+  @if (editable()) {
+    <p class="fi-hint aic__intro">
+      La IA recibe este texto junto con cada puesto y cada cruce de esta empresa: sector, tipo de
+      puestos, condiciones generales de trabajo. <strong>No incluyas datos de personas.</strong>
+    </p>
+    <div class="fg">
+      <label class="fl" for="aic-text">Contexto de la empresa</label>
+      <textarea
+        class="fi"
+        id="aic-text"
+        rows="5"
+        [formControl]="control"
+        [class.invalid]="control.invalid"
+        [attr.maxlength]="max"
+        aria-describedby="aic-count"
+        placeholder="Ej.: Cadena de retail con centros de distribución propios. Los puestos operativos trabajan en turnos rotativos y usan EPP."
+      ></textarea>
+      <span class="fi-count" id="aic-count" [class.is-full]="length() >= max">
+        {{ length() }} / {{ max }}
+      </span>
+    </div>
+    <div class="aic__actions">
+      @if (changed()) {
+        <button class="btn btn-ghost btn-sm" type="button" (click)="onCancel()">Descartar cambios</button>
+      }
+      <button
+        class="btn btn-primary btn-sm"
+        type="button"
+        [disabled]="!changed() || control.invalid || isSaving()"
+        (click)="onSave()"
+      >
+        @if (isSaving()) {
+          <span class="ts-spinner" aria-hidden="true"></span>
+          Guardando...
+        } @else {
+          Guardar contexto
+        }
+      </button>
+    </div>
+  } @else {
+    @if (company().contextoIa; as texto) {
+      <p class="aic__text">{{ texto }}</p>
+    } @else {
+      <p class="cell-sub aic__text">Fundades aún no definió un contexto para esta empresa.</p>
+    }
+    <p class="fi-hint">
+      Lo define Fundades. La IA lo recibe junto con cada puesto y cada cruce de la empresa.
+    </p>
+  }
+
+  @if (company().contextoIaActualizadoEn; as cuando) {
+    <p class="cell-sub aic__stamp">Actualizado el {{ cuando | date: 'dd/MM/yyyy HH:mm' }}</p>
+  }
+</section>

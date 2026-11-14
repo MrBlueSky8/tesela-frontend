@@ -22,6 +22,7 @@ import { CompanyScopeService } from '../../../core/services/company-scope-servic
 import { TokenService } from '../../../core/services/token-service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyApiService } from '../company-api-service';
+import { CompanyAiContext } from '../company-ai-context/company-ai-context';
 import { COMPANY_FIELD_LIMITS, COMPANY_NUMBER_LIMITS, CompanyLimitedField } from '../company-field-limits';
 import { integerValidator } from '../../../core/helpers/number-validators';
 
@@ -52,7 +53,7 @@ type PendingConfirm = 'remove-logo' | 'toggle-status';
  */
 @Component({
   selector: 'app-company-profile',
-  imports: [ReactiveFormsModule, ConfirmDialog],
+  imports: [ReactiveFormsModule, ConfirmDialog, CompanyAiContext],
   templateUrl: './company-profile.html',
   styleUrl: './company-profile.scss',
 })
@@ -396,6 +397,11 @@ export class CompanyProfile {
         this.platformError.set(backendErrorMessage(error, 'No pudimos cambiar el estado.'));
       },
     });
+  }
+
+  /** El contexto para la IA se guarda aparte; la ficha refleja la respuesta. */
+  onAiContextUpdated(company: CompanyResponse): void {
+    this.applyCompany(company);
   }
 
   // ---------------------------------------------------------------- Internos

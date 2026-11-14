@@ -1,0 +1,41 @@
+.aas {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--ts-blue);
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-blue-light);
+}
+
+/* Sin datos: informa, pero no reclama atención. */
+.aas--empty {
+  border-color: var(--ts-border-2);
+  background: var(--ts-surface-alt);
+}
+
+.aas__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.aas__line > .ti {
+  color: var(--ts-blue);
+}
+
+.aas__state {
+  margin-left: auto;
+}
+
+.aas__why {
+  display: block;
+  margin: 4px 0 0;
+}
+
+.aas__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}

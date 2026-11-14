@@ -1,0 +1,161 @@
+<div class="rep">
+  <div class="rep__toolbar no-print">
+    <button class="btn btn-ghost btn-sm" type="button" (click)="volver()">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i> Volver
+    </button>
+    @if (cross()) {
+      <button class="btn btn-primary btn-sm" type="button" (click)="imprimir()">
+        <i class="ti ti-printer" aria-hidden="true"></i> Imprimir o guardar como PDF
+      </button>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="ts-loading" role="status">
+      <span class="ts-spinner" aria-hidden="true"></span>
+      Preparando el informe...
+    </div>
+  } @else if (loadError(); as error) {
+    <p class="alert alert-error" role="alert">
+      <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      <span>{{ error }}</span>
+    </p>
+  } @else if (cross(); as c) {
+    <article class="rep__doc" aria-labelledby="rep-title">
+      <!-- ================= Encabezado ================= -->
+      <header class="rep__header">
+        <h1 class="rep__title" id="rep-title">Informe de compatibilidad laboral</h1>
+        <dl class="rep__data">
+          <div><dt>Empresa</dt><dd>{{ company()?.nombre }}</dd></div>
+          <div><dt>Puesto</dt><dd>{{ c.puestoNombre }}</dd></div>
+          <div>
+            <dt>{{ c.modo === 'A' ? 'Perfil genérico' : 'Persona evaluada' }}</dt>
+            <dd>{{ c.contraparte }}</dd>
+          </div>
+          <div><dt>Calculado el</dt><dd>{{ c.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+          <div><dt>Emitido el</dt><dd>{{ emitidoEn | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+          <div><dt>Metodología</dt><dd>Matriz GAP {{ c.versionMatriz }} · reglas {{ c.versionReglas }}</dd></div>
+        </dl>
+        @if (c.desactualizado) {
+          <p class="alert alert-amber rep__alert" role="status">
+            <i class="ti ti-refresh-alert" aria-hidden="true"></i>
+            <span>Este cruce está desactualizado: la metodología cambió después de calcularlo.</span>
+          </p>
+        }
+        @if (iaPendiente()) {
+          <p class="alert alert-amber rep__alert no-print" role="status">
+            <i class="ti ti-sparkles" aria-hidden="true"></i>
+            <span>
+              Hay contenido de IA pendiente de revisión. No aparece en este informe hasta que se
+              apruebe en el detalle del cruce.
+            </span>
+          </p>
+        }
+      </header>
+
+      <!-- ================= 1. Alertas de seguridad ================= -->
+      @if (alertasSeguridad().length > 0) {
+        <section class="fc rep__section rep__danger" aria-labelledby="rep-s1">
+          <div class="fc-hdr" id="rep-s1">1. Alertas de seguridad</div>
+          <app-cross-alerts [alerts]="alertasSeguridad()" [emphasis]="true" />
+        </section>
+      }
+
+      <!-- ================= 2. Porcentaje y desglose ================= -->
+      <section class="fc rep__section" aria-labelledby="rep-s2">
+        <div class="fc-hdr" id="rep-s2">2. Porcentaje de compatibilidad</div>
+        <p class="rep__result">
+          <span class="rep__value">{{ c.valorMostrado }} %</span>
+          <span class="bdg" [class]="categoryBadges[c.categoria]">{{ c.categoriaEtiqueta }}</span>
+        </p>
+        <table class="rep__table">
+          <thead><tr><th>Bolsa</th><th>Peso</th><th>Promedio</th></tr></thead>
+          <tbody>
+            @for (b of bolsas(); track b.nombre) {
+              <tr><td>{{ b.nombre }}</td><td>{{ porcentaje(b.peso) }}</td><td>{{ redondear(b.promedio) }}</td></tr>
+            }
+          </tbody>
+        </table>
+        <p class="rep__line">
+          Puntaje ponderado: <strong>{{ redondear(c.puntaje) }}</strong>.
+          @if (c.techoIntervino) {
+            Se aplicó el techo de <strong>{{ c.techoAplicado }}</strong> por el peor grado en áreas críticas.
+          } @else {
+            El techo no limitó el resultado.
+          }
+          @if (c.vetoActivado) {
+            <strong>Veto activado</strong>: un área crítica quedó en incompatibilidad total.
+          }
+        </p>
+        @if (c.alertasNoEvaluadas.length > 0) {
+          <p class="cell-sub rep__line">
+            Algunas alertas dependen de datos de la persona (motivación, estado de salud, autocontrol)
+            y se evaluarán en la evaluación individual (Modo B):
+            {{ c.alertasNoEvaluadas.length }} sin evaluar.
+          </p>
+        }
+        @if (c.sinPerfilDeclarado) {
+          <p class="cell-sub rep__line">
+            No se declaró perfil de discapacidad: no se evaluaron las alertas por perfil.
+          </p>
+        }
+        @if (areasConBrecha().length > 0) {
+          <h2 class="rep__subtitle">Áreas con brecha</h2>
+          <table class="rep__table">
+            <thead><tr><th>Área</th><th>Criticidad</th><th>Exigencia</th><th>Capacidad</th><th>Grado</th></tr></thead>
+            <tbody>
+              @for (a of areasConBrecha(); track a.areaOrden) {
+                <tr>
+                  <td>{{ a.areaOrden }} · {{ a.areaNombre }}</td>
+                  <td>{{ criticalityLabels[a.criticidad] }}</td>
+                  <td>E{{ a.nivelExigencia }}</td>
+                  <td>C{{ a.nivelCapacidad }}</td>
+                  <td>{{ a.gradoEtiqueta }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+
+      <!-- Interpretación asistida por IA: solo si fue aprobada. -->
+      <app-cross-ai-interpretation
+        [companyPublicId]="company()!.publicId"
+        [crossPublicId]="crossPublicId"
+        [printMode]="true"
+      />
+
+      <!-- ================= 3. Alertas informativas ================= -->
+      <section class="fc rep__section" aria-labelledby="rep-s3">
+        <div class="fc-hdr" id="rep-s3">3. Alertas informativas</div>
+        @if (alertasInformativas().length > 0) {
+          <app-cross-alerts [alerts]="alertasInformativas()" />
+        } @else {
+          <p class="cell-sub">Este cruce no disparó alertas informativas.</p>
+        }
+      </section>
+
+      <!-- ================= 4. Ajustes razonables ================= -->
+      @if (ajustesAprobados()) {
+        <app-cross-ai-adjustments
+          [companyPublicId]="company()!.publicId"
+          [crossPublicId]="crossPublicId"
+          [printMode]="true"
+        />
+      } @else {
+        <section class="fc rep__section" aria-labelledby="rep-s4">
+          <div class="fc-hdr" id="rep-s4">4. Ajustes razonables</div>
+          <p class="cell-sub">
+            Aún no hay una propuesta de ajustes revisada y aprobada para este cruce.
+          </p>
+        </section>
+      }
+
+      <footer class="rep__footer">
+        Informe generado con ADAPTIA el {{ emitidoEn | date: 'dd/MM/yyyy HH:mm' }}. Los contenidos
+        marcados «Asistido por IA» fueron revisados y aprobados por una persona; ninguno constituye un
+        veredicto de contratación.
+      </footer>
+    </article>
+  }
+</div>

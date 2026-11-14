@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { backendErrorMessage } from '../../../core/helpers/backend-error-message';
 import {
@@ -8,6 +9,8 @@ import {
 import { CompatibilityCrossDetail } from '../../../core/models/compatibility-cross';
 import { ModalShell } from '../../../shared/components/modal-shell/modal-shell';
 import { CrossAlerts } from '../cross-alerts/cross-alerts';
+import { CrossAiAdjustments } from '../cross-ai-adjustments/cross-ai-adjustments';
+import { CrossAiInterpretation } from '../cross-ai-interpretation/cross-ai-interpretation';
 import { CompatibilityApiService } from '../compatibility-api-service';
 
 /**
@@ -19,7 +22,7 @@ import { CompatibilityApiService } from '../compatibility-api-service';
  */
 @Component({
   selector: 'app-cross-detail-dialog',
-  imports: [ModalShell, CrossAlerts],
+  imports: [ModalShell, CrossAlerts, CrossAiInterpretation, CrossAiAdjustments, RouterLink],
   templateUrl: './cross-detail-dialog.html',
   styleUrl: './cross-detail-dialog.scss',
 })

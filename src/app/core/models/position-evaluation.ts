@@ -3,8 +3,45 @@ import { EvaluationStatus } from './applicant';
 /** Criticidad del área: decide la bolsa, el veto y el techo del resultado. */
 export type AreaCriticality = 'NORMAL' | 'ALTA' | 'CRITICA';
 
-/** De dónde salió el nivel. Hasta el Hito 4 siempre es EVALUADOR. */
+/**
+ * De dónde salió el nivel. Lo decide el servidor al guardar, comparando con la
+ * última sugerencia de la IA: IA si coincide nivel y criticidad, IA_MODIFICADO
+ * si había propuesta y se cambió, EVALUADOR en el resto.
+ */
 export type LevelSource = 'EVALUADOR' | 'IA' | 'IA_MODIFICADO';
+
+/** Cuánto se apoya la sugerencia en la información del puesto. */
+export type AiConfidence = 'ALTA' | 'MEDIA' | 'BAJA';
+
+/** Espejo de GET /api/ai/status. */
+export interface AiStatus {
+  activa: boolean;
+  modelo: string | null;
+}
+
+/** Lo que la IA propone para un área. Nivel y criticidad nulos: no tuvo datos. */
+export interface AiAreaSuggestion {
+  areaOrden: number;
+  areaNombre: string;
+  nivel: number | null;
+  criticidad: AreaCriticality | null;
+  confianza: AiConfidence;
+  justificacion: string;
+}
+
+/** Espejo de methodology/dto/AiLevelSuggestionResponse. */
+export interface AiLevelSuggestion {
+  publicId: string;
+  modelo: string;
+  versionPrompt: string;
+  generadaEn: string;
+  notaGeneral: string | null;
+  areasCriticas: number;
+  /** La IA propone más áreas críticas que el umbral configurado. */
+  avisoCriticas: boolean;
+  areasSinInformacion: number;
+  areas: AiAreaSuggestion[];
+}
 
 export type LearningCurve = 'INMEDIATA' | 'CORTA' | 'MEDIA' | 'ALTA_Y_CONTINUA';
 

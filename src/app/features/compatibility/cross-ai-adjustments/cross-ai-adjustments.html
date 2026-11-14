@@ -1,0 +1,121 @@
+@if (!isLoading()) {
+  @let p = propuesta();
+  @if (printMode() ? p?.estado === 'APROBADA' : (p || acciones().generar || state()?.motivo)) {
+    <app-ai-output-frame
+      titulo="4. Ajustes razonables"
+      headingId="caj-heading"
+      [meta]="p"
+      [showStamp]="!draft()"
+      [printMode]="printMode()"
+    >
+      <div aria-live="polite">
+        @if (generating()) {
+          <div class="caj__loading" role="status">
+            <span class="ts-spinner" aria-hidden="true"></span>
+            <span>Preparando la propuesta de ajustes… puede tardar unos segundos.</span>
+          </div>
+        } @else if (draft(); as d) {
+          <!-- ===== Revisión humana: corregir texto o prioridad, o quitar ===== -->
+          @for (a of d.ajustes; track $index; let idx = $index) {
+            <div class="caj__edit">
+              <div class="caj__meta">
+                <span class="bdg bdg-blue">{{ typeLabels[a.tipo] }}</span>
+                <span class="cell-sub">{{ referenciaDe(a) }}</span>
+              </div>
+              <label class="fl" [attr.for]="'caj-t-' + idx">Ajuste {{ idx + 1 }}</label>
+              <textarea class="fi" [id]="'caj-t-' + idx" rows="2" [value]="a.ajuste"
+                        (input)="setTexto(idx, $event)"></textarea>
+              <div class="caj__edit-row">
+                <label class="fl" [attr.for]="'caj-p-' + idx">Prioridad</label>
+                <select class="fsel" [id]="'caj-p-' + idx" (change)="setPrioridad(idx, $event)">
+                  @for (pr of priorities; track pr) {
+                    <option [value]="pr" [selected]="a.prioridad === pr">{{ priorityLabels[pr] }}</option>
+                  }
+                </select>
+                <button class="btn btn-ghost btn-sm" type="button"
+                        [attr.aria-label]="'Quitar el ajuste ' + (idx + 1)" (click)="quitar(idx)">
+                  Quitar
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <p class="cell-sub">No quedan ajustes. Puedes aprobar la propuesta vacía o generar otra.</p>
+          }
+          <div class="fg">
+            <label class="fl" for="caj-nota">Nota general</label>
+            <textarea class="fi" id="caj-nota" rows="2" [value]="d.notaGeneral" (input)="setNota($event)"></textarea>
+          </div>
+          @if (errores().length > 0) {
+            <ul class="fi-err caj__errors" role="alert">
+              @for (e of errores(); track e) {
+                <li>{{ e }}</li>
+              }
+            </ul>
+          }
+        } @else if (p) {
+          <!-- ===== Lectura ===== -->
+          @if (ajustes().length > 0) {
+            <ol class="caj__list">
+              @for (a of ajustes(); track $index) {
+                <li class="caj__item">
+                  <div class="caj__meta">
+                    <span class="bdg" [class]="priorityBadges[a.prioridad]">{{ priorityLabels[a.prioridad] }}</span>
+                    <span class="bdg bdg-blue">{{ typeLabels[a.tipo] }}</span>
+                    <span class="cell-sub">{{ referenciaDe(a) }}</span>
+                  </div>
+                  <p class="caj__text">{{ a.ajuste }}</p>
+                  @if (a.justificacion) {
+                    <p class="cell-sub caj__why">{{ a.justificacion }}</p>
+                  }
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="cell-sub">No se proponen ajustes para este cruce.</p>
+          }
+          @if (p.notaGeneral) {
+            <p class="caj__nota"><strong>Nota:</strong> {{ p.notaGeneral }}</p>
+          }
+        } @else if (acciones().generar) {
+          <p class="caj__intro">
+            La IA puede proponer ajustes razonables a partir de las brechas y las alertas de este cruce,
+            tomando como referencia el catálogo de Fundades. Revisarás la propuesta antes de que forme
+            parte del informe.
+          </p>
+        } @else if (state()?.motivo; as motivo) {
+          <p class="cell-sub">{{ motivo }}</p>
+        }
+      </div>
+
+      <div class="caj__actions" frameActions>
+        @if (draft()) {
+          <button class="btn btn-ghost btn-sm" type="button" (click)="onCancelarEdicion()">Cancelar</button>
+          <button class="btn btn-primary btn-sm" type="button"
+                  [disabled]="saving() || errores().length > 0" (click)="onGuardarEdicion()">
+            Guardar cambios
+          </button>
+        } @else if (!generating()) {
+          @if (p && acciones().revisar) {
+            <button class="btn btn-outline btn-sm" type="button" (click)="onEditar()">
+              <i class="ti ti-pencil" aria-hidden="true"></i> Corregir
+            </button>
+            <button class="btn btn-teal btn-sm" type="button" [disabled]="saving()" (click)="onAprobar()">
+              <i class="ti ti-check" aria-hidden="true"></i> Aprobar
+            </button>
+          }
+          @if (acciones().generar) {
+            @if (p) {
+              <button class="btn btn-ghost btn-sm" type="button" (click)="onGenerar()">
+                <i class="ti ti-refresh" aria-hidden="true"></i> Generar de nuevo
+              </button>
+            } @else {
+              <button class="btn btn-teal btn-sm" type="button" (click)="onGenerar()">
+                <i class="ti ti-bulb" aria-hidden="true"></i> Proponer ajustes con IA
+              </button>
+            }
+          }
+        }
+      </div>
+    </app-ai-output-frame>
+  }
+}

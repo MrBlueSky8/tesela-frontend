@@ -1,0 +1,40 @@
+<section class="fc aof" [attr.aria-labelledby]="headingId()">
+  <div class="fc-hdr aof__hdr" [id]="headingId()">
+    <i class="ti ti-sparkles" aria-hidden="true"></i>
+    {{ titulo() }}
+    <span class="bdg bdg-blue aof__badge">Asistido por IA</span>
+    @if (meta(); as m) {
+      @if (m.estado === 'APROBADA') {
+        <span class="bdg bdg-green aof__state">Revisado</span>
+      } @else if (!printMode()) {
+        <span class="bdg bdg-amber aof__state">Pendiente de revisión</span>
+      }
+    }
+  </div>
+
+  <p class="cell-sub aof__disclaimer">
+    Ayuda a leer el resultado y a planificar apoyos. No es un veredicto de contratación: la decisión
+    es de las personas.
+  </p>
+
+  <ng-content />
+
+  @if (showStamp()) {
+    @if (meta(); as m) {
+      <p class="cell-sub aof__stamp">
+        Generado con IA ({{ m.modelo }}) el {{ m.generadaEn | date: 'dd/MM/yyyy HH:mm' }}
+        @if (m.solicitadaPor) { a pedido de {{ m.solicitadaPor }} }
+        @if (m.editada) { · corregido por el evaluador }
+        @if (m.estado === 'APROBADA') {
+          · revisado y aprobado
+          @if (m.aprobadaPor) { por {{ m.aprobadaPor }} }
+          el {{ m.aprobadaEn | date: 'dd/MM/yyyy HH:mm' }}
+        }
+      </p>
+    }
+  }
+
+  @if (!printMode()) {
+    <ng-content select="[frameActions]" />
+  }
+</section>

@@ -1,0 +1,26 @@
+.aic__hdr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aic__intro {
+  display: block;
+  margin: 0 0 10px;
+}
+
+.aic__text {
+  margin: 0 0 8px;
+  white-space: pre-line;
+}
+
+.aic__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.aic__stamp {
+  margin: 8px 0 0;
+}
