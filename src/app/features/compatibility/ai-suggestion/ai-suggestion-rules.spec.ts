@@ -9,6 +9,7 @@ function propuesta(areaOrden: number, nivel: number | null, criticidad: AiAreaSu
     criticidad,
     confianza: 'MEDIA',
     justificacion: 'Justificación.',
+    estado: nivel === null ? 'SIN_INFORMACION' : 'SUGERIDA',
   };
 }
 

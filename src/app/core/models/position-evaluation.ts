@@ -20,13 +20,19 @@ export interface AiStatus {
 }
 
 /** Lo que la IA propone para un área. Nivel y criticidad nulos: no tuvo datos. */
+/** De dónde sale la propuesta de un área o por qué falta (manual BlueBody). */
+export type AiSuggestionState = 'SUGERIDA' | 'REGLA' | 'SIN_INFORMACION' | 'SIN_CONSENSO' | 'NO_HABILITADA';
+
 export interface AiAreaSuggestion {
   areaOrden: number;
   areaNombre: string;
   nivel: number | null;
   criticidad: AreaCriticality | null;
   confianza: AiConfidence;
+  /** Cita textual del puesto, o la regla aplicada si el estado es REGLA. */
   justificacion: string;
+  /** Nulo en sugerencias anteriores al manual BlueBody. */
+  estado: AiSuggestionState | null;
 }
 
 /** Espejo de methodology/dto/AiLevelSuggestionResponse. */
