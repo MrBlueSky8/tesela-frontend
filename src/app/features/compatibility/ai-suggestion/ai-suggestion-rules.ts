@@ -40,9 +40,11 @@ export function estadoFrenteASugerencia(
 }
 
 /**
- * Niveles a aplicar en bloque: solo en áreas sin nivel y solo el nivel. La
- * criticidad nunca se aplica en bloque (la bolsa crítica pesa 50 % y tiene
- * veto: se confirma área por área), y lo que el evaluador ya puso no se pisa.
+ * Niveles a aplicar en bloque: solo en áreas sin nivel, solo el nivel y solo
+ * con confiabilidad alta o media. La criticidad nunca se aplica en bloque (la
+ * bolsa crítica pesa 50 % y tiene veto: se confirma área por área), lo que el
+ * evaluador ya puso no se pisa, y una propuesta de confiabilidad baja se
+ * decide de a una.
  *
  * @returns orden del área → nivel sugerido.
  */
@@ -53,7 +55,7 @@ export function nivelesParaAreasVacias(
 ): Record<number, number> {
   const niveles: Record<number, number> = {};
   for (const area of sugerencia.areas) {
-    if (area.nivel === null || descartadas.has(area.areaOrden)) {
+    if (area.nivel === null || area.confianza === 'BAJA' || descartadas.has(area.areaOrden)) {
       continue;
     }
     if ((draft[area.areaOrden]?.nivelExigencia ?? null) === null) {

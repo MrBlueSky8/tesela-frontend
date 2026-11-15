@@ -38,11 +38,21 @@ export const ADJUSTMENT_PRIORITY_BADGES: Record<AdjustmentPriority, string> = {
 
 export const ADJUSTMENT_PRIORITIES: AdjustmentPriority[] = ['ALTA', 'MEDIA', 'BAJA'];
 
-/** Confianza de una sugerencia de IA (escala del prototipo de Fundades). */
+/**
+ * Confiabilidad de una sugerencia de IA. La calcula el servidor: cita del
+ * puesto verificada, acuerdo entre corridas y precisión medida del área.
+ */
 export const CONFIDENCE_LABELS: Record<AiConfidence, string> = {
-  ALTA: 'confianza alta',
-  MEDIA: 'confianza media',
-  BAJA: 'confianza baja',
+  ALTA: 'Confiabilidad alta',
+  MEDIA: 'Confiabilidad media',
+  BAJA: 'Confiabilidad baja',
+};
+
+/** Qué hacer con una sugerencia según su confiabilidad. */
+export const CONFIDENCE_HINTS: Record<AiConfidence, string> = {
+  ALTA: 'Se apoya en el texto del puesto y las corridas de la IA coincidieron: basta una revisión rápida.',
+  MEDIA: 'Se apoya en el texto del puesto, pero conviene revisarla.',
+  BAJA: 'Orientativa: el texto no lo dice o la IA no fue consistente. Decídela tú.',
 };
 
 /** Origen del nivel de un área, para mostrarlo en modo lectura. */

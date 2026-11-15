@@ -12,6 +12,12 @@
   background: var(--ts-surface-alt);
 }
 
+/* Confiabilidad baja: orientativa, con borde neutro para no invitar a aceptarla sin mirar. */
+.aas--low {
+  border-color: var(--ts-border-2);
+  background: var(--ts-surface-alt);
+}
+
 .aas__line {
   display: flex;
   flex-wrap: wrap;

@@ -19,9 +19,19 @@ export interface AiStatus {
   modelo: string | null;
 }
 
-/** Lo que la IA propone para un área. Nivel y criticidad nulos: no tuvo datos. */
-/** De dónde sale la propuesta de un área o por qué falta (manual BlueBody). */
-export type AiSuggestionState = 'SUGERIDA' | 'REGLA' | 'SIN_INFORMACION' | 'SIN_CONSENSO' | 'NO_HABILITADA';
+/**
+ * De dónde sale la propuesta de un área (manual BlueBody v1.4): con cita del
+ * puesto, inferida por el tipo de puesto o fijada por una regla. Los tres
+ * últimos valores solo aparecen en sugerencias anteriores, cuando la IA podía
+ * dejar áreas sin propuesta.
+ */
+export type AiSuggestionState =
+  | 'SUGERIDA'
+  | 'INFERIDA'
+  | 'REGLA'
+  | 'SIN_INFORMACION'
+  | 'SIN_CONSENSO'
+  | 'NO_HABILITADA';
 
 export interface AiAreaSuggestion {
   areaOrden: number;
@@ -29,7 +39,7 @@ export interface AiAreaSuggestion {
   nivel: number | null;
   criticidad: AreaCriticality | null;
   confianza: AiConfidence;
-  /** Cita textual del puesto, o la regla aplicada si el estado es REGLA. */
+  /** Cita textual del puesto; la regla aplicada si es REGLA; el fundamento de la estimación si es INFERIDA. */
   justificacion: string;
   /** Nulo en sugerencias anteriores al manual BlueBody. */
   estado: AiSuggestionState | null;
@@ -45,7 +55,11 @@ export interface AiLevelSuggestion {
   areasCriticas: number;
   /** La IA propone más áreas críticas que el umbral configurado. */
   avisoCriticas: boolean;
+  /** Solo en sugerencias anteriores al manual v1.4. */
   areasSinInformacion: number;
+  confiabilidadAlta: number;
+  confiabilidadMedia: number;
+  confiabilidadBaja: number;
   areas: AiAreaSuggestion[];
 }
 

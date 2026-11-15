@@ -35,6 +35,9 @@
             @if (s.areasSinInformacion > 0) {
               <span class="bdg bdg-gray">{{ s.areasSinInformacion }} sin información</span>
             }
+            <span class="bdg bdg-green">{{ s.confiabilidadAlta ?? 0 }} confiabilidad alta</span>
+            <span class="bdg bdg-amber">{{ s.confiabilidadMedia ?? 0 }} media</span>
+            <span class="bdg bdg-gray">{{ s.confiabilidadBaja ?? 0 }} baja</span>
             <span class="bdg" [class.bdg-red]="s.avisoCriticas" [class.bdg-amber]="!s.avisoCriticas">
               {{ s.areasCriticas }} {{ s.areasCriticas === 1 ? 'crítica' : 'críticas' }}
             </span>
@@ -60,8 +63,9 @@
         }
 
         <p class="cell-sub ai__how">
-          La propuesta aparece en cada área. La criticidad se acepta área por área. Nada se guarda
-          hasta que pulses «Guardar borrador».
+          La propuesta aparece en cada área con su confiabilidad. La criticidad y las propuestas de
+          confiabilidad baja se deciden área por área. Nada se guarda hasta que pulses «Guardar
+          borrador».
         </p>
 
         <div class="ai__actions">
@@ -73,10 +77,10 @@
           >
             <i class="ti ti-wand" aria-hidden="true"></i>
             @if (applicableLevels() === 0) {
-              Sin áreas vacías que llenar
+              Sin áreas vacías con confiabilidad alta o media
             } @else {
-              Aplicar {{ applicableLevels() }} {{ applicableLevels() === 1 ? 'nivel' : 'niveles' }} a
-              las áreas vacías
+              Aplicar {{ applicableLevels() }} {{ applicableLevels() === 1 ? 'nivel' : 'niveles' }} de
+              confiabilidad alta o media a las áreas vacías
             }
           </button>
           <button class="btn btn-outline btn-sm" type="button" (click)="suggest.emit()">
@@ -91,8 +95,8 @@
     } @else {
       <p class="ai__intro">
         La IA propone el nivel y la criticidad de las 30 áreas a partir de la descripción, las
-        tareas, la jornada, el entorno y el contexto del puesto. Es una sugerencia: tú revisas y
-        decides.
+        tareas, la jornada, el entorno y el contexto del puesto. Cada propuesta indica su
+        confiabilidad: alta, media o baja. Es una sugerencia: tú revisas y decides.
       </p>
       <button class="btn btn-teal btn-sm" type="button" (click)="suggest.emit()">
         <i class="ti ti-sparkles" aria-hidden="true"></i>

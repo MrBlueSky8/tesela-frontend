@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 
 import {
+  CONFIDENCE_HINTS,
   CONFIDENCE_LABELS,
   CRITICALITY_LABELS,
 } from '../../../core/helpers/methodology-labels';
@@ -32,6 +33,7 @@ export class AiAreaSuggestionCard {
 
   readonly criticalityLabels = CRITICALITY_LABELS;
   readonly confidenceLabels = CONFIDENCE_LABELS;
+  readonly confidenceHints = CONFIDENCE_HINTS;
 
   readonly state = computed(() => estadoFrenteASugerencia(this.value(), this.suggestion()));
 

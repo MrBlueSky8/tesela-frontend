@@ -1,5 +1,5 @@
 @let s = suggestion();
-<div class="aas" [class.aas--empty]="s.nivel === null">
+<div class="aas" [class.aas--empty]="s.nivel === null" [class.aas--low]="s.nivel !== null && s.confianza === 'BAJA'">
   @if (s.nivel === null) {
     <p class="aas__line">
       <i class="ti ti-sparkles" aria-hidden="true"></i>
@@ -32,7 +32,16 @@
         } @else {
           · <span class="cell-sub">criticidad sin determinar</span>
         }
-        <span class="cell-sub"> · {{ confidenceLabels[s.confianza] }}</span>
+        ·
+        <span
+          class="bdg"
+          [class.bdg-green]="s.confianza === 'ALTA'"
+          [class.bdg-amber]="s.confianza === 'MEDIA'"
+          [class.bdg-gray]="s.confianza === 'BAJA'"
+          [attr.title]="confidenceHints[s.confianza]"
+        >
+          {{ confidenceLabels[s.confianza] }}
+        </span>
       </span>
 
       @switch (state()) {
@@ -49,12 +58,24 @@
       }
     </div>
 
-    @if (s.estado === 'REGLA') {
-      <p class="cell-sub aas__why">
-        <i class="ti ti-ruler-2" aria-hidden="true"></i> {{ s.justificacion }}
-      </p>
-    } @else {
-      <p class="cell-sub aas__why">«{{ s.justificacion }}»</p>
+    @switch (s.estado) {
+      @case ('REGLA') {
+        <p class="cell-sub aas__why">
+          <i class="ti ti-ruler-2" aria-hidden="true"></i> {{ s.justificacion }}
+        </p>
+      }
+      @case ('INFERIDA') {
+        <p class="cell-sub aas__why">
+          <i class="ti ti-bulb" aria-hidden="true"></i>
+          <strong>Inferido:</strong> el texto del puesto no menciona esta área. {{ s.justificacion }}
+        </p>
+      }
+      @default {
+        <p class="cell-sub aas__why">«{{ s.justificacion }}»</p>
+      }
+    }
+    @if (s.confianza === 'BAJA') {
+      <p class="cell-sub aas__why">{{ confidenceHints.BAJA }}</p>
     }
 
     @if (editable() && state() !== 'COINCIDE') {

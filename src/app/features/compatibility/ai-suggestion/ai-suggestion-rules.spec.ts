@@ -1,13 +1,18 @@
 import { AiAreaSuggestion, AiLevelSuggestion } from '../../../core/models/position-evaluation';
 import { estadoFrenteASugerencia, nivelesParaAreasVacias } from './ai-suggestion-rules';
 
-function propuesta(areaOrden: number, nivel: number | null, criticidad: AiAreaSuggestion['criticidad']): AiAreaSuggestion {
+function propuesta(
+  areaOrden: number,
+  nivel: number | null,
+  criticidad: AiAreaSuggestion['criticidad'],
+  confianza: AiAreaSuggestion['confianza'] = 'MEDIA',
+): AiAreaSuggestion {
   return {
     areaOrden,
     areaNombre: `Área ${areaOrden}`,
     nivel,
     criticidad,
-    confianza: 'MEDIA',
+    confianza,
     justificacion: 'Justificación.',
     estado: nivel === null ? 'SIN_INFORMACION' : 'SUGERIDA',
   };
@@ -23,6 +28,9 @@ function sugerencia(areas: AiAreaSuggestion[]): AiLevelSuggestion {
     areasCriticas: 0,
     avisoCriticas: false,
     areasSinInformacion: 0,
+    confiabilidadAlta: 0,
+    confiabilidadMedia: areas.length,
+    confiabilidadBaja: 0,
     areas,
   };
 }
@@ -69,6 +77,11 @@ describe('nivelesParaAreasVacias', () => {
 
   it('ignora las áreas sin información y las descartadas', () => {
     expect(nivelesParaAreasVacias({}, s, new Set([4]))).toEqual({ 1: 2, 2: 4 });
+  });
+
+  it('no aplica en bloque las propuestas de confiabilidad baja', () => {
+    const conBaja = sugerencia([propuesta(1, 2, 'NORMAL', 'ALTA'), propuesta(2, 3, 'NORMAL', 'BAJA')]);
+    expect(nivelesParaAreasVacias({}, conBaja)).toEqual({ 1: 2 });
   });
 
   it('un área con criticidad pero sin nivel también se considera vacía', () => {
