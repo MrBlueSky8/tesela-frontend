@@ -124,13 +124,13 @@ export interface PositionEvaluationFields {
   criticidad: AreaCriticality[];
 }
 
-/** Un área ya puntuada dentro de la evaluación. */
+/** Un área ya puntuada dentro de la evaluación. Sin criticidad: guardada a medias en el borrador. */
 export interface AreaLevel {
   areaPublicId: string;
   areaOrden: number;
   areaNombre: string;
   nivelExigencia: number;
-  criticidad: AreaCriticality;
+  criticidad: AreaCriticality | null;
   origen: LevelSource;
 }
 
@@ -171,7 +171,8 @@ export interface PositionEvaluationSummary {
 export interface AreaLevelRequest {
   areaOrden: number;
   nivelExigencia: number;
-  criticidad: AreaCriticality;
+  /** Opcional en el borrador; publicar exige las 30 completas. */
+  criticidad: AreaCriticality | null;
 }
 
 export interface SavePositionEvaluationRequest {

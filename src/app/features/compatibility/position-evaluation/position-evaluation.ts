@@ -464,11 +464,12 @@ export class PositionEvaluation {
           if (!publicar) {
             flag.set(false);
             this.setEvaluation(guardada);
-            const pendientes = this.conservarIncompletas(antes);
+            this.conservarSinNivel(antes);
+            const sinCriticidad = guardada.areas.filter((a) => a.criticidad === null).length;
             this.toast.success(
-              `Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas.` +
-                (pendientes > 0
-                  ? ` ${pendientes} ${pendientes === 1 ? 'área queda' : 'áreas quedan'} en pantalla sin guardar hasta completar nivel y criticidad.`
+              `Borrador guardado: ${guardada.areasRegistradas} de ${guardada.areasRequeridas} áreas completas.` +
+                (sinCriticidad > 0
+                  ? ` ${sinCriticidad} ${sinCriticidad === 1 ? 'área quedó guardada' : 'áreas quedaron guardadas'} con nivel y sin criticidad.`
                   : ''),
             );
             return;
@@ -484,13 +485,13 @@ export class PositionEvaluation {
   }
 
   /**
-   * El servidor solo guarda áreas completas (nivel y criticidad). Tras guardar,
-   * las que estaban a medias se devuelven a la pantalla: sin esto, un nivel
-   * aplicado desde la IA (o puesto a mano) sin criticidad desaparecía al guardar.
+   * El servidor guarda las áreas con nivel, tengan o no criticidad. Una
+   * criticidad elegida sin nivel no se puede guardar: se devuelve a la pantalla
+   * para que no desaparezca al guardar.
    */
-  private conservarIncompletas(antes: Record<number, AreaDraft>): number {
+  private conservarSinNivel(antes: Record<number, AreaDraft>): number {
     const incompletas = Object.entries(antes).filter(
-      ([, area]) => (area.nivelExigencia === null) !== (area.criticidad === null),
+      ([, area]) => area.nivelExigencia === null && area.criticidad !== null,
     );
     if (incompletas.length === 0) {
       return 0;
@@ -505,15 +506,15 @@ export class PositionEvaluation {
     return incompletas.length;
   }
 
-  /** Lo que hay en pantalla, tal como se guarda. Solo van las áreas completas. */
+  /** Lo que hay en pantalla, tal como se guarda: toda área con nivel, aunque le falte la criticidad. */
   private payload(): SavePositionEvaluationRequest {
     const value = this.contextForm.getRawValue();
     const areas = Object.entries(this.draft())
-      .filter(([, area]) => area.nivelExigencia !== null && area.criticidad !== null)
+      .filter(([, area]) => area.nivelExigencia !== null)
       .map(([orden, area]) => ({
         areaOrden: Number(orden),
         nivelExigencia: area.nivelExigencia as number,
-        criticidad: area.criticidad as AreaCriticality,
+        criticidad: area.criticidad,
       }));
     return {
       descripcionLibre: value.descripcionLibre.trim() || null,
@@ -574,7 +575,7 @@ export class PositionEvaluation {
       .pipe(
         switchMap((guardada) => {
           this.setEvaluation(guardada);
-          this.conservarIncompletas(antes);
+          this.conservarSinNivel(antes);
           return this.api.suggestPositionLevels(company.publicId, guardada.positionPublicId, guardada.publicId);
         }),
       )
