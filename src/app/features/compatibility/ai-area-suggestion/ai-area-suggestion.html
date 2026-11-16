@@ -58,11 +58,20 @@
       }
     </div>
 
+    @if (s.regla) {
+      <p class="cell-sub aas__why aas__rule">
+        <i class="ti ti-ruler-2" aria-hidden="true"></i>
+        <strong>Regla aplicada:</strong> {{ s.regla }}
+      </p>
+    }
     @switch (s.estado) {
       @case ('REGLA') {
-        <p class="cell-sub aas__why">
-          <i class="ti ti-ruler-2" aria-hidden="true"></i> {{ s.justificacion }}
-        </p>
+        <!-- Sugerencias anteriores al campo «regla»: la regla viene en la justificación. -->
+        @if (!s.regla) {
+          <p class="cell-sub aas__why aas__rule">
+            <i class="ti ti-ruler-2" aria-hidden="true"></i> {{ s.justificacion }}
+          </p>
+        }
       }
       @case ('INFERIDA') {
         <p class="cell-sub aas__why">
@@ -71,7 +80,7 @@
         </p>
       }
       @default {
-        <p class="cell-sub aas__why">«{{ s.justificacion }}»</p>
+        <p class="cell-sub aas__why aas__quote"><strong>Cita del puesto:</strong> «{{ s.justificacion }}»</p>
       }
     }
     @if (s.confianza === 'BAJA') {

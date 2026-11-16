@@ -43,6 +43,12 @@ export interface AiAreaSuggestion {
   justificacion: string;
   /** Nulo en sugerencias anteriores al manual BlueBody. */
   estado: AiSuggestionState | null;
+  /**
+   * Reglas de jornada o entorno que intervinieron en el área, también cuando solo
+   * confirman el nivel de la IA (entonces `justificacion` sigue siendo la cita).
+   * Ausente en sugerencias anteriores a este campo.
+   */
+  regla?: string | null;
 }
 
 /** Espejo de methodology/dto/AiLevelSuggestionResponse. */
