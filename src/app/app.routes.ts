@@ -51,7 +51,7 @@ export const routes: Routes = [
     canActivate: [guestGuard],
   },
   {
-    // Fuera del layout: con la contrasena temporal no se navega por la app.
+    // Fuera del layout: con la contrasena temporal no se navega por la app.sd
     path: 'change-password',
     component: ChangePassword,
     canActivate: [authGuard, passwordChangePendingGuard],
